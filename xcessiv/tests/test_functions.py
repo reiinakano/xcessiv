@@ -4,6 +4,7 @@ import unittest
 import os
 from xcessiv import functions
 from sklearn.datasets import load_digits
+import pickle
 
 
 filepath = os.path.join(os.path.dirname(__file__),
@@ -23,6 +24,19 @@ class TestImportObjectFromPath(unittest.TestCase):
         returned_object = functions.import_object_from_path(filepath,
                                                             "extract_main_dataset")
         assert callable(returned_object)
+
+        pickle.loads(pickle.dumps(returned_object))  # make sure pickle works
+
+
+class TestImportObjectFromStringCode(unittest.TestCase):
+    def test_import_object_from_string_code(self):
+        with open(filepath) as f:
+            returned_object = functions.\
+                import_object_from_string_code(f.read(), "extract_main_dataset")
+
+        assert callable(returned_object)
+
+        pickle.loads(pickle.dumps(returned_object))  # make sure pickle works
 
 
 class TestVerifyMainDatasetExtraction(unittest.TestCase):
