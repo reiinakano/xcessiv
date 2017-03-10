@@ -41,3 +41,36 @@ def return_train_data_from_json(input_json):
         )
 
     return X, y
+
+
+def return_test_data_from_json(input_json):
+    """Returns train data set from input JSON
+
+    Args:
+        input_json (dict): "Extraction" dictionary
+
+    Returns:
+        X (numpy.ndarray): Features
+
+        y (numpy.ndarray): Labels
+    """
+    if input_json['test_dataset']['method'] == 'split_from_main':
+        extraction_code = "".join(input_json['main_dataset']["source"])
+        extraction_function = import_object_from_string_code(extraction_code,
+                                                             "extract_main_dataset")
+        X, y = extraction_function()
+        X, X_test, y, y_test = train_test_split(
+            X,
+            y,
+            test_size=input_json['test_dataset']['split_ratio'],
+            random_state=input_json['test_dataset']['split_seed'],
+            stratify=y
+        )
+
+    elif input_json['test_dataset']['method'] == 'source':
+        extraction_code = "".join(input_json['test_dataset']["source"])
+        extraction_function = import_object_from_string_code(extraction_code,
+                                                             "extract_test_dataset")
+        X_test, y_test = extraction_function()
+
+    return X_test, y_test

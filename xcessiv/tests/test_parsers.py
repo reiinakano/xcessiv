@@ -57,3 +57,47 @@ class TestReturnTrainDataFromJSON(unittest.TestCase):
         X, y = parsers.return_train_data_from_json(self.extraction_input)
         assert X.shape == (1455, 64)
         assert y.shape == (1455,)
+
+
+class TestReturnTestDataFromJSON(unittest.TestCase):
+    def setUp(self):
+        self.extraction_input = {
+            "main_dataset": {
+                "source":
+                    [
+                        "from sklearn.datasets import load_digits\n",
+                        "\n",
+                        "\n",
+                        "def extract_main_dataset():\n",
+                        "    X, y = load_digits(return_X_y=True)\n",
+                        "    return X, y"
+                    ]
+            },
+            "test_dataset": {
+                "method": "split_from_main",
+                "split_ratio": 0.1,
+                "split_seed": 8
+            },
+            "meta_feature_generation": {
+                "method": "cv",
+                "seed": 8,
+                "folds": 5
+            }
+        }
+
+    def test_split_main_for_test(self):
+        X, y = parsers.return_test_data_from_json(self.extraction_input)
+        assert X.shape == (180, 64)
+        assert y.shape == (180,)
+
+    def test_test_dataset_from_source(self):
+        self.extraction_input["test_dataset"]["method"] = "source"
+        self.extraction_input["test_dataset"]["source"] = [
+            "from sklearn.datasets import load_digits\n",
+            "def extract_test_dataset():\n",
+            "    X, y = load_digits(return_X_y=True)\n",
+            "    return X, y"
+        ]
+        X, y = parsers.return_test_data_from_json(self.extraction_input)
+        assert X.shape == (1797, 64)
+        assert y.shape == (1797,)
