@@ -44,7 +44,7 @@ class TestVerifyMainDatasetExtraction(unittest.TestCase):
         def extract_main_dataset():
             X, y = load_digits(return_X_y=True)
             return X, y
-        X_shape, y_shape = functions.verify_main_dataset_extraction_function(
+        X_shape, y_shape = functions.verify_dataset_extraction_function(
             extract_main_dataset
         )
         assert X_shape == (1797,64)
@@ -54,17 +54,17 @@ class TestVerifyMainDatasetExtraction(unittest.TestCase):
         def extract_wrong_dataset():
             return [[1, 2, 2], [2, 3, 5]], [1, 2, 3]
         self.assertRaises(AssertionError,
-                          functions.verify_main_dataset_extraction_function,
+                          functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)
 
         def extract_wrong_dataset():
             return [[1, 2, 2], [2, 3, 5]], [[1, 2, 3]]
         self.assertRaises(AssertionError,
-                          functions.verify_main_dataset_extraction_function,
+                          functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)
 
         def extract_wrong_dataset():
             return [[[1, 2, 2]], [[2, 3, 5]]], [1, 2, 3]
         self.assertRaises(AssertionError,
-                          functions.verify_main_dataset_extraction_function,
+                          functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)

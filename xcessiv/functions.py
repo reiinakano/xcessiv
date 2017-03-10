@@ -23,6 +23,11 @@ def hash_file(path, block_size=65536):
     return sha256.hexdigest()
 
 
+def hash_string(string):
+    """Hashes an input string using SHA256"""
+    return hashlib.sha256(string).hexdigest()
+
+
 def import_object_from_path(path, object):
     """Used to import an object from an absolute path.
 
@@ -56,10 +61,10 @@ def import_object_from_string_code(code, object):
     return getattr(module, object)
 
 
-def verify_main_dataset_extraction_function(function):
-    """Verify main dataset extraction function
+def verify_dataset_extraction_function(function):
+    """Verify a dataset extraction function
 
-    Used to verify main dataset extraction function by returning shape and basic
+    Used to verify a dataset extraction function by returning shape and basic
     statistics of returned data. This will also provide quick and dirty check
     on capability of host machine to process the data
 
@@ -90,7 +95,7 @@ if __name__ == '__main__':
                             'tests/extractmaindataset.py')
     rf_filepath = os.path.join(os.path.dirname(__file__),
                                'tests/myrf.py')
-    print(verify_main_dataset_extraction_function(
+    print(verify_dataset_extraction_function(
         import_object_from_path(filepath,'extract_main_dataset')
     ))
     print(hash_file(filepath))
