@@ -115,7 +115,7 @@ def return_holdout_data_from_json(input_json):
 
         return X_holdout, y_holdout
 
-    if input_json['meta_feature_generation']['method'] == 'source':
+    if input_json['meta_feature_generation']['method'] == 'holdout_source':
         extraction_code = "".join(input_json['meta_feature_generation']["source"])
         extraction_function = import_object_from_string_code(extraction_code,
                                                              "extract_holdout_dataset")

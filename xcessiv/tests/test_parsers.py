@@ -141,7 +141,7 @@ class TestReturnHoldoutDataFromJSON(unittest.TestCase):
         assert y.shape == (162,)
 
     def test_holdout_dataset_from_source(self):
-        self.extraction_input["meta_feature_generation"]["method"] = "source"
+        self.extraction_input["meta_feature_generation"]["method"] = "holdout_source"
         self.extraction_input["meta_feature_generation"]["source"] = [
             "from sklearn.datasets import load_digits\n",
             "def extract_holdout_dataset():\n",
