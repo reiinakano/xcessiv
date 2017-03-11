@@ -41,18 +41,18 @@ class TestReturnTrainDataFromJSON(unittest.TestCase):
         assert X.shape == (1617, 64)
         assert y.shape == (1617,)
 
-    def test_split_main_for_blend(self):
-        self.extraction_input['meta_feature_generation']['method'] = 'blend_split'
+    def test_split_main_for_holdout(self):
+        self.extraction_input['meta_feature_generation']['method'] = 'holdout_split'
         self.extraction_input['meta_feature_generation']['split_ratio'] = 0.1
         X, y = parsers.return_train_data_from_json(self.extraction_input)
         assert X.shape == (1617, 64)
         assert y.shape == (1617,)
 
-    def test_split_main_for_test_and_blend(self):
+    def test_split_main_for_test_and_holdout(self):
         self.extraction_input['test_dataset']['method'] = 'split_from_main'
         self.extraction_input['test_dataset']['split_ratio'] = 0.1
         self.extraction_input['test_dataset']['split_seed'] = 8
-        self.extraction_input['meta_feature_generation']['method'] = 'blend_split'
+        self.extraction_input['meta_feature_generation']['method'] = 'holdout_split'
         self.extraction_input['meta_feature_generation']['split_ratio'] = 0.1
         X, y = parsers.return_train_data_from_json(self.extraction_input)
         assert X.shape == (1455, 64)
@@ -99,5 +99,55 @@ class TestReturnTestDataFromJSON(unittest.TestCase):
             "    return X, y"
         ]
         X, y = parsers.return_test_data_from_json(self.extraction_input)
+        assert X.shape == (1797, 64)
+        assert y.shape == (1797,)
+
+
+class TestReturnHoldoutDataFromJSON(unittest.TestCase):
+    def setUp(self):
+        self.extraction_input = {
+            "main_dataset": {
+                "source":
+                    [
+                        "from sklearn.datasets import load_digits\n",
+                        "\n",
+                        "\n",
+                        "def extract_main_dataset():\n",
+                        "    X, y = load_digits(return_X_y=True)\n",
+                        "    return X, y"
+                    ]
+            },
+            "test_dataset": {
+                "method": None
+            },
+            "meta_feature_generation": {
+                "method": "holdout_split",
+                "seed": 8,
+                "split_ratio": 0.1
+            }
+        }
+
+    def test_split_train_for_holdout(self):
+        X, y = parsers.return_holdout_data_from_json(self.extraction_input)
+        assert X.shape == (180, 64)
+        assert y.shape == (180,)
+
+    def test_split_train_for_holdout_with_split_test(self):
+        self.extraction_input['test_dataset']['method'] = 'split_from_main'
+        self.extraction_input['test_dataset']['split_ratio'] = 0.1
+        self.extraction_input['test_dataset']['split_seed'] = 8
+        X, y = parsers.return_holdout_data_from_json(self.extraction_input)
+        assert X.shape == (162, 64)
+        assert y.shape == (162,)
+
+    def test_holdout_dataset_from_source(self):
+        self.extraction_input["meta_feature_generation"]["method"] = "source"
+        self.extraction_input["meta_feature_generation"]["source"] = [
+            "from sklearn.datasets import load_digits\n",
+            "def extract_holdout_dataset():\n",
+            "    X, y = load_digits(return_X_y=True)\n",
+            "    return X, y"
+        ]
+        X, y = parsers.return_holdout_data_from_json(self.extraction_input)
         assert X.shape == (1797, 64)
         assert y.shape == (1797,)
