@@ -1,6 +1,5 @@
 """The functions in this module parse JSON inputs from an Xcessiv notebook"""
-from __future__ import absolute_import, print_function,\
-    nested_scopes, generators, division, with_statement, unicode_literals
+from __future__ import absolute_import, print_function, division, unicode_literals
 from sklearn.model_selection import train_test_split
 from xcessiv.functions import import_object_from_string_code
 
