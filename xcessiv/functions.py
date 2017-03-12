@@ -7,9 +7,8 @@ import hashlib
 import numpy as np
 from six import exec_
 from sklearn.datasets import load_iris
-from sklearn.preprocessing import label_binarize
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score, roc_auc_score
+from sklearn.metrics import accuracy_score
 
 
 def hash_file(path, block_size=65536):
