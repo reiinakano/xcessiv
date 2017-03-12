@@ -6,6 +6,10 @@ import os
 import hashlib
 import numpy as np
 from six import exec_
+from sklearn.datasets import load_iris
+from sklearn.preprocessing import label_binarize
+from sklearn.model_selection import StratifiedKFold
+from sklearn.metrics import accuracy_score, roc_auc_score
 
 
 def hash_file(path, block_size=65536):
@@ -90,28 +94,47 @@ def verify_dataset_extraction_function(function):
     return X_shape, y_shape
 
 
-if __name__ == '__main__':
-    filepath = os.path.join(os.path.dirname(__file__),
-                            'tests/extractmaindataset.py')
-    rf_filepath = os.path.join(os.path.dirname(__file__),
-                               'tests/myrf.py')
-    print(verify_dataset_extraction_function(
-        import_object_from_path(filepath,'extract_main_dataset')
-    ))
-    print(hash_file(filepath))
+def verify_estimator_class(cls, **params):
+    """Verify an estimator class by testing its performance on Iris
 
-    extraction_func = import_object_from_path(filepath,'extract_main_dataset')
-    rf_class = import_object_from_path(rf_filepath, 'MyClassifier')
-    X, y = extraction_func()
-    a = rf_class().fit(X, y)
-    print(a.score(X, y))
-    print(rf_class, extraction_func)
+    Verification of essential methods for xcessiv is also done using
+    `hasattr`.
 
-    my_code = """from sklearn.datasets import load_digits
-def extract_main_dataset():
-    X, y = load_digits(return_X_y=True)
-    return X, y"""
-    func = import_object_from_string_code(my_code, 'extract_main_dataset')
-    print(func)
-    import pickle
-    pickle.loads(pickle.dumps(func))
+    Args:
+        cls (class): Estimator class with `fit`, `predict`/`predict_proba`,
+            `get_params`, and `set_params` methods.
+
+        params (mapping): Dictionary used to set parameters of the
+            estimator.
+
+    Returns:
+        performance_dict (mapping): Mapping from performance metric
+            name to performance metric value e.g. "Accuracy": 0.963
+    """
+    X, y = load_iris(return_X_y=True)
+
+    if not params:
+        clf = cls()  # Use default params
+    else:
+        clf = cls().set_params(**params)
+
+    assert hasattr(clf, "get_params")
+    assert hasattr(clf, "set_params")
+
+    performance_dict = dict()
+    performance_dict['has_predict_proba'] = hasattr(clf, 'predict_proba')
+    performance_dict['has_decision_function'] = hasattr(clf, 'decision_function')
+
+    true_labels = []
+    preds = []
+    for train_index, test_index in StratifiedKFold().split(X, y):
+        X_train, X_test = X[train_index], X[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        clf.fit(X_train, y_train)
+        true_labels.append(y_test)
+        preds.append(clf.predict(X_test))
+    true_labels = np.concatenate(true_labels)
+    preds = np.concatenate(preds)
+    performance_dict['Accuracy'] = accuracy_score(true_labels, preds)
+
+    return performance_dict

@@ -2,8 +2,11 @@ from __future__ import absolute_import, print_function,\
     nested_scopes, generators, division, with_statement, unicode_literals
 import unittest
 import os
+import numpy as np
 from xcessiv import functions
 from sklearn.datasets import load_digits
+from sklearn.svm import SVC
+from sklearn.ensemble import RandomForestClassifier
 import pickle
 
 
@@ -68,3 +71,28 @@ class TestVerifyMainDatasetExtraction(unittest.TestCase):
         self.assertRaises(AssertionError,
                           functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)
+
+
+class TestVerifyEstimatorClass(unittest.TestCase):
+    def test_verify_estimator_class(self):
+        np.random.seed(8)
+        performance_dict = functions.verify_estimator_class(RandomForestClassifier)
+        assert round(performance_dict['Accuracy'], 3) == 0.953
+        assert performance_dict['has_predict_proba']
+        assert not performance_dict['has_decision_function']
+
+    def test_verify_estimator_class_with_params(self):
+        np.random.seed(8)
+        performance_dict = functions.verify_estimator_class(RandomForestClassifier,
+                                                            n_estimators=100,
+                                                            random_state=8)
+        assert round(performance_dict['Accuracy'], 3) == 0.967
+        assert performance_dict['has_predict_proba']
+        assert not performance_dict['has_decision_function']
+
+    def test_estimator_with_decision_function(self):
+        np.random.seed(8)
+        performance_dict = functions.verify_estimator_class(SVC)
+        assert round(performance_dict['Accuracy'], 3) == 0.973
+        assert performance_dict['has_decision_function']
+        assert not performance_dict['has_predict_proba']
