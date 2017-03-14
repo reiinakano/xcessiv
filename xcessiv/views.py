@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
-from flask import request, jsonify
-from xcessiv import app, constants
+from flask import request, jsonify, abort
+from xcessiv import app, constants, functions
 
 
 def my_message(message, code=200):
@@ -25,3 +25,20 @@ def create_new_ensemble():
         f.write(constants.DEFAULT_NOTEBOOK)
 
     return my_message("Xcessiv notebook created")
+
+
+@app.route('/ensemble/extraction/main-dataset/<path:path>/', methods=['GET', 'PATCH'])
+def main_dataset_source(path):
+    try:
+        xcnb = functions.read_xcnb(path)
+    except IOError:
+        abort(404)
+
+    if request.method == 'GET':
+        return jsonify(xcnb["extraction"]["main_dataset"])
+
+    if request.method == 'PATCH':
+        req_body = request.get_json()
+        xcnb["extraction"]["main_dataset"]["source"] = req_body["source"]
+        functions.write_xcnb(path, xcnb)
+        return my_message("Updated main dataset extraction")

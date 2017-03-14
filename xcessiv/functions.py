@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import imp
 import sys
-import os
+import json
 import hashlib
 import numpy as np
 from six import exec_
@@ -136,3 +136,29 @@ def verify_estimator_class(cls, **params):
     performance_dict['Accuracy'] = accuracy_score(true_labels, preds)
 
     return performance_dict
+
+
+def read_xcnb(location):
+    """Reads Xcessiv notebook from given location and returns JSON
+
+    Args:
+        location (string): location of notebook
+
+    Returns:
+        xcnb (dict): Returns dict represented by xcnb JSON
+    """
+    with open(location) as f:
+        xcnb = json.load(f)
+        return xcnb
+
+
+def write_xcnb(location, xcnb_dict):
+    """Writes Xcessiv notebook into location
+
+    Args:
+        location (string): location of notebook
+
+        xcnb_dict (dict): Dictionary representing xcnb JSON
+    """
+    with open(location, 'w') as f:
+        json.dump(xcnb_dict, f, sort_keys=True, indent=1)
