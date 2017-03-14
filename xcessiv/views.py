@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 from flask import request, jsonify
-from xcessiv import app
+from xcessiv import app, constants
 
 
 def my_message(message, code=200):
@@ -22,6 +22,6 @@ def create_new_ensemble():
     os.makedirs(location)
     xcessiv_notebook_path = os.path.join(location, ensemble_name + ".xcnb")
     with open(xcessiv_notebook_path, mode='w') as f:
-        f.write('Hello world')
+        f.write(constants.DEFAULT_NOTEBOOK)
 
     return my_message("Xcessiv notebook created")
