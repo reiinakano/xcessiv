@@ -81,3 +81,33 @@ def extraction_meta_feature_generation(path):
             xcnb['extraction']['meta_feature_generation'][key] = value
         functions.write_xcnb(path, xcnb)
         return my_message("Updated meta-feature generation")
+
+
+@app.route('/ensemble/extraction/main-dataset/verify/<path:path>/', methods=['GET'])
+def verify_extraction_main_dataset(path):
+    try:
+        xcnb = functions.read_xcnb(path)
+    except IOError:
+        abort(404)
+
+    if not xcnb['extraction']['main_dataset']['source']:
+        return my_message('Source is empty', 400)
+
+    source = "".join(xcnb['extraction']['main_dataset']['source'])
+
+    extraction_func = functions.import_object_from_string_code(source,
+                                                               "extract_main_dataset")
+
+    try:
+        X_shape, y_shape = functions.verify_dataset_extraction_function(extraction_func)
+    except Exception as e:
+        response = jsonify(dict(message='User code exception', error=str(e)))
+        response.status_code=400
+        return response
+
+    return jsonify(
+        dict(
+            features_shape=X_shape,
+            labels_shape=y_shape
+        )
+    )
