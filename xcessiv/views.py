@@ -97,6 +97,6 @@ def verify_extraction_test_dataset(path):
     if xcnb['extraction']['test_dataset']['method'] is None:
         raise exceptions.UserError('Xcessiv is not configured to use a test dataset')
 
-    X_train, y_train = parsers.return_test_data_from_json(xcnb['extraction'])
+    X_test, y_test = parsers.return_test_data_from_json(xcnb['extraction'])
 
-    X_shape, y_shape = X_train
+    return jsonify(functions.verify_dataset(X_test, y_test))
