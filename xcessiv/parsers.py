@@ -92,6 +92,10 @@ def return_test_data_from_json(input_json):
         return X_test, y_test
 
     if input_json['test_dataset']['method'] == 'source':
+        if 'source' not in input_json['test_dataset'] or \
+                not input_json['test_dataset']['source']:
+            raise exceptions.UserError('Source is empty')
+
         extraction_code = "".join(input_json['test_dataset']["source"])
         extraction_function = import_object_from_string_code(extraction_code,
                                                              "extract_test_dataset")
@@ -134,6 +138,10 @@ def return_holdout_data_from_json(input_json):
         return X_holdout, y_holdout
 
     if input_json['meta_feature_generation']['method'] == 'holdout_source':
+        if 'source' not in input_json['meta_feature_generation'] or \
+                not input_json['meta_feature_generation']['source']:
+            raise exceptions.UserError('Source is empty')
+
         extraction_code = "".join(input_json['meta_feature_generation']["source"])
         extraction_function = import_object_from_string_code(extraction_code,
                                                              "extract_holdout_dataset")

@@ -100,3 +100,17 @@ def verify_extraction_test_dataset(path):
     X_test, y_test = parsers.return_test_data_from_json(xcnb['extraction'])
 
     return jsonify(functions.verify_dataset(X_test, y_test))
+
+
+@app.route('/ensemble/extraction/meta-feature-generation/verify/<path:path>/',
+           methods=['GET'])
+def verify_extraction_meta_feature_generation(path):
+    xcnb = functions.read_xcnb(path)
+
+    if xcnb['extraction']['meta_feature_generation']['method'] == 'cv':
+        raise exceptions.UserError('Xcessiv will use cross-validation to'
+                                   ' generate meta-features')
+
+    X_holdout, y_holdout = parsers.return_holdout_data_from_json(xcnb['extraction'])
+
+    return jsonify(functions.verify_dataset(X_holdout, y_holdout))
