@@ -151,9 +151,12 @@ def read_xcnb(location):
     Returns:
         xcnb (dict): Returns dict represented by xcnb JSON
     """
-    with open(location) as f:
-        xcnb = json.load(f)
-        return xcnb
+    try:
+        with open(location) as f:
+            xcnb = json.load(f)
+            return xcnb
+    except IOError as e:
+        raise exceptions.UserError("Error opening file", exception_message=str(e))
 
 
 def write_xcnb(location, xcnb_dict):
@@ -164,5 +167,8 @@ def write_xcnb(location, xcnb_dict):
 
         xcnb_dict (dict): Dictionary representing xcnb JSON
     """
-    with open(location, 'w') as f:
-        json.dump(xcnb_dict, f, sort_keys=True, indent=1)
+    try:
+        with open(location, 'w') as f:
+            json.dump(xcnb_dict, f, sort_keys=True, indent=1)
+    except Exception as e:
+        raise exceptions.UserError("Error writing file", exception_message=str(e))

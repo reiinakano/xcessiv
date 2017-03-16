@@ -37,10 +37,7 @@ def create_new_ensemble():
 
 @app.route('/ensemble/extraction/main-dataset/<path:path>/', methods=['GET', 'PATCH'])
 def extraction_main_dataset(path):
-    try:
-        xcnb = functions.read_xcnb(path)
-    except IOError:
-        abort(404)
+    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
         return jsonify(xcnb["extraction"]["main_dataset"])
@@ -55,10 +52,7 @@ def extraction_main_dataset(path):
 
 @app.route('/ensemble/extraction/test-dataset/<path:path>/', methods=['GET', 'PATCH'])
 def extraction_test_dataset(path):
-    try:
-        xcnb = functions.read_xcnb(path)
-    except IOError:
-        abort(404)
+    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
         return jsonify(xcnb['extraction']['test_dataset'])
@@ -74,10 +68,7 @@ def extraction_test_dataset(path):
 @app.route('/ensemble/extraction/meta-feature-generation/<path:path>/',
            methods=['GET', 'PATCH'])
 def extraction_meta_feature_generation(path):
-    try:
-        xcnb = functions.read_xcnb(path)
-    except IOError:
-        abort(404)
+    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
         return jsonify(xcnb['extraction']['meta_feature_generation'])
@@ -92,10 +83,7 @@ def extraction_meta_feature_generation(path):
 
 @app.route('/ensemble/extraction/main-dataset/verify/<path:path>/', methods=['GET'])
 def verify_extraction_main_dataset(path):
-    try:
-        xcnb = functions.read_xcnb(path)
-    except IOError:
-        abort(404)
+    xcnb = functions.read_xcnb(path)
 
     if not xcnb['extraction']['main_dataset']['source']:
         return my_message('Source is empty', 400)
@@ -107,10 +95,10 @@ def verify_extraction_main_dataset(path):
 
     try:
         X_shape, y_shape = functions.verify_dataset_extraction_function(extraction_func)
+    except exceptions.UserError:
+        raise
     except Exception as e:
-        response = jsonify(dict(message='User code exception', error=str(e)))
-        response.status_code=400
-        return response
+        raise exceptions.UserError("User code exception", exception_message=str(e))
 
     return jsonify(
         dict(
