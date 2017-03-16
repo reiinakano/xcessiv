@@ -41,35 +41,28 @@ class TestImportObjectFromStringCode(unittest.TestCase):
         pickle.loads(pickle.dumps(returned_object))  # make sure pickle works
 
 
-class TestVerifyMainDatasetExtraction(unittest.TestCase):
+class TestVerifyDataset(unittest.TestCase):
     def test_correct_dataset(self):
-        def extract_main_dataset():
-            X, y = load_digits(return_X_y=True)
-            return X, y
-        X_shape, y_shape = functions.verify_dataset_extraction_function(
-            extract_main_dataset
-        )
-        assert X_shape == (1797,64)
-        assert y_shape == (1797,)
+        X, y = load_digits(return_X_y=True)
+        verification_dict = functions.verify_dataset(X, y)
+        assert verification_dict['features_shape'] == (1797,64)
+        assert verification_dict['labels_shape'] == (1797,)
 
     def test_invalid_assertions(self):
-        def extract_wrong_dataset():
-            return [[1, 2, 2], [2, 3, 5]], [1, 2, 3]
         self.assertRaises(exceptions.UserError,
-                          functions.verify_dataset_extraction_function,
-                          extract_wrong_dataset)
+                          functions.verify_dataset,
+                          [[1, 2, 2], [2, 3, 5]],
+                          [1, 2, 3])
 
-        def extract_wrong_dataset():
-            return [[1, 2, 2], [2, 3, 5]], [[1, 2, 3]]
         self.assertRaises(exceptions.UserError,
-                          functions.verify_dataset_extraction_function,
-                          extract_wrong_dataset)
+                          functions.verify_dataset,
+                          [[1, 2, 2], [2, 3, 5]],
+                          [[1, 2, 3]])
 
-        def extract_wrong_dataset():
-            return [[[1, 2, 2]], [[2, 3, 5]]], [1, 2, 3]
         self.assertRaises(exceptions.UserError,
-                          functions.verify_dataset_extraction_function,
-                          extract_wrong_dataset)
+                          functions.verify_dataset,
+                          [[[1, 2, 2]], [[2, 3, 5]]],
+                          [1, 2, 3])
 
 
 class TestVerifyEstimatorClass(unittest.TestCase):

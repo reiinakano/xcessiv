@@ -2,6 +2,36 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 from sklearn.model_selection import train_test_split
 from xcessiv.functions import import_object_from_string_code
+from xcessiv import exceptions
+import numpy as np
+
+
+def return_main_data_from_json(input_json):
+    """Returns main data set from input JSON
+
+    Args:
+        input_json (dict): "Extraction" dictionary
+
+    Returns:
+        X (numpy.ndarray): Features
+
+        y (numpy.ndarray): Labels
+    """
+    if not input_json['main_dataset']['source']:
+        raise exceptions.UserError('Source is empty')
+
+    extraction_code = "".join(input_json['main_dataset']["source"])
+    extraction_function = import_object_from_string_code(extraction_code,
+                                                         "extract_main_dataset")
+
+    try:
+        X, y = extraction_function()
+    except Exception as e:
+        raise exceptions.UserError('User code exception', exception_message=str(e))
+
+    X, y = np.array(X), np.array(y)
+
+    return X, y
 
 
 def return_train_data_from_json(input_json):
@@ -15,11 +45,7 @@ def return_train_data_from_json(input_json):
 
         y (numpy.ndarray): Labels
     """
-    extraction_code = "".join(input_json['main_dataset']["source"])
-    extraction_function = import_object_from_string_code(extraction_code,
-                                                         "extract_main_dataset")
-
-    X, y = extraction_function()
+    X, y = return_main_data_from_json(input_json)
 
     if input_json['test_dataset']['method'] == 'split_from_main':
         X, X_test, y, y_test = train_test_split(
@@ -54,10 +80,7 @@ def return_test_data_from_json(input_json):
         y (numpy.ndarray): Labels
     """
     if input_json['test_dataset']['method'] == 'split_from_main':
-        extraction_code = "".join(input_json['main_dataset']["source"])
-        extraction_function = import_object_from_string_code(extraction_code,
-                                                             "extract_main_dataset")
-        X, y = extraction_function()
+        X, y = return_main_data_from_json(input_json)
         X, X_test, y, y_test = train_test_split(
             X,
             y,
@@ -74,7 +97,7 @@ def return_test_data_from_json(input_json):
                                                              "extract_test_dataset")
         X_test, y_test = extraction_function()
 
-        return X_test, y_test
+        return np.array(X_test), np.array(y_test)
 
 
 def return_holdout_data_from_json(input_json):
@@ -89,11 +112,7 @@ def return_holdout_data_from_json(input_json):
         y (numpy.ndarray): Labels
     """
     if input_json['meta_feature_generation']['method'] == 'holdout_split':
-        extraction_code = "".join(input_json['main_dataset']["source"])
-        extraction_function = import_object_from_string_code(extraction_code,
-                                                             "extract_main_dataset")
-
-        X, y = extraction_function()
+        X, y = return_main_data_from_json(input_json)
 
         if input_json['test_dataset']['method'] == 'split_from_main':
             X, X_test, y, y_test = train_test_split(
@@ -120,4 +139,4 @@ def return_holdout_data_from_json(input_json):
                                                              "extract_holdout_dataset")
         X_holdout, y_holdout = extraction_function()
 
-        return X_holdout, y_holdout
+        return np.array(X_holdout), np.array(y_holdout)

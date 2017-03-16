@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
-from flask import request, jsonify, abort
-from xcessiv import app, constants, functions, exceptions
+from flask import request, jsonify
+from xcessiv import app, constants, functions, parsers, exceptions
 import six
 
 
@@ -85,24 +85,18 @@ def extraction_meta_feature_generation(path):
 def verify_extraction_main_dataset(path):
     xcnb = functions.read_xcnb(path)
 
-    if not xcnb['extraction']['main_dataset']['source']:
-        return my_message('Source is empty', 400)
+    X, y = parsers.return_main_data_from_json(xcnb['extraction'])
 
-    source = "".join(xcnb['extraction']['main_dataset']['source'])
+    return jsonify(functions.verify_dataset(X, y))
 
-    extraction_func = functions.import_object_from_string_code(source,
-                                                               "extract_main_dataset")
 
-    try:
-        X_shape, y_shape = functions.verify_dataset_extraction_function(extraction_func)
-    except exceptions.UserError:
-        raise
-    except Exception as e:
-        raise exceptions.UserError("User code exception", exception_message=str(e))
+@app.route('/ensemble/extraction/test-dataset/verify/<path:path>/', methods=['GET'])
+def verify_extraction_test_dataset(path):
+    xcnb = functions.read_xcnb(path)
 
-    return jsonify(
-        dict(
-            features_shape=X_shape,
-            labels_shape=y_shape
-        )
-    )
+    if xcnb['extraction']['test_dataset']['method'] is None:
+        raise exceptions.UserError('Xcessiv is not configured to use a test dataset')
+
+    X_train, y_train = parsers.return_test_data_from_json(xcnb['extraction'])
+
+    X_shape, y_shape = X_train

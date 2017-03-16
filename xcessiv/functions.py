@@ -64,15 +64,17 @@ def import_object_from_string_code(code, object):
     return getattr(module, object)
 
 
-def verify_dataset_extraction_function(function):
-    """Verify a dataset extraction function
+def verify_dataset(X, y):
+    """Verifies if a dataset is valid for use i.e. scikit-learn format
 
-    Used to verify a dataset extraction function by returning shape and basic
-    statistics of returned data. This will also provide quick and dirty check
-    on capability of host machine to process the data
+    Used to verify a dataset by returning shape and basic statistics of
+    returned data. This will also provide quick and dirty check on
+    capability of host machine to process the data.
 
     Args:
-        function (callable): Main dataset extraction function to test
+        X (array-like): Features array
+
+        y (array-like): Label array
 
     Returns:
         X_shape (2-tuple of int): Shape of X returned
@@ -85,7 +87,6 @@ def verify_dataset_extraction_function(function):
             i.e. X_shape[0] == y_shape[0]. If any of these conditions are not met,
             an AssertionError is raised.
     """
-    X, y = function()
     X_shape, y_shape = np.array(X).shape, np.array(y).shape
     if len(X_shape) != 2:
         raise exceptions.UserError("X must be 2-dimensional array")
@@ -93,7 +94,10 @@ def verify_dataset_extraction_function(function):
         raise exceptions.UserError("y must be 1-dimensional array")
     if X_shape[0] != y_shape[0]:
         raise exceptions.UserError("X must have same number of elements as y")
-    return X_shape, y_shape
+    return dict(
+        features_shape=X_shape,
+        labels_shape=y_shape
+    )
 
 
 def verify_estimator_class(cls, **params):
