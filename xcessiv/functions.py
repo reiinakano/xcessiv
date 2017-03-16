@@ -8,6 +8,7 @@ from six import exec_
 from sklearn.datasets import load_iris
 from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
+from xcessiv import exceptions
 
 
 def hash_file(path, block_size=65536):
@@ -86,9 +87,12 @@ def verify_dataset_extraction_function(function):
     """
     X, y = function()
     X_shape, y_shape = np.array(X).shape, np.array(y).shape
-    assert len(X_shape) == 2
-    assert len(y_shape) == 1
-    assert X_shape[0] == y_shape[0]
+    if len(X_shape) != 2:
+        raise exceptions.UserError("X must be 2-dimensional array")
+    if len(y_shape) != 1:
+        raise exceptions.UserError("y must be 1-dimensional array")
+    if X_shape[0] != y_shape[0]:
+        raise exceptions.UserError("X must have same number of elements as y")
     return X_shape, y_shape
 
 

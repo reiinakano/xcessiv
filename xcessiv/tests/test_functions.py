@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import unittest
 import os
 import numpy as np
-from xcessiv import functions
+from xcessiv import functions, exceptions
 from sklearn.datasets import load_digits
 from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
@@ -55,19 +55,19 @@ class TestVerifyMainDatasetExtraction(unittest.TestCase):
     def test_invalid_assertions(self):
         def extract_wrong_dataset():
             return [[1, 2, 2], [2, 3, 5]], [1, 2, 3]
-        self.assertRaises(AssertionError,
+        self.assertRaises(exceptions.UserError,
                           functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)
 
         def extract_wrong_dataset():
             return [[1, 2, 2], [2, 3, 5]], [[1, 2, 3]]
-        self.assertRaises(AssertionError,
+        self.assertRaises(exceptions.UserError,
                           functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)
 
         def extract_wrong_dataset():
             return [[[1, 2, 2]], [[2, 3, 5]]], [1, 2, 3]
-        self.assertRaises(AssertionError,
+        self.assertRaises(exceptions.UserError,
                           functions.verify_dataset_extraction_function,
                           extract_wrong_dataset)
 

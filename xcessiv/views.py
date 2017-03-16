@@ -1,7 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 from flask import request, jsonify, abort
-from xcessiv import app, constants, functions
+from xcessiv import app, constants, functions, exceptions
 import six
 
 
@@ -9,6 +9,13 @@ def my_message(message, code=200):
     resp = jsonify(message=message)
     resp.status_code = code
     return resp
+
+
+@app.errorhandler(exceptions.UserError)
+def handle_user_error(error):
+    response = jsonify(error.to_dict())
+    response.status_code = error.status_code
+    return response
 
 
 @app.route('/ensemble/', methods=['POST'])
