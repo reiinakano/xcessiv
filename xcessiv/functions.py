@@ -61,7 +61,10 @@ def import_object_from_string_code(code, object):
     module = imp.new_module(sha256)
     exec_(code, module.__dict__)
     sys.modules[sha256] = module
-    return getattr(module, object)
+    try:
+        return getattr(module, object)
+    except AttributeError:
+        raise exceptions.UserError("{} not found in code".format(object))
 
 
 def verify_dataset(X, y):
