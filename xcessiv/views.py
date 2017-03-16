@@ -85,7 +85,7 @@ def extraction_meta_feature_generation(path):
 def verify_extraction_main_dataset(path):
     xcnb = functions.read_xcnb(path)
 
-    X, y = parsers.return_main_data_from_json(xcnb['extraction'])
+    X, y = parsers.return_train_data_from_json(xcnb['extraction'])
 
     return jsonify(functions.verify_dataset(X, y))
 
