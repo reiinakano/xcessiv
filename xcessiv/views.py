@@ -35,8 +35,9 @@ def create_new_ensemble():
     return my_message("Xcessiv notebook created")
 
 
-@app.route('/ensemble/extraction/main-dataset/<path:path>/', methods=['GET', 'PATCH'])
-def extraction_main_dataset(path):
+@app.route('/ensemble/extraction/main-dataset/', methods=['GET', 'PATCH'])
+def extraction_main_dataset():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
@@ -50,8 +51,9 @@ def extraction_main_dataset(path):
         return my_message("Updated main dataset extraction")
 
 
-@app.route('/ensemble/extraction/test-dataset/<path:path>/', methods=['GET', 'PATCH'])
-def extraction_test_dataset(path):
+@app.route('/ensemble/extraction/test-dataset/', methods=['GET', 'PATCH'])
+def extraction_test_dataset():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
@@ -65,9 +67,9 @@ def extraction_test_dataset(path):
         return my_message("Updated test dataset extraction")
 
 
-@app.route('/ensemble/extraction/meta-feature-generation/<path:path>/',
-           methods=['GET', 'PATCH'])
-def extraction_meta_feature_generation(path):
+@app.route('/ensemble/extraction/meta-feature-generation/', methods=['GET', 'PATCH'])
+def extraction_meta_feature_generation():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
@@ -81,8 +83,9 @@ def extraction_meta_feature_generation(path):
         return my_message("Updated meta-feature generation")
 
 
-@app.route('/ensemble/extraction/main-dataset/verify/<path:path>/', methods=['GET'])
-def verify_extraction_main_dataset(path):
+@app.route('/ensemble/extraction/main-dataset/verify/', methods=['GET'])
+def verify_extraction_main_dataset():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     X, y = parsers.return_train_data_from_json(xcnb['extraction'])
@@ -90,8 +93,9 @@ def verify_extraction_main_dataset(path):
     return jsonify(functions.verify_dataset(X, y))
 
 
-@app.route('/ensemble/extraction/test-dataset/verify/<path:path>/', methods=['GET'])
-def verify_extraction_test_dataset(path):
+@app.route('/ensemble/extraction/test-dataset/verify/', methods=['GET'])
+def verify_extraction_test_dataset():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     if xcnb['extraction']['test_dataset']['method'] is None:
@@ -102,9 +106,9 @@ def verify_extraction_test_dataset(path):
     return jsonify(functions.verify_dataset(X_test, y_test))
 
 
-@app.route('/ensemble/extraction/meta-feature-generation/verify/<path:path>/',
-           methods=['GET'])
-def verify_extraction_meta_feature_generation(path):
+@app.route('/ensemble/extraction/meta-feature-generation/verify/', methods=['GET'])
+def verify_extraction_meta_feature_generation():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     if xcnb['extraction']['meta_feature_generation']['method'] == 'cv':
@@ -116,7 +120,8 @@ def verify_extraction_meta_feature_generation(path):
     return jsonify(functions.verify_dataset(X_holdout, y_holdout))
 
 
-@app.route('/ensemble/base-learner-origins/<path:path>/', methods=['GET'])
-def get_base_learner_origins(path):
+@app.route('/ensemble/base-learner-origins/', methods=['GET'])
+def get_base_learner_origins():
+    path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
     return jsonify(xcnb['base_learner_origins'])

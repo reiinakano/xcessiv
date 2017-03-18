@@ -174,3 +174,20 @@ def write_xcnb(location, xcnb_dict):
             json.dump(xcnb_dict, f, sort_keys=True, indent=1)
     except Exception as e:
         raise exceptions.UserError("Error writing file", exception_message=str(e))
+
+
+def get_path_from_query_string(req):
+    """Gets path from query string
+
+    Args:
+        req (flask.request): Request object from Flask
+
+    Returns:
+        path (str): Value of "path" parameter from query string
+
+    Raises:
+        exceptions.UserError: If "path" is not found in query string
+    """
+    if req.args.get('path') is None:
+        raise exceptions.UserError('Path not found in query string')
+    return req.args.get('path')
