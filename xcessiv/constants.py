@@ -19,7 +19,7 @@ DEFAULT_NOTEBOOK = json.dumps(
                     "folds": 5
                 }
         },
-        "base_learner_classes": [],
+        "base_learner_origins": [],
         "base_learners": []
     },
     sort_keys=True,

@@ -103,18 +103,16 @@ def verify_dataset(X, y):
     )
 
 
-def verify_estimator_class(cls, **params):
-    """Verify an estimator class by testing its performance on Iris
+def verify_estimator_class(est):
+    """Verify if estimator object is valid for use i.e. scikit-learn format
 
-    Verification of essential methods for xcessiv is also done using
-    `hasattr`.
+    Verifies if an estimator is fit for use by testing for existence of methods
+    such as `get_params` and `set_params`. Must also be able to properly fit on
+    and predict a sample iris dataset.
 
     Args:
-        cls (class): Estimator class with `fit`, `predict`/`predict_proba`,
+        est: Estimator object with `fit`, `predict`/`predict_proba`,
             `get_params`, and `set_params` methods.
-
-        params (mapping): Dictionary used to set parameters of the
-            estimator.
 
     Returns:
         performance_dict (mapping): Mapping from performance metric
@@ -122,26 +120,23 @@ def verify_estimator_class(cls, **params):
     """
     X, y = load_iris(return_X_y=True)
 
-    if not params:
-        clf = cls()  # Use default params
-    else:
-        clf = cls().set_params(**params)
-
-    assert hasattr(clf, "get_params")
-    assert hasattr(clf, "set_params")
+    if not hasattr(est, "get_params"):
+        raise exceptions.UserError('Estimator does not have get_params method')
+    if not hasattr(est, "set_params"):
+        raise exceptions.UserError('Estimator does not have set_params method')
 
     performance_dict = dict()
-    performance_dict['has_predict_proba'] = hasattr(clf, 'predict_proba')
-    performance_dict['has_decision_function'] = hasattr(clf, 'decision_function')
+    performance_dict['has_predict_proba'] = hasattr(est, 'predict_proba')
+    performance_dict['has_decision_function'] = hasattr(est, 'decision_function')
 
     true_labels = []
     preds = []
     for train_index, test_index in StratifiedKFold().split(X, y):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
-        clf.fit(X_train, y_train)
+        est.fit(X_train, y_train)
         true_labels.append(y_test)
-        preds.append(clf.predict(X_test))
+        preds.append(est.predict(X_test))
     true_labels = np.concatenate(true_labels)
     preds = np.concatenate(preds)
     performance_dict['Accuracy'] = accuracy_score(true_labels, preds)
