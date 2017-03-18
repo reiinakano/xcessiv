@@ -114,3 +114,9 @@ def verify_extraction_meta_feature_generation(path):
     X_holdout, y_holdout = parsers.return_holdout_data_from_json(xcnb['extraction'])
 
     return jsonify(functions.verify_dataset(X_holdout, y_holdout))
+
+
+@app.route('/ensemble/base-learner-origins/<path:path>/', methods=['GET'])
+def get_base_learner_origins(path):
+    xcnb = functions.read_xcnb(path)
+    return jsonify(xcnb['base_learner_origins'])
