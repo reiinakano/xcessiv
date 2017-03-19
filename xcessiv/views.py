@@ -143,14 +143,13 @@ def base_learner_origins():
         return jsonify(new_base_learner_origin)
 
 
-@app.route('/ensemble/base-learner-origins/<int:id>/', methods=['GET'])
+@app.route('/ensemble/base-learner-origins/<int:id>/', methods=['GET', 'PATCH', 'DELETE'])
 def specific_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
     xcnb = functions.read_xcnb(path)
 
     base_learner_origin = None
     for blo in xcnb['base_learner_origins']:
-        print(blo)
         if blo['id'] == id:
             base_learner_origin = blo
             break
@@ -159,3 +158,17 @@ def specific_base_learner_origin(id):
 
     if request.method == 'GET':
         return jsonify(base_learner_origin)
+
+    if request.method == 'PATCH':
+        if base_learner_origin['final']:
+            raise exceptions.UserError('Cannot modify a final base learner origin')
+        req_body = request.get_json()
+        for key, value in six.iteritems(req_body):
+            base_learner_origin[key] = value
+            functions.write_xcnb(path, xcnb)
+        return jsonify(base_learner_origin)
+
+    if request.method == 'DELETE':
+        xcnb['base_learner_origins'].remove(base_learner_origin)
+        functions.write_xcnb(path, xcnb)
+        return my_message('Deleted base learner origin')
