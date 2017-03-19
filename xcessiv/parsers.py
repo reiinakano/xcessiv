@@ -148,3 +148,17 @@ def return_holdout_data_from_json(input_json):
         X_holdout, y_holdout = extraction_function()
 
         return np.array(X_holdout), np.array(y_holdout)
+
+
+def return_estimator_from_json(input_json):
+    """Returns estimator from base learner origin
+
+    Args:
+        input_json (dict): "Extraction" dictionary
+
+    Returns:
+        est (estimator): Estimator object
+    """
+    extraction_code = "".join(input_json['source'])
+    estimator = import_object_from_string_code(extraction_code, "base_learner")
+    return estimator
