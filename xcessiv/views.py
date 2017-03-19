@@ -121,9 +121,9 @@ def verify_extraction_meta_feature_generation():
 
 
 @app.route('/ensemble/base-learner-origins/', methods=['GET', 'POST'])
-def get_base_learner_origins():
+def base_learner_origins():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)\
+    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
         return jsonify(xcnb['base_learner_origins'])
@@ -141,3 +141,21 @@ def get_base_learner_origins():
         xcnb['base_learner_origins'].append(new_base_learner_origin)
         functions.write_xcnb(path, xcnb)
         return jsonify(new_base_learner_origin)
+
+
+@app.route('/ensemble/base-learner-origins/<int:id>/', methods=['GET'])
+def specific_base_learner_origin(id):
+    path = functions.get_path_from_query_string(request)
+    xcnb = functions.read_xcnb(path)
+
+    base_learner_origin = None
+    for blo in xcnb['base_learner_origins']:
+        print(blo)
+        if blo['id'] == id:
+            base_learner_origin = blo
+            break
+    if base_learner_origin is None:
+        raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+
+    if request.method == 'GET':
+        return jsonify(base_learner_origin)
