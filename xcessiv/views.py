@@ -120,8 +120,24 @@ def verify_extraction_meta_feature_generation():
     return jsonify(functions.verify_dataset(X_holdout, y_holdout))
 
 
-@app.route('/ensemble/base-learner-origins/', methods=['GET'])
+@app.route('/ensemble/base-learner-origins/', methods=['GET', 'POST'])
 def get_base_learner_origins():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
-    return jsonify(xcnb['base_learner_origins'])
+    xcnb = functions.read_xcnb(path)\
+
+    if request.method == 'GET':
+        return jsonify(xcnb['base_learner_origins'])
+
+    if request.method == 'POST':  # Create new base learner origin
+        req_body = request.get_json()
+        new_base_learner_origin = constants.DEFAULT_BASE_LEARNER_ORIGIN
+        for key, value in six.iteritems(req_body):
+            new_base_learner_origin[key] = value
+        # Populate must-be-default values for a newly created base learner origin
+        xcnb['base_learner_origins_latest_id'] += 1
+        new_base_learner_origin['id'] = xcnb['base_learner_origins_latest_id']
+        new_base_learner_origin['final'] = False
+        new_base_learner_origin['validation_results'] = dict()
+        xcnb['base_learner_origins'].append(new_base_learner_origin)
+        functions.write_xcnb(path, xcnb)
+        return jsonify(new_base_learner_origin)

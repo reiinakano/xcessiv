@@ -20,8 +20,16 @@ DEFAULT_NOTEBOOK = json.dumps(
                 }
         },
         "base_learner_origins": [],
-        "base_learners": []
+        "base_learner_origins_latest_id": 0,
+        "base_learners": [],
+        "base_learners_latest_id": 0
     },
     sort_keys=True,
     indent=1
 )
+
+DEFAULT_BASE_LEARNER_ORIGIN = {
+    "source": [],
+    "name": "",
+    "meta_feature_generator": "predict_proba"
+}
