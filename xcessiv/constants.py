@@ -21,8 +21,7 @@ DEFAULT_NOTEBOOK = json.dumps(
         },
         "base_learner_origins": [],
         "base_learner_origins_latest_id": 0,
-        "base_learners": [],
-        "base_learners_latest_id": 0
+        "base_learners": []
     },
     sort_keys=True,
     indent=1
