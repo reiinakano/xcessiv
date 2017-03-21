@@ -4,8 +4,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext import mutable
+import numpy as np
 import json
+from sklearn.model_selection import train_test_split
 from xcessiv import constants
+from xcessiv import exceptions
+from xcessiv import functions
 
 
 Base = declarative_base()
@@ -41,6 +45,60 @@ class Extraction(Base):
         self.main_dataset = constants.DEFAULT_EXTRACTION_MAIN_DATASET
         self.test_dataset = constants.DEFAULT_EXTRACTION_TEST_DATASET
         self.meta_feature_generation = constants.DEFAULT_EXTRACTION_META_FEATURE_GENERATION
+
+    def return_main_dataset(self):
+        """Returns main data set from self
+
+        Returns:
+            X (numpy.ndarray): Features
+
+            y (numpy.ndarray): Labels
+        """
+        if not self.main_dataset['source']:
+            raise exceptions.UserError('Source is empty')
+
+        extraction_code = "".join(self.main_dataset["source"])
+        extraction_function = functions.import_object_from_string_code(extraction_code,
+                                                                       "extract_main_dataset")
+
+        try:
+            X, y = extraction_function()
+        except Exception as e:
+            raise exceptions.UserError('User code exception', exception_message=str(e))
+
+        X, y = np.array(X), np.array(y)
+
+        return X, y
+
+    def return_train_dataset(self):
+        """Returns train data set from input JSON
+
+        Returns:
+            X (numpy.ndarray): Features
+
+            y (numpy.ndarray): Labels
+        """
+        X, y = self.return_main_dataset()
+
+        if self.test_dataset['method'] == 'split_from_main':
+            X, X_test, y, y_test = train_test_split(
+                X,
+                y,
+                test_size=self.test_dataset['split_ratio'],
+                random_state=self.test_dataset['split_seed'],
+                stratify=y
+            )
+
+        if self.meta_feature_generation['method'] == 'holdout_split':
+            X, X_test, y, y_test = train_test_split(
+                X,
+                y,
+                test_size=self.meta_feature_generation['split_ratio'],
+                random_state=self.meta_feature_generation['seed'],
+                stratify=y
+            )
+
+        return X, y
 
 
 class BaseLearnerOrigin(Base):

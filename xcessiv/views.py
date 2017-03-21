@@ -107,9 +107,11 @@ def extraction_meta_feature_generation():
 @app.route('/ensemble/extraction/main-dataset/verify/', methods=['GET'])
 def verify_extraction_main_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    X, y = parsers.return_train_data_from_json(xcnb['extraction'])
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
+
+    X, y = extraction.return_train_dataset()
 
     return jsonify(functions.verify_dataset(X, y))
 
