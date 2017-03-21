@@ -104,8 +104,8 @@ def extraction_meta_feature_generation():
             return jsonify(extraction.meta_feature_generation)
 
 
-@app.route('/ensemble/extraction/main-dataset/verify/', methods=['GET'])
-def verify_extraction_main_dataset():
+@app.route('/ensemble/extraction/train-dataset/verify/', methods=['GET'])
+def verify_extraction_train_dataset():
     path = functions.get_path_from_query_string(request)
 
     with functions.DBContextManager(path) as session:
