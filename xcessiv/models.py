@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext import mutable
 import json
 from xcessiv import constants
 
@@ -19,6 +20,9 @@ class JsonEncodedDict(TypeDecorator):
 
     def process_result_value(self, value, dialect):
         return json.loads(value)
+
+
+mutable.MutableDict.associate_with(JsonEncodedDict)
 
 
 class Extraction(Base):

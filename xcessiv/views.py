@@ -47,17 +47,21 @@ def create_new_ensemble():
 @app.route('/ensemble/extraction/main-dataset/', methods=['GET', 'PATCH'])
 def extraction_main_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb["extraction"]["main_dataset"])
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.main_dataset)
 
     if request.method == 'PATCH':
         req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            xcnb['extraction']['main_dataset'][key] = value
-        functions.write_xcnb(path, xcnb)
-        return my_message("Updated main dataset extraction")
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.main_dataset[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.main_dataset)
 
 
 @app.route('/ensemble/extraction/test-dataset/', methods=['GET', 'PATCH'])
