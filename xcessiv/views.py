@@ -67,33 +67,41 @@ def extraction_main_dataset():
 @app.route('/ensemble/extraction/test-dataset/', methods=['GET', 'PATCH'])
 def extraction_test_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb['extraction']['test_dataset'])
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.test_dataset)
 
     if request.method == 'PATCH':
         req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            xcnb['extraction']['test_dataset'][key] = value
-        functions.write_xcnb(path, xcnb)
-        return my_message("Updated test dataset extraction")
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.test_dataset[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.test_dataset)
 
 
 @app.route('/ensemble/extraction/meta-feature-generation/', methods=['GET', 'PATCH'])
 def extraction_meta_feature_generation():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb['extraction']['meta_feature_generation'])
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.meta_feature_generation)
 
     if request.method == 'PATCH':
         req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            xcnb['extraction']['meta_feature_generation'][key] = value
-        functions.write_xcnb(path, xcnb)
-        return my_message("Updated meta-feature generation")
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.meta_feature_generation[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.meta_feature_generation)
 
 
 @app.route('/ensemble/extraction/main-dataset/verify/', methods=['GET'])
