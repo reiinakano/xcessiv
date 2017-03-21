@@ -2,8 +2,11 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import imp
 import sys
 import json
+import os
 import hashlib
 import numpy as np
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 from six import exec_
 from sklearn.datasets import load_iris
 from sklearn.model_selection import StratifiedKFold
@@ -191,3 +194,36 @@ def get_path_from_query_string(req):
     if req.args.get('path') is None:
         raise exceptions.UserError('Path not found in query string')
     return req.args.get('path')
+
+
+class DBContextManager():
+    """Use this context manager to automatically start and close a database session
+
+    Examples:
+        >>> with DBContextManager('myproject.xcnb') as session:
+        >>>     # Do stuff with session
+    """
+    def __init__(self, path):
+        """Initialize context manager
+
+        Args:
+            path (str): Path to sqlite xcnb notebook
+        """
+        self.path = path
+
+    def __enter__(self):
+        if not os.path.exists(self.path):
+            raise exceptions.UserError('{} does not exist'.format(self.path))
+        sqlite_url = 'sqlite:///{}'.format(self.path)
+        engine = create_engine(sqlite_url)
+
+        self.session = Session(bind=engine)
+
+        return self.session
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if hasattr(self, 'session'):
+            if exc_type is not None:
+                self.session.rollback()
+            self.session.close()
+        return False  # re-raise any exception

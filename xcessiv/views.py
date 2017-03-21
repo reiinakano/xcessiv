@@ -1,7 +1,8 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 from flask import request, jsonify
-from xcessiv import app, constants, functions, parsers, exceptions
+from sqlalchemy import create_engine
+from xcessiv import app, constants, functions, parsers, exceptions, models
 import six
 
 
@@ -29,8 +30,16 @@ def create_new_ensemble():
 
     os.makedirs(location)
     xcessiv_notebook_path = os.path.join(location, ensemble_name + ".xcnb")
-    with open(xcessiv_notebook_path, mode='w') as f:
-        f.write(constants.DEFAULT_NOTEBOOK)
+    sqlite_url = 'sqlite:///{}'.format(xcessiv_notebook_path)
+    engine = create_engine(sqlite_url)
+
+    models.Base.metadata.create_all(engine)
+
+    # Initialize
+    extraction = models.Extraction()
+    with functions.DBContextManager(xcessiv_notebook_path) as session:
+        session.add(extraction)
+        session.commit()
 
     return my_message("Xcessiv notebook created")
 

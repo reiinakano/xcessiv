@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import unittest
 import json
 import os
-from xcessiv import app, constants
+from xcessiv import app, functions, models, constants
 
 
 class TestCreateNewEnsemble(unittest.TestCase):
@@ -10,6 +10,7 @@ class TestCreateNewEnsemble(unittest.TestCase):
         self.app = app.test_client()
         self.test_location = 'test_folder'
         self.test_notebook = 'test_xcessiv'
+        self.path = os.path.join(self.test_location, self.test_notebook+".xcnb")
 
     def tearDown(self):
         if os.path.exists(os.path.join(self.test_location,
@@ -32,9 +33,13 @@ class TestCreateNewEnsemble(unittest.TestCase):
         assert rv.status_code == 200
         assert os.path.exists(os.path.join(self.test_location,
                                            self.test_notebook+".xcnb"))
-        with open(os.path.join(self.test_location, self.test_notebook+".xcnb")) as f:
-            lines = f.read()
-            assert lines == constants.DEFAULT_NOTEBOOK
+        with functions.DBContextManager(self.path) as session:
+            extraction = session.query(models.Extraction).all()
+            assert len(extraction) == 1
+            assert extraction[0].main_dataset == constants.DEFAULT_EXTRACTION_MAIN_DATASET
+            assert extraction[0].test_dataset == constants.DEFAULT_EXTRACTION_TEST_DATASET
+            assert extraction[0].meta_feature_generation == \
+                constants.DEFAULT_EXTRACTION_META_FEATURE_GENERATION
 
     def test_duplicate(self):
         rv = self.app.post(

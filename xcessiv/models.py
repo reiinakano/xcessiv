@@ -1,4 +1,5 @@
 """This module contains the SQLAlchemy ORM Models"""
+from __future__ import absolute_import, print_function, division, unicode_literals
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey
 from sqlalchemy.orm import relationship
@@ -25,7 +26,7 @@ class Extraction(Base):
     to extract the train, test, and holdout datasets. It will contain only a
     single row.
     """
-    ___tablename___ = 'extraction'
+    __tablename__ = 'extraction'
 
     id = Column(Integer, primary_key=True)
     main_dataset = Column(JsonEncodedDict)
