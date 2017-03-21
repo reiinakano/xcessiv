@@ -119,26 +119,27 @@ def verify_extraction_train_dataset():
 @app.route('/ensemble/extraction/test-dataset/verify/', methods=['GET'])
 def verify_extraction_test_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    if xcnb['extraction']['test_dataset']['method'] is None:
-        raise exceptions.UserError('Xcessiv is not configured to use a test dataset')
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
 
-    X_test, y_test = parsers.return_test_data_from_json(xcnb['extraction'])
+    X, y = extraction.return_test_dataset()
 
-    return jsonify(functions.verify_dataset(X_test, y_test))
+    return jsonify(functions.verify_dataset(X, y))
 
 
 @app.route('/ensemble/extraction/meta-feature-generation/verify/', methods=['GET'])
 def verify_extraction_meta_feature_generation():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    if xcnb['extraction']['meta_feature_generation']['method'] == 'cv':
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
+
+    if extraction.meta_feature_generation['method'] == 'cv':
         raise exceptions.UserError('Xcessiv will use cross-validation to'
                                    ' generate meta-features')
 
-    X_holdout, y_holdout = parsers.return_holdout_data_from_json(xcnb['extraction'])
+    X_holdout, y_holdout = extraction.return_holdout_dataset()
 
     return jsonify(functions.verify_dataset(X_holdout, y_holdout))
 

@@ -71,7 +71,7 @@ class Extraction(Base):
         return X, y
 
     def return_train_dataset(self):
-        """Returns train data set from input JSON
+        """Returns train data set
 
         Returns:
             X (numpy.ndarray): Features
@@ -99,6 +99,80 @@ class Extraction(Base):
             )
 
         return X, y
+
+    def return_test_dataset(self):
+        """Returns test data set
+
+        Returns:
+            X (numpy.ndarray): Features
+
+            y (numpy.ndarray): Labels
+        """
+        if self.test_dataset['method'] == 'split_from_main':
+            X, y = self.return_main_dataset()
+            X, X_test, y, y_test = train_test_split(
+                X,
+                y,
+                test_size=self.test_dataset['split_ratio'],
+                random_state=self.test_dataset['split_seed'],
+                stratify=y
+            )
+
+            return X_test, y_test
+
+        if self.test_dataset['method'] == 'source':
+            if 'source' not in self.test_dataset or not self.test_dataset['source']:
+                raise exceptions.UserError('Source is empty')
+
+            extraction_code = "".join(self.test_dataset["source"])
+            extraction_function = functions.\
+                import_object_from_string_code(extraction_code, "extract_test_dataset")
+            X_test, y_test = extraction_function()
+
+            return np.array(X_test), np.array(y_test)
+
+    def return_holdout_dataset(self):
+        """Returns holdout data set
+
+        Returns:
+            X (numpy.ndarray): Features
+
+            y (numpy.ndarray): Labels
+        """
+        if self.meta_feature_generation['method'] == 'holdout_split':
+            X, y = self.return_main_dataset()
+
+            if self.test_dataset['method'] == 'split_from_main':
+                X, X_test, y, y_test = train_test_split(
+                    X,
+                    y,
+                    test_size=self.test_dataset['split_ratio'],
+                    random_state=self.test_dataset['split_seed'],
+                    stratify=y
+                )
+
+            X, X_holdout, y, y_holdout = train_test_split(
+                X,
+                y,
+                test_size=self.meta_feature_generation['split_ratio'],
+                random_state=self.meta_feature_generation['seed'],
+                stratify=y
+            )
+
+            return X_holdout, y_holdout
+
+        if self.meta_feature_generation['method'] == 'holdout_source':
+            if 'source' not in self.meta_feature_generation or \
+                    not self.meta_feature_generation['source']:
+                raise exceptions.UserError('Source is empty')
+
+            extraction_code = "".join(self.meta_feature_generation["source"])
+            extraction_function = functions.\
+                import_object_from_string_code(extraction_code,
+                                               "extract_holdout_dataset")
+            X_holdout, y_holdout = extraction_function()
+
+            return np.array(X_holdout), np.array(y_holdout)
 
 
 class BaseLearnerOrigin(Base):
