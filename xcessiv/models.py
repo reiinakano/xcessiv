@@ -217,6 +217,19 @@ class BaseLearnerOrigin(Base):
             meta_feature_generator=self.meta_feature_generator
         )
 
+    def return_estimator(self):
+        """Returns estimator from base learner origin
+
+        Args:
+            input_json (dict): "Extraction" dictionary
+
+        Returns:
+            est (estimator): Estimator object
+        """
+        extraction_code = "".join(self.source)
+        estimator = functions.import_object_from_string_code(extraction_code, "base_learner")
+        return estimator
+
 
 class BaseLearner(Base):
     """This table contains base learners of the Xcessiv notebook"""

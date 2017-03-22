@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import unittest
 from xcessiv import models
+from sklearn.ensemble import RandomForestClassifier
 
 
 class TestReturnTrainDataFromJSON(unittest.TestCase):
@@ -118,3 +119,17 @@ class TestReturnHoldoutDataFromJSON(unittest.TestCase):
         X, y = self.extraction.return_holdout_dataset()
         assert X.shape == (1797, 64)
         assert y.shape == (1797,)
+
+
+class TestReturnEstimator(unittest.TestCase):
+    def setUp(self):
+        self.base_learner_origin = models.BaseLearnerOrigin(
+            source=[
+                "from sklearn.ensemble import RandomForestClassifier\n",
+                "base_learner = RandomForestClassifier(random_state=8)"
+            ]
+        )
+
+    def test_return_estimator_from_json(self):
+        est = self.base_learner_origin.return_estimator()
+        assert isinstance(est, RandomForestClassifier)
