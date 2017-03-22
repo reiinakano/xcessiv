@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 from xcessiv import constants
 from xcessiv import exceptions
 from xcessiv import functions
+from xcessiv import app
 
 
 Base = declarative_base()
@@ -220,9 +221,6 @@ class BaseLearnerOrigin(Base):
     def return_estimator(self):
         """Returns estimator from base learner origin
 
-        Args:
-            input_json (dict): "Extraction" dictionary
-
         Returns:
             est (estimator): Estimator object
         """
@@ -239,16 +237,35 @@ class BaseLearner(Base):
     hyperparameters = Column(JsonEncodedDict)
     individual_score = Column(JsonEncodedDict)
     meta_features_location = Column(Text)
-    status = Column(Text)
-    job_id = Column(Text)
+    job_status = Column(JsonEncodedDict)
     base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
     base_learner_origin = relationship('BaseLearnerOrigin', back_populates='base_learners')
 
-    def __init__(self, hyperparameters, individual_score, meta_features_location,
-                 status, job_id, base_learner_origin):
+    def __init__(self, hyperparameters, job_status, base_learner_origin):
         self.hyperparameters = hyperparameters
-        self.individual_score = individual_score
-        self.meta_features_location = meta_features_location
-        self.status = status
-        self.job_id = job_id
+        self.individual_score = dict()
+        self.meta_features_location = None
+        self.job_status = job_status
+        self.job_id = None
         self.base_learner_origin = base_learner_origin
+
+    def return_estimator(self):
+        """Returns base learner using its origin and the gien hyperparameters
+
+        Returns:
+            est (estimator): Estimator object
+        """
+        estimator = self.base_learner_origin.return_estimator()
+        estimator = estimator.set_params(**self.hyperparameters)
+        return estimator
+
+    @property
+    def serialize(self):
+        return dict(
+            id=self.id,
+            hyperparameters=self.hyperparameters,
+            individual_score=self.individual_score,
+            job_status=self.job_status,
+            meta_features_location=self.meta_features_location,
+            base_learner_origin_id=self.base_learner_origin_id
+        )
