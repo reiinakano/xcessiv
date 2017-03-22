@@ -26,7 +26,19 @@ class JsonEncodedDict(TypeDecorator):
         return json.loads(value)
 
 
+class JsonEncodedList(TypeDecorator):
+    """Enables JSON storage by encoding and decoding on the fly (list)"""
+    impl = Text
+
+    def process_bind_param(self, value, dialect):
+        return json.dumps(value, sort_keys=True)
+
+    def process_result_value(self, value, dialect):
+        return json.loads(value)
+
+
 mutable.MutableDict.associate_with(JsonEncodedDict)
+mutable.MutableList.associate_with(JsonEncodedList)
 
 
 class Extraction(Base):
@@ -180,19 +192,30 @@ class BaseLearnerOrigin(Base):
     __tablename__ = 'baselearnerorigin'
 
     id = Column(Integer, primary_key=True)
-    source = Column(JsonEncodedDict)
+    source = Column(JsonEncodedList)
     validation_results = Column(JsonEncodedDict)
     name = Column(Text)
     final = Column(Boolean)
     meta_feature_generator = Column(Text)
     base_learners = relationship('BaseLearner', back_populates='base_learner_origin')
 
-    def __init__(self, source, name):
-        self.source = source
+    def __init__(self, source=None, name=''):
+        self.source = list() if source is None else source
         self.name = name
         self.validation_results = dict()
         self.final = False
         self.meta_feature_generator = "predict_proba"
+
+    @property
+    def serialize(self):
+        return dict(
+            id=self.id,
+            source=self.source,
+            name=self.name,
+            validation_results=self.validation_results,
+            final=self.final,
+            meta_feature_generator=self.meta_feature_generator
+        )
 
 
 class BaseLearner(Base):

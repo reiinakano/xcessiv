@@ -145,26 +145,22 @@ def verify_extraction_meta_feature_generation():
 
 
 @app.route('/ensemble/base-learner-origins/', methods=['GET', 'POST'])
-def base_learner_origins():
+def base_learner_origins_view():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb['base_learner_origins'])
+        with functions.DBContextManager(path) as session:
+            base_learner_origins = session.query(models.BaseLearnerOrigin).all()
+            return jsonify(map(lambda x: x.serialize, base_learner_origins))
 
     if request.method == 'POST':  # Create new base learner origin
         req_body = request.get_json()
-        new_base_learner_origin = constants.DEFAULT_BASE_LEARNER_ORIGIN
-        for key, value in six.iteritems(req_body):
-            new_base_learner_origin[key] = value
-        # Populate must-be-default values for a newly created base learner origin
-        xcnb['base_learner_origins_latest_id'] += 1
-        new_base_learner_origin['id'] = xcnb['base_learner_origins_latest_id']
-        new_base_learner_origin['final'] = False
-        new_base_learner_origin['validation_results'] = dict()
-        xcnb['base_learner_origins'].append(new_base_learner_origin)
-        functions.write_xcnb(path, xcnb)
-        return jsonify(new_base_learner_origin)
+        new_base_learner_origin = models.BaseLearnerOrigin(**req_body)
+
+        with functions.DBContextManager(path) as session:
+            session.add(new_base_learner_origin)
+            session.commit()
+            return jsonify(new_base_learner_origin.serialize)
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/', methods=['GET', 'PATCH', 'DELETE'])
