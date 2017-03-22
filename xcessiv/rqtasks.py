@@ -8,6 +8,8 @@ from xcessiv import models
 from xcessiv import app
 import numpy as np
 import os
+import sys
+import traceback
 from sklearn.metrics import accuracy_score
 
 
@@ -66,10 +68,13 @@ def generate_meta_features(path, base_learner_id):
             session.add(base_learner)
             session.commit()
 
-        except Exception as e:
+        except:
             session.rollback()
             base_learner.job_status['status'] = 'errored'
-            base_learner.job_status['error_message'] = repr(e)
+            base_learner.job_status['error_type'] = repr(sys.exc_info()[0])
+            base_learner.job_status['error_value'] = repr(sys.exc_info()[1])
+            base_learner.job_status['error_traceback'] = \
+                traceback.format_exception(*sys.exc_info())
             session.add(base_learner)
             session.commit()
             raise
