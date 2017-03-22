@@ -166,32 +166,33 @@ def base_learner_origins_view():
 @app.route('/ensemble/base-learner-origins/<int:id>/', methods=['GET', 'PATCH', 'DELETE'])
 def specific_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    base_learner_origin = None
-    for blo in xcnb['base_learner_origins']:
-        if blo['id'] == id:
-            base_learner_origin = blo
-            break
-    if base_learner_origin is None:
-        raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
-    if request.method == 'GET':
-        return jsonify(base_learner_origin)
+        if request.method == 'GET':
+            return jsonify(base_learner_origin.serialize)
 
-    if request.method == 'PATCH':
-        if base_learner_origin['final']:
-            raise exceptions.UserError('Cannot modify a final base learner origin')
-        req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            base_learner_origin[key] = value
-            functions.write_xcnb(path, xcnb)
-        return jsonify(base_learner_origin)
+        if request.method == 'PATCH':
+            if base_learner_origin.final:
+                raise exceptions.UserError('Cannot modify a final base learner origin')
+            req_body = request.get_json()
 
-    if request.method == 'DELETE':
-        xcnb['base_learner_origins'].remove(base_learner_origin)
-        functions.write_xcnb(path, xcnb)
-        return my_message('Deleted base learner origin')
+            modifiable_attr = ('meta_feature_generator', 'name', 'source')
+            for attr in modifiable_attr:
+                if attr in req_body:
+                    setattr(base_learner_origin, attr, req_body[attr])
+
+            session.add(base_learner_origin)
+            session.commit()
+            return jsonify(base_learner_origin.serialize)
+
+        if request.method == 'DELETE':
+            session.delete(base_learner_origin)
+            session.commit()
+            return my_message('Deleted base learner origin')
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/verify/', methods=['GET'])
