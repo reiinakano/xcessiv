@@ -6,6 +6,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext import mutable
 import numpy as np
 import json
+import os
 from sklearn.model_selection import train_test_split
 from xcessiv import constants
 from xcessiv import exceptions
@@ -258,6 +259,18 @@ class BaseLearner(Base):
         estimator = self.base_learner_origin.return_estimator()
         estimator = estimator.set_params(**self.hyperparameters)
         return estimator
+
+    def meta_features_path(self, path):
+        """Returns path for meta-features
+
+        Args:
+            path (str): Absolute/local path of xcessiv notebook
+        """
+        return os.path.join(
+                os.path.dirname(path),
+                app.config['XCESSIV_META_FEATURES_FOLDER'],
+                str(self.id)
+            )
 
     @property
     def serialize(self):

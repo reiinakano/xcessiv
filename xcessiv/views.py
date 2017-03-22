@@ -298,6 +298,8 @@ def specific_base_learner(id):
             return jsonify(base_learner.serialize)
 
         if request.method == 'DELETE':
+            if os.path.exists(base_learner.meta_features_path(path)):
+                os.remove(base_learner.meta_features_path(path))
             session.delete(base_learner)
             session.commit()
             return my_message('Deleted base learner')

@@ -52,11 +52,7 @@ def generate_meta_features(path, base_learner_id):
                 preds = est.predict(X_holdout)
                 acc = accuracy_score(y_holdout, preds)
 
-            meta_features_path = os.path.join(
-                os.path.dirname(path),
-                app.config['XCESSIV_META_FEATURES_FOLDER'],
-                str(base_learner.id)
-            )
+            meta_features_path = base_learner.meta_features_path(path)
 
             if not os.path.exists(os.path.dirname(meta_features_path)):
                 os.makedirs(os.path.dirname(meta_features_path))
