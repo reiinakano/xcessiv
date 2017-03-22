@@ -147,38 +147,6 @@ def verify_estimator_class(est):
     return performance_dict
 
 
-def read_xcnb(location):
-    """Reads Xcessiv notebook from given location and returns JSON
-
-    Args:
-        location (string): location of notebook
-
-    Returns:
-        xcnb (dict): Returns dict represented by xcnb JSON
-    """
-    try:
-        with open(location) as f:
-            xcnb = json.load(f)
-            return xcnb
-    except IOError as e:
-        raise exceptions.UserError("Error opening file", exception_message=str(e))
-
-
-def write_xcnb(location, xcnb_dict):
-    """Writes Xcessiv notebook into location
-
-    Args:
-        location (string): location of notebook
-
-        xcnb_dict (dict): Dictionary representing xcnb JSON
-    """
-    try:
-        with open(location, 'w') as f:
-            json.dump(xcnb_dict, f, sort_keys=True, indent=1)
-    except Exception as e:
-        raise exceptions.UserError("Error writing file", exception_message=str(e))
-
-
 def get_path_from_query_string(req):
     """Gets path from query string
 
