@@ -205,6 +205,8 @@ def verify_base_learner_origin(id):
             raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
         if request.method == 'GET':
+            if base_learner_origin.final:
+                raise exceptions.UserError('Base learner origin {} is already final'.format(id))
             base_learner = base_learner_origin.return_estimator()
             validation_results = functions.verify_estimator_class(base_learner)
             base_learner_origin.validation_results = validation_results
@@ -216,20 +218,19 @@ def verify_base_learner_origin(id):
 @app.route('/ensemble/base-learner-origins/<int:id>/confirm/', methods=['GET'])
 def confirm_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    base_learner_origin = None
-    for blo in xcnb['base_learner_origins']:
-        if blo['id'] == id:
-            base_learner_origin = blo
-            break
-    if base_learner_origin is None:
-        raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
-    if request.method == 'GET':
-        base_learner = parsers.return_estimator_from_json(base_learner_origin)
-        validation_results = functions.verify_estimator_class(base_learner)
-        base_learner_origin['validation_results'] = validation_results
-        base_learner_origin['final'] = True
-        functions.write_xcnb(path, xcnb)
-        return jsonify(base_learner_origin)
+        if request.method == 'GET':
+            if base_learner_origin.final:
+                raise exceptions.UserError('Base learner origin {} is already final'.format(id))
+            base_learner = base_learner_origin.return_estimator()
+            validation_results = functions.verify_estimator_class(base_learner)
+            base_learner_origin.validation_results = validation_results
+            base_learner_origin.final = True
+            session.add(base_learner_origin)
+            session.commit()
+            return jsonify(base_learner_origin.serialize)
