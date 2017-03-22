@@ -1,7 +1,8 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 from flask import request, jsonify
-from xcessiv import app, constants, functions, parsers, exceptions
+from sqlalchemy import create_engine
+from xcessiv import app, functions, exceptions, models
 import six
 
 
@@ -29,8 +30,16 @@ def create_new_ensemble():
 
     os.makedirs(location)
     xcessiv_notebook_path = os.path.join(location, ensemble_name + ".xcnb")
-    with open(xcessiv_notebook_path, mode='w') as f:
-        f.write(constants.DEFAULT_NOTEBOOK)
+    sqlite_url = 'sqlite:///{}'.format(xcessiv_notebook_path)
+    engine = create_engine(sqlite_url)
+
+    models.Base.metadata.create_all(engine)
+
+    # Initialize
+    extraction = models.Extraction()
+    with functions.DBContextManager(xcessiv_notebook_path) as session:
+        session.add(extraction)
+        session.commit()
 
     return my_message("Xcessiv notebook created")
 
@@ -38,57 +47,71 @@ def create_new_ensemble():
 @app.route('/ensemble/extraction/main-dataset/', methods=['GET', 'PATCH'])
 def extraction_main_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb["extraction"]["main_dataset"])
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.main_dataset)
 
     if request.method == 'PATCH':
         req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            xcnb['extraction']['main_dataset'][key] = value
-        functions.write_xcnb(path, xcnb)
-        return my_message("Updated main dataset extraction")
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.main_dataset[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.main_dataset)
 
 
 @app.route('/ensemble/extraction/test-dataset/', methods=['GET', 'PATCH'])
 def extraction_test_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb['extraction']['test_dataset'])
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.test_dataset)
 
     if request.method == 'PATCH':
         req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            xcnb['extraction']['test_dataset'][key] = value
-        functions.write_xcnb(path, xcnb)
-        return my_message("Updated test dataset extraction")
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.test_dataset[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.test_dataset)
 
 
 @app.route('/ensemble/extraction/meta-feature-generation/', methods=['GET', 'PATCH'])
 def extraction_meta_feature_generation():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb['extraction']['meta_feature_generation'])
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.meta_feature_generation)
 
     if request.method == 'PATCH':
         req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            xcnb['extraction']['meta_feature_generation'][key] = value
-        functions.write_xcnb(path, xcnb)
-        return my_message("Updated meta-feature generation")
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.meta_feature_generation[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.meta_feature_generation)
 
 
-@app.route('/ensemble/extraction/main-dataset/verify/', methods=['GET'])
-def verify_extraction_main_dataset():
+@app.route('/ensemble/extraction/train-dataset/verify/', methods=['GET'])
+def verify_extraction_train_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    X, y = parsers.return_train_data_from_json(xcnb['extraction'])
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
+
+    X, y = extraction.return_train_dataset()
 
     return jsonify(functions.verify_dataset(X, y))
 
@@ -96,122 +119,118 @@ def verify_extraction_main_dataset():
 @app.route('/ensemble/extraction/test-dataset/verify/', methods=['GET'])
 def verify_extraction_test_dataset():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    if xcnb['extraction']['test_dataset']['method'] is None:
-        raise exceptions.UserError('Xcessiv is not configured to use a test dataset')
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
 
-    X_test, y_test = parsers.return_test_data_from_json(xcnb['extraction'])
+    X, y = extraction.return_test_dataset()
 
-    return jsonify(functions.verify_dataset(X_test, y_test))
+    return jsonify(functions.verify_dataset(X, y))
 
 
 @app.route('/ensemble/extraction/meta-feature-generation/verify/', methods=['GET'])
 def verify_extraction_meta_feature_generation():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    if xcnb['extraction']['meta_feature_generation']['method'] == 'cv':
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
+
+    if extraction.meta_feature_generation['method'] == 'cv':
         raise exceptions.UserError('Xcessiv will use cross-validation to'
                                    ' generate meta-features')
 
-    X_holdout, y_holdout = parsers.return_holdout_data_from_json(xcnb['extraction'])
+    X_holdout, y_holdout = extraction.return_holdout_dataset()
 
     return jsonify(functions.verify_dataset(X_holdout, y_holdout))
 
 
 @app.route('/ensemble/base-learner-origins/', methods=['GET', 'POST'])
-def base_learner_origins():
+def base_learner_origins_view():
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
     if request.method == 'GET':
-        return jsonify(xcnb['base_learner_origins'])
+        with functions.DBContextManager(path) as session:
+            base_learner_origins = session.query(models.BaseLearnerOrigin).all()
+            return jsonify(map(lambda x: x.serialize, base_learner_origins))
 
     if request.method == 'POST':  # Create new base learner origin
         req_body = request.get_json()
-        new_base_learner_origin = constants.DEFAULT_BASE_LEARNER_ORIGIN
-        for key, value in six.iteritems(req_body):
-            new_base_learner_origin[key] = value
-        # Populate must-be-default values for a newly created base learner origin
-        xcnb['base_learner_origins_latest_id'] += 1
-        new_base_learner_origin['id'] = xcnb['base_learner_origins_latest_id']
-        new_base_learner_origin['final'] = False
-        new_base_learner_origin['validation_results'] = dict()
-        xcnb['base_learner_origins'].append(new_base_learner_origin)
-        functions.write_xcnb(path, xcnb)
-        return jsonify(new_base_learner_origin)
+        new_base_learner_origin = models.BaseLearnerOrigin(**req_body)
+
+        with functions.DBContextManager(path) as session:
+            session.add(new_base_learner_origin)
+            session.commit()
+            return jsonify(new_base_learner_origin.serialize)
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/', methods=['GET', 'PATCH', 'DELETE'])
 def specific_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    base_learner_origin = None
-    for blo in xcnb['base_learner_origins']:
-        if blo['id'] == id:
-            base_learner_origin = blo
-            break
-    if base_learner_origin is None:
-        raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
-    if request.method == 'GET':
-        return jsonify(base_learner_origin)
+        if request.method == 'GET':
+            return jsonify(base_learner_origin.serialize)
 
-    if request.method == 'PATCH':
-        if base_learner_origin['final']:
-            raise exceptions.UserError('Cannot modify a final base learner origin')
-        req_body = request.get_json()
-        for key, value in six.iteritems(req_body):
-            base_learner_origin[key] = value
-            functions.write_xcnb(path, xcnb)
-        return jsonify(base_learner_origin)
+        if request.method == 'PATCH':
+            if base_learner_origin.final:
+                raise exceptions.UserError('Cannot modify a final base learner origin')
+            req_body = request.get_json()
 
-    if request.method == 'DELETE':
-        xcnb['base_learner_origins'].remove(base_learner_origin)
-        functions.write_xcnb(path, xcnb)
-        return my_message('Deleted base learner origin')
+            modifiable_attr = ('meta_feature_generator', 'name', 'source')
+            for attr in modifiable_attr:
+                if attr in req_body:
+                    setattr(base_learner_origin, attr, req_body[attr])
+
+            session.add(base_learner_origin)
+            session.commit()
+            return jsonify(base_learner_origin.serialize)
+
+        if request.method == 'DELETE':
+            session.delete(base_learner_origin)
+            session.commit()
+            return my_message('Deleted base learner origin')
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/verify/', methods=['GET'])
 def verify_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    base_learner_origin = None
-    for blo in xcnb['base_learner_origins']:
-        if blo['id'] == id:
-            base_learner_origin = blo
-            break
-    if base_learner_origin is None:
-        raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
-    if request.method == 'GET':
-        base_learner = parsers.return_estimator_from_json(base_learner_origin)
-        validation_results = functions.verify_estimator_class(base_learner)
-        base_learner_origin['validation_results'] = validation_results
-        functions.write_xcnb(path, xcnb)
-        return jsonify(base_learner_origin)
+        if request.method == 'GET':
+            if base_learner_origin.final:
+                raise exceptions.UserError('Base learner origin {} is already final'.format(id))
+            base_learner = base_learner_origin.return_estimator()
+            validation_results = functions.verify_estimator_class(base_learner)
+            base_learner_origin.validation_results = validation_results
+            session.add(base_learner_origin)
+            session.commit()
+            return jsonify(base_learner_origin.serialize)
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/confirm/', methods=['GET'])
 def confirm_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
-    xcnb = functions.read_xcnb(path)
 
-    base_learner_origin = None
-    for blo in xcnb['base_learner_origins']:
-        if blo['id'] == id:
-            base_learner_origin = blo
-            break
-    if base_learner_origin is None:
-        raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
-    if request.method == 'GET':
-        base_learner = parsers.return_estimator_from_json(base_learner_origin)
-        validation_results = functions.verify_estimator_class(base_learner)
-        base_learner_origin['validation_results'] = validation_results
-        base_learner_origin['final'] = True
-        functions.write_xcnb(path, xcnb)
-        return jsonify(base_learner_origin)
+        if request.method == 'GET':
+            if base_learner_origin.final:
+                raise exceptions.UserError('Base learner origin {} is already final'.format(id))
+            base_learner = base_learner_origin.return_estimator()
+            validation_results = functions.verify_estimator_class(base_learner)
+            base_learner_origin.validation_results = validation_results
+            base_learner_origin.final = True
+            session.add(base_learner_origin)
+            session.commit()
+            return jsonify(base_learner_origin.serialize)
