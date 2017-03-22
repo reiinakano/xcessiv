@@ -5,7 +5,6 @@ from xcessiv import redis_conn
 from xcessiv import functions
 from xcessiv import exceptions
 from xcessiv import models
-from xcessiv import app
 import numpy as np
 import os
 import sys
