@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import os
 from flask import request, jsonify
 from sqlalchemy import create_engine
+from sklearn.model_selection import ParameterGrid
 from xcessiv import app, functions, exceptions, models, rqtasks
 import six
 
@@ -274,6 +275,52 @@ def base_learner_gen_meta_features(id):
         rqtasks.generate_meta_features.delay(path, base_learner.id)
 
         return my_message('Created base learner')
+
+
+@app.route('/ensemble/base-learner-origins/<int:id>/grid/', methods=['POST'])
+def grid_search_base_learner(id):
+    """Creates a set of base learners from base learner origin using grid search
+    and queues them up
+    """
+    path = functions.get_path_from_query_string(request)
+    req_body = request.get_json()
+    param_grid = req_body['param_grid']
+
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+
+        if not base_learner_origin.final:
+            raise exceptions.UserError('Base learner origin {} is not final'.format(id))
+
+        num_learners_added = 0
+        for params in ParameterGrid(param_grid):
+            est = base_learner_origin.return_estimator()
+            try:
+                est.set_params(**params)
+            except Exception as e:
+                print(repr(e))
+                continue
+
+            hyperparameters = est.get_params()
+
+            base_learners = session.query(models.BaseLearner).\
+                filter_by(base_learner_origin_id=id,
+                          hyperparameters=hyperparameters).all()
+            if base_learners:  # already exists
+                continue
+
+            base_learner = models.BaseLearner(hyperparameters,
+                                              'queued',
+                                              base_learner_origin)
+
+            session.add(base_learner)
+            session.commit()
+
+            rqtasks.generate_meta_features.delay(path, base_learner.id)
+            num_learners_added += 1
+        return my_message('Created and queued {} base learners'.format(num_learners_added))
 
 
 @app.route('/ensemble/base-learners/', methods=['GET'])
