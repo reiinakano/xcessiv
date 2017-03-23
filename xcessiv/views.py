@@ -3,6 +3,7 @@ import os
 from flask import request, jsonify
 from sqlalchemy import create_engine
 from sklearn.model_selection import ParameterGrid
+from sklearn.model_selection import ParameterSampler
 from xcessiv import app, functions, exceptions, models, rqtasks
 import six
 
@@ -277,14 +278,30 @@ def base_learner_gen_meta_features(id):
         return my_message('Created base learner')
 
 
-@app.route('/ensemble/base-learner-origins/<int:id>/grid/', methods=['POST'])
+@app.route('/ensemble/base-learner-origins/<int:id>/search/', methods=['POST'])
 def grid_search_base_learner(id):
     """Creates a set of base learners from base learner origin using grid search
     and queues them up
     """
     path = functions.get_path_from_query_string(request)
     req_body = request.get_json()
-    param_grid = req_body['param_grid']
+    if req_body['method'] == 'grid':
+        iterator = ParameterGrid(req_body['param_grid'])
+    elif req_body['method'] == 'random':
+        try:
+            param_distributions = functions.import_object_from_string_code(
+                ''.join(req_body['source']),
+                'param_distributions'
+            )
+        except exceptions.UserError:
+            raise
+        except Exception as e:
+            raise exceptions.UserError('User code exception', exception_message=repr(e))
+        iterator = ParameterSampler(param_distributions,
+                                    n_iter=req_body['n_iter'])
+
+    else:
+        raise exceptions.UserError('{} not a valid search method'.format(req_body['method']))
 
     with functions.DBContextManager(path) as session:
         base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
@@ -295,7 +312,7 @@ def grid_search_base_learner(id):
             raise exceptions.UserError('Base learner origin {} is not final'.format(id))
 
         num_learners_added = 0
-        for params in ParameterGrid(param_grid):
+        for params in iterator:
             est = base_learner_origin.return_estimator()
             try:
                 est.set_params(**params)
