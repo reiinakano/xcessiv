@@ -340,13 +340,23 @@ def search_base_learner(id):
         return my_message('Created and queued {} base learners'.format(num_learners_added))
 
 
-@app.route('/ensemble/base-learners/', methods=['GET'])
+@app.route('/ensemble/base-learners/', methods=['GET', 'DELETE'])
 def get_base_learners():
     path = functions.get_path_from_query_string(request)
 
     with functions.DBContextManager(path) as session:
         base_learners = session.query(models.BaseLearner).all()
-        return jsonify(map(lambda x: x.serialize, base_learners))
+
+        if request.method == 'GET':
+            return jsonify(map(lambda x: x.serialize, base_learners))
+
+        if request.method == 'DELETE':  # Go crazy and delete everything
+            for base_learner in base_learners:
+                if os.path.exists(base_learner.meta_features_path(path)):
+                    os.remove(base_learner.meta_features_path(path))
+                session.delete(base_learner)
+            session.commit()
+            return my_message('Deleted all base learners')
 
 
 @app.route('/ensemble/base-learners/<int:id>/', methods=['GET', 'DELETE'])
