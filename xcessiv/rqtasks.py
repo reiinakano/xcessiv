@@ -79,7 +79,7 @@ def generate_meta_features(path, base_learner_id):
             if not os.path.exists(os.path.dirname(meta_features_path)):
                 os.makedirs(os.path.dirname(meta_features_path))
 
-            np.savetxt(meta_features_path, meta_features)
+            np.save(meta_features_path, meta_features, allow_pickle=False)
             base_learner.job_status = 'finished'
             base_learner.individual_score = dict(accuracy=acc)
             base_learner.meta_features_location = meta_features_path

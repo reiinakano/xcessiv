@@ -273,7 +273,7 @@ class BaseLearner(Base):
                 os.path.dirname(path),
                 app.config['XCESSIV_META_FEATURES_FOLDER'],
                 str(self.id)
-            )
+            ) + '.npy'
 
     @property
     def serialize(self):
