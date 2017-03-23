@@ -241,7 +241,7 @@ def confirm_base_learner_origin(id):
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/create-base-learner/', methods=['POST'])
-def base_learner_gen_meta_features(id):
+def create_base_learner(id):
     """This creates a single base learner from a base learner origin and queues it up"""
     path = functions.get_path_from_query_string(request)
 
@@ -279,7 +279,7 @@ def base_learner_gen_meta_features(id):
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/search/', methods=['POST'])
-def grid_search_base_learner(id):
+def search_base_learner(id):
     """Creates a set of base learners from base learner origin using grid search
     and queues them up
     """
