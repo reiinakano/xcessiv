@@ -10,6 +10,7 @@ import os
 import sys
 import traceback
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import StratifiedKFold
 
 
 @job('default', connection=redis_conn, timeout=86400)
@@ -38,14 +39,36 @@ def generate_meta_features(path, base_learner_id):
         try:
             est = base_learner.return_estimator()
             extraction = session.query(models.Extraction).first()
-            X_train, y_train = extraction.return_train_dataset()
+            X, y = extraction.return_train_dataset()
 
             if extraction.meta_feature_generation['method'] == 'cv':
-                raise Exception('not yet!')
+                cv = StratifiedKFold(
+                    n_splits=extraction.meta_feature_generation['folds'],
+                    shuffle=True,
+                    random_state=extraction.meta_feature_generation['seed']
+                )
+                meta_features_list = []
+                preds_list = []
+                trues_list = []
+                for train_index, test_index in cv.split(X, y):
+                    X_train, X_test = X[train_index], X[test_index]
+                    y_train, y_test = y[train_index], y[test_index]
+                    est = est.fit(X_train, y_train)
+                    preds_list.append(est.predict(X_test))
+                    meta_features_list.append(
+                        getattr(est, base_learner.base_learner_origin.
+                                meta_feature_generator)(X_test)
+                    )
+                    trues_list.append(y_test)
+                meta_features = np.concatenate(meta_features_list, axis=0)
+                preds = np.concatenate(preds_list, axis=0)
+                y_true = np.concatenate(trues_list)
+                print(y_true.shape, preds.shape)
+                acc = accuracy_score(y_true, preds)
 
             else:
                 X_holdout, y_holdout = extraction.return_holdout_dataset()
-                est = est.fit(X_train, y_train)
+                est = est.fit(X, y)
                 meta_features = getattr(est, base_learner.base_learner_origin.
                                         meta_feature_generator)(X_holdout)
                 preds = est.predict(X_holdout)
