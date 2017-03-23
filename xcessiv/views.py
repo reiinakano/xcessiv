@@ -265,7 +265,7 @@ def base_learner_gen_meta_features(id):
             raise exceptions.UserError('Base learner exists with given hyperparameters')
 
         base_learner = models.BaseLearner(hyperparameters,
-                                          dict(status='queued'),
+                                          'queued',
                                           base_learner_origin)
 
         session.add(base_learner)

@@ -30,8 +30,8 @@ def generate_meta_features(path, base_learner_id):
             raise exceptions.UserError('Base learner {} '
                                        'does not exist'.format(base_learner_id))
 
-        base_learner.job_status['job_id'] = get_current_job().id
-        base_learner.job_status['status'] = 'started'
+        base_learner.job_id = get_current_job().id
+        base_learner.job_status = 'started'
 
         session.add(base_learner)
         session.commit()
@@ -80,7 +80,7 @@ def generate_meta_features(path, base_learner_id):
                 os.makedirs(os.path.dirname(meta_features_path))
 
             np.savetxt(meta_features_path, meta_features)
-            base_learner.job_status['status'] = 'finished'
+            base_learner.job_status = 'finished'
             base_learner.individual_score = dict(accuracy=acc)
             base_learner.meta_features_location = meta_features_path
             session.add(base_learner)
@@ -88,10 +88,10 @@ def generate_meta_features(path, base_learner_id):
 
         except:
             session.rollback()
-            base_learner.job_status['status'] = 'errored'
-            base_learner.job_status['error_type'] = repr(sys.exc_info()[0])
-            base_learner.job_status['error_value'] = repr(sys.exc_info()[1])
-            base_learner.job_status['error_traceback'] = \
+            base_learner.job_status = 'errored'
+            base_learner.description['error_type'] = repr(sys.exc_info()[0])
+            base_learner.description['error_value'] = repr(sys.exc_info()[1])
+            base_learner.description['error_traceback'] = \
                 traceback.format_exception(*sys.exc_info())
             session.add(base_learner)
             session.commit()

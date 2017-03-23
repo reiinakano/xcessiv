@@ -238,7 +238,9 @@ class BaseLearner(Base):
     hyperparameters = Column(JsonEncodedDict)
     individual_score = Column(JsonEncodedDict)
     meta_features_location = Column(Text)
-    job_status = Column(JsonEncodedDict)
+    job_status = Column(Text)
+    job_id = Column(Text)
+    description = Column(JsonEncodedDict)
     base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
     base_learner_origin = relationship('BaseLearnerOrigin', back_populates='base_learners')
 
@@ -248,6 +250,7 @@ class BaseLearner(Base):
         self.meta_features_location = None
         self.job_status = job_status
         self.job_id = None
+        self.description = dict()
         self.base_learner_origin = base_learner_origin
 
     def return_estimator(self):
@@ -279,6 +282,8 @@ class BaseLearner(Base):
             hyperparameters=self.hyperparameters,
             individual_score=self.individual_score,
             job_status=self.job_status,
+            job_id=self.job_id,
+            description=self.description,
             meta_features_location=self.meta_features_location,
             base_learner_origin_id=self.base_learner_origin_id
         )
