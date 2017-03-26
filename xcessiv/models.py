@@ -199,14 +199,17 @@ class BaseLearnerOrigin(Base):
     name = Column(Text)
     final = Column(Boolean)
     meta_feature_generator = Column(Text)
+    metric_generators = Column(JsonEncodedDict)
     base_learners = relationship('BaseLearner', back_populates='base_learner_origin')
 
-    def __init__(self, source=None, name=''):
+    def __init__(self, source=None, name='',
+                 meta_feature_generator='predict_proba', metric_generators=None):
         self.source = list() if source is None else source
         self.name = name
         self.validation_results = dict()
         self.final = False
-        self.meta_feature_generator = "predict_proba"
+        self.meta_feature_generator = meta_feature_generator
+        self.metric_generators = dict() if metric_generators is None else metric_generators
 
     @property
     def serialize(self):
@@ -216,7 +219,8 @@ class BaseLearnerOrigin(Base):
             name=self.name,
             validation_results=self.validation_results,
             final=self.final,
-            meta_feature_generator=self.meta_feature_generator
+            meta_feature_generator=self.meta_feature_generator,
+            metric_generators=self.metric_generators
         )
 
     def return_estimator(self):

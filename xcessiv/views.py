@@ -182,7 +182,8 @@ def specific_base_learner_origin(id):
                 raise exceptions.UserError('Cannot modify a final base learner origin')
             req_body = request.get_json()
 
-            modifiable_attr = ('meta_feature_generator', 'name', 'source')
+            modifiable_attr = ('meta_feature_generator', 'name', 'source',
+                               'metric_generators')
             for attr in modifiable_attr:
                 if attr in req_body:
                     setattr(base_learner_origin, attr, req_body[attr])
@@ -211,7 +212,11 @@ def verify_base_learner_origin(id):
                 raise exceptions.UserError('Base learner origin {} '
                                            'is already final'.format(id))
             base_learner = base_learner_origin.return_estimator()
-            validation_results = functions.verify_estimator_class(base_learner)
+            validation_results = functions.verify_estimator_class(
+                base_learner,
+                base_learner_origin.meta_feature_generator,
+                base_learner_origin.metric_generators
+            )
             base_learner_origin.validation_results = validation_results
             session.add(base_learner_origin)
             session.commit()
@@ -232,7 +237,11 @@ def confirm_base_learner_origin(id):
                 raise exceptions.UserError('Base learner origin {} '
                                            'is already final'.format(id))
             base_learner = base_learner_origin.return_estimator()
-            validation_results = functions.verify_estimator_class(base_learner)
+            validation_results = functions.verify_estimator_class(
+                base_learner,
+                base_learner_origin.meta_feature_generator,
+                base_learner_origin.metric_generators
+            )
             base_learner_origin.validation_results = validation_results
             base_learner_origin.final = True
             session.add(base_learner_origin)
@@ -297,8 +306,7 @@ def search_base_learner(id):
             raise
         except Exception as e:
             raise exceptions.UserError('User code exception', exception_message=repr(e))
-        iterator = ParameterSampler(param_distributions,
-                                    n_iter=req_body['n_iter'])
+        iterator = ParameterSampler(param_distributions, n_iter=req_body['n_iter'])
 
     else:
         raise exceptions.UserError('{} not a valid search method'.format(req_body['method']))

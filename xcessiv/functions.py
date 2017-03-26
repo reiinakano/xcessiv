@@ -106,7 +106,7 @@ def verify_dataset(X, y):
     )
 
 
-def verify_estimator_class(est):
+def verify_estimator_class(est, meta_feature_generator, metric_generators):
     """Verify if estimator object is valid for use i.e. scikit-learn format
 
     Verifies if an estimator is fit for use by testing for existence of methods
@@ -116,6 +116,15 @@ def verify_estimator_class(est):
     Args:
         est: Estimator object with `fit`, `predict`/`predict_proba`,
             `get_params`, and `set_params` methods.
+
+        meta_feature_generator (str, unicode): Name of the method used by the estimator
+            to generate meta-features on a set of data.
+
+        metric_generators (dict): Dictionary of key value pairs where the key
+            signifies the name of the metric calculated and the value is a list
+            of strings, when concatenated, form Python code containing the
+            function used to calculate the metric from true values and the
+            meta-features generated.
 
     Returns:
         performance_dict (mapping): Mapping from performance metric
@@ -127,10 +136,11 @@ def verify_estimator_class(est):
         raise exceptions.UserError('Estimator does not have get_params method')
     if not hasattr(est, "set_params"):
         raise exceptions.UserError('Estimator does not have set_params method')
+    if not hasattr(est, meta_feature_generator):
+        raise exceptions.UserError('Estimator does not have meta-feature generator'
+                                   ' {}'.format(meta_feature_generator))
 
     performance_dict = dict()
-    performance_dict['has_predict_proba'] = hasattr(est, 'predict_proba')
-    performance_dict['has_decision_function'] = hasattr(est, 'decision_function')
 
     true_labels = []
     preds = []
@@ -139,10 +149,21 @@ def verify_estimator_class(est):
         y_train, y_test = y[train_index], y[test_index]
         est.fit(X_train, y_train)
         true_labels.append(y_test)
-        preds.append(est.predict(X_test))
+        preds.append(getattr(est, meta_feature_generator)(X_test))
     true_labels = np.concatenate(true_labels)
-    preds = np.concatenate(preds)
-    performance_dict['Accuracy'] = accuracy_score(true_labels, preds)
+    preds = np.concatenate(preds, axis=0)
+    if preds.shape[0] != true_labels.shape[0]:
+        raise exceptions.UserError('Estimator\'s meta-feature generator '
+                                   'does not produce valid shape')
+    for key in metric_generators:
+        try:
+            metric_generator = import_object_from_string_code(
+                ''.join(metric_generators[key]),
+                'metric_generator'
+            )
+            performance_dict[key] = metric_generator(true_labels, preds)
+        except Exception as e:
+            raise exceptions.UserError(repr(e))
 
     return performance_dict
 

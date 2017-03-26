@@ -48,31 +48,32 @@ def generate_meta_features(path, base_learner_id):
                     random_state=extraction.meta_feature_generation['seed']
                 )
                 meta_features_list = []
-                preds_list = []
                 trues_list = []
                 for train_index, test_index in cv.split(X, y):
                     X_train, X_test = X[train_index], X[test_index]
                     y_train, y_test = y[train_index], y[test_index]
                     est = est.fit(X_train, y_train)
-                    preds_list.append(est.predict(X_test))
                     meta_features_list.append(
                         getattr(est, base_learner.base_learner_origin.
                                 meta_feature_generator)(X_test)
                     )
                     trues_list.append(y_test)
                 meta_features = np.concatenate(meta_features_list, axis=0)
-                preds = np.concatenate(preds_list, axis=0)
                 y_true = np.concatenate(trues_list)
-                print(y_true.shape, preds.shape)
-                acc = accuracy_score(y_true, preds)
 
             else:
                 X_holdout, y_holdout = extraction.return_holdout_dataset()
                 est = est.fit(X, y)
                 meta_features = getattr(est, base_learner.base_learner_origin.
                                         meta_feature_generator)(X_holdout)
-                preds = est.predict(X_holdout)
-                acc = accuracy_score(y_holdout, preds)
+                y_true = y_holdout
+
+            for key in base_learner.base_learner_origin.metric_generators:
+                metric_generator = functions.import_object_from_string_code(
+                    ''.join(base_learner.base_learner_origin.metric_generators[key]),
+                    'metric_generator'
+                )
+                base_learner.individual_score[key] = metric_generator(y_true, meta_features)
 
             meta_features_path = base_learner.meta_features_path(path)
 
@@ -81,7 +82,6 @@ def generate_meta_features(path, base_learner_id):
 
             np.save(meta_features_path, meta_features, allow_pickle=False)
             base_learner.job_status = 'finished'
-            base_learner.individual_score = dict(accuracy=acc)
             base_learner.meta_features_location = meta_features_path
             session.add(base_learner)
             session.commit()

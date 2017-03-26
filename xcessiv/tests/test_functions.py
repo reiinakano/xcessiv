@@ -66,16 +66,38 @@ class TestVerifyDataset(unittest.TestCase):
 
 
 class TestVerifyEstimatorClass(unittest.TestCase):
+    def setUp(self):
+        self.source = [
+            "from sklearn.metrics import accuracy_score\n",
+            "import numpy as np\n",
+            "def metric_generator(y_true, y_probas):\n",
+            "    argmax = np.argmax(y_probas, axis=1)\n",
+            "    return accuracy_score(y_true, argmax)"
+        ]
+        self.wrong_source = [
+            "metric_generator = ''"
+        ]
+
     def test_verify_estimator_class(self):
         np.random.seed(8)
-        performance_dict = functions.verify_estimator_class(RandomForestClassifier())
+        performance_dict = functions.verify_estimator_class(RandomForestClassifier(),
+                                                            'predict_proba',
+                                                            dict(Accuracy=self.source))
         assert round(performance_dict['Accuracy'], 3) == 0.953
-        assert performance_dict['has_predict_proba']
-        assert not performance_dict['has_decision_function']
 
     def test_estimator_with_decision_function(self):
         np.random.seed(8)
-        performance_dict = functions.verify_estimator_class(SVC())
+        performance_dict = functions.verify_estimator_class(SVC(decision_function_shape='ovr'),
+                                                            'decision_function',
+                                                            dict(Accuracy=self.source))
         assert round(performance_dict['Accuracy'], 3) == 0.973
-        assert performance_dict['has_decision_function']
-        assert not performance_dict['has_predict_proba']
+
+    def test_assertion_of_invalid_metric_generator(self):
+        np.random.seed(8)
+        self.assertRaises(
+            exceptions.UserError,
+            functions.verify_estimator_class,
+            RandomForestClassifier(),
+            'predict_proba',
+            dict(Accuracy=self.wrong_source)
+        )
