@@ -201,7 +201,7 @@ class BaseLearnerOrigin(Base):
     meta_feature_generator = Column(Text)
     metric_generators = Column(JsonEncodedDict)
     base_learners = relationship('BaseLearner', back_populates='base_learner_origin')
-    ensembles = relationship('Ensemble', back_populates='base_learner_origin')
+    stacked_ensembles = relationship('StackedEnsemble', back_populates='base_learner_origin')
 
     def __init__(self, source=None, name='',
                  meta_feature_generator='predict_proba', metric_generators=None):
@@ -238,7 +238,7 @@ class BaseLearnerOrigin(Base):
 association_table = Table(
     'association', Base.metadata,
     Column('baselearner_id', Integer, ForeignKey('baselearner.id')),
-    Column('ensemble_id', Integer, ForeignKey('ensemble.id'))
+    Column('stackedensemble_id', Integer, ForeignKey('stackedensemble.id'))
 )
 
 
@@ -255,8 +255,8 @@ class BaseLearner(Base):
     description = Column(JsonEncodedDict)
     base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
     base_learner_origin = relationship('BaseLearnerOrigin', back_populates='base_learners')
-    ensembles = relationship(
-        'Ensemble',
+    stacked_ensembles = relationship(
+        'StackedEnsemble',
         secondary=association_table,
         back_populates='base_learners'
     )
@@ -306,18 +306,18 @@ class BaseLearner(Base):
         )
 
 
-class Ensemble(Base):
-    """This table contains Ensembles created in the xcessiv notebook"""
-    __tablename__ = 'ensemble'
+class StackedEnsemble(Base):
+    """This table contains StackedEnsembles created in the xcessiv notebook"""
+    __tablename__ = 'stackedensemble'
 
     id = Column(Integer, primary_key=True)
     base_learners = relationship(
         "BaseLearner",
         secondary=association_table,
-        back_populates='ensembles'
+        back_populates='stacked_ensembles'
     )
     base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
-    base_learner_origin = relationship('BaseLearnerOrigin', back_populates='ensembles')
+    base_learner_origin = relationship('BaseLearnerOrigin', back_populates='stacked_ensembles')
     secondary_learner_hyperparameters = Column(JsonEncodedDict)
     individual_score = Column(JsonEncodedDict)
     append_original = Column(Boolean)
