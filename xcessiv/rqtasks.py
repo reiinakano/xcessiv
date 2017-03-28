@@ -120,57 +120,53 @@ def evaluate_stacked_ensemble(path, ensemble_id):
         session.add(stacked_ensemble)
         session.commit()
 
-        for base_learner in stacked_ensemble.base_learners:
-            base_learner.meta_features_location
-
         try:
-            est = stacked_ensemble.return_secondary_learner()
+            meta_features_list = []
+            for base_learner in stacked_ensemble.base_learners:
+                meta_features_list.append(np.load(base_learner.meta_features_path(path)))
+
+            secondary_features = np.concatenate(meta_features_list, axis=1)
+
+            # Get data
             extraction = session.query(models.Extraction).first()
-            X, y = extraction.return_train_dataset()
-
             if extraction.meta_feature_generation['method'] == 'cv':
-                cv = StratifiedKFold(
-                    n_splits=extraction.meta_feature_generation['folds'],
-                    shuffle=True,
-                    random_state=extraction.meta_feature_generation['seed']
-                )
-                meta_features_list = []
-                trues_list = []
-                for train_index, test_index in cv.split(X, y):
-                    X_train, X_test = X[train_index], X[test_index]
-                    y_train, y_test = y[train_index], y[test_index]
-                    est = est.fit(X_train, y_train)
-                    meta_features_list.append(
-                        getattr(est, base_learner.base_learner_origin.
-                                meta_feature_generator)(X_test)
-                    )
-                    trues_list.append(y_test)
-                meta_features = np.concatenate(meta_features_list, axis=0)
-                y_true = np.concatenate(trues_list)
-
+                X, y = extraction.return_train_dataset()
             else:
-                X_holdout, y_holdout = extraction.return_holdout_dataset()
-                est = est.fit(X, y)
-                meta_features = getattr(est, base_learner.base_learner_origin.
-                                        meta_feature_generator)(X_holdout)
-                y_true = y_holdout
+                X, y = extraction.return_holdout_dataset()
 
-            for key in base_learner.base_learner_origin.metric_generators:
+            if stacked_ensemble.append_original:
+                secondary_features = np.concatenate((secondary_features, X), axis=1)
+
+            est = stacked_ensemble.return_secondary_learner()
+
+            cv = StratifiedKFold(
+                n_splits=5,
+                shuffle=True,
+                random_state=8
+            )
+            preds = []
+            trues_list = []
+            for train_index, test_index in cv.split(X, y):
+                X_train, X_test = secondary_features[train_index], secondary_features[test_index]
+                y_train, y_test = y[train_index], y[test_index]
+                est = est.fit(X_train, y_train)
+                preds.append(
+                    getattr(est, stacked_ensemble.base_learner_origin.
+                            meta_feature_generator)(X_test)
+                )
+                trues_list.append(y_test)
+            preds = np.concatenate(preds, axis=0)
+            y_true = np.concatenate(trues_list)
+
+            for key in stacked_ensemble.base_learner_origin.metric_generators:
                 metric_generator = functions.import_object_from_string_code(
-                    ''.join(base_learner.base_learner_origin.metric_generators[key]),
+                    ''.join(stacked_ensemble.base_learner_origin.metric_generators[key]),
                     'metric_generator'
                 )
-                base_learner.individual_score[key] = metric_generator(y_true, meta_features)
+                stacked_ensemble.individual_score[key] = metric_generator(y_true, preds)
 
-            meta_features_path = base_learner.meta_features_path(path)
-
-            if not os.path.exists(os.path.dirname(meta_features_path)):
-                os.makedirs(os.path.dirname(meta_features_path))
-
-            np.save(meta_features_path, meta_features, allow_pickle=False)
-            base_learner.job_status = 'finished'
-            base_learner.meta_features_location = meta_features_path
-            session.add(base_learner)
+            stacked_ensemble.job_status = 'finished'
+            session.add(stacked_ensemble)
             session.commit()
 
         except:
