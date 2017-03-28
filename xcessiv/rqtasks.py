@@ -82,7 +82,7 @@ def generate_meta_features(path, base_learner_id):
 
             np.save(meta_features_path, meta_features, allow_pickle=False)
             base_learner.job_status = 'finished'
-            base_learner.meta_features_location = meta_features_path
+            base_learner.meta_features_exists = True
             session.add(base_learner)
             session.commit()
 
@@ -120,7 +120,8 @@ def evaluate_stacked_ensemble(path, ensemble_id):
         session.add(stacked_ensemble)
         session.commit()
 
-
+        for base_learner in stacked_ensemble.base_learners:
+            base_learner.meta_features_location
 
         try:
             est = stacked_ensemble.return_secondary_learner()

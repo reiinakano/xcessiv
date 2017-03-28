@@ -249,7 +249,7 @@ class BaseLearner(Base):
     id = Column(Integer, primary_key=True)
     hyperparameters = Column(JsonEncodedDict)
     individual_score = Column(JsonEncodedDict)
-    meta_features_location = Column(Text)
+    meta_features_exists = Column(Boolean)
     job_status = Column(Text)
     job_id = Column(Text)
     description = Column(JsonEncodedDict)
@@ -264,7 +264,7 @@ class BaseLearner(Base):
     def __init__(self, hyperparameters, job_status, base_learner_origin):
         self.hyperparameters = hyperparameters
         self.individual_score = dict()
-        self.meta_features_location = None
+        self.meta_features_exists = False
         self.job_status = job_status
         self.job_id = None
         self.description = dict()
@@ -301,7 +301,7 @@ class BaseLearner(Base):
             job_status=self.job_status,
             job_id=self.job_id,
             description=self.description,
-            meta_features_location=self.meta_features_location,
+            meta_features_exists=self.meta_features_exists,
             base_learner_origin_id=self.base_learner_origin_id
         )
 
