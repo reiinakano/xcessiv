@@ -101,3 +101,13 @@ class TestVerifyEstimatorClass(unittest.TestCase):
             'predict_proba',
             dict(Accuracy=self.wrong_source)
         )
+
+    def test_assertion_meta_feature_generator(self):
+        np.random.seed(8)
+        self.assertRaises(
+            exceptions.UserError,
+            functions.verify_estimator_class,
+            RandomForestClassifier(),
+            'decision_function',
+            dict(Accuracy=self.source)
+        )
