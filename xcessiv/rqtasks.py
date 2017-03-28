@@ -146,7 +146,7 @@ def evaluate_stacked_ensemble(path, ensemble_id):
             )
             preds = []
             trues_list = []
-            for train_index, test_index in cv.split(X, y):
+            for train_index, test_index in cv.split(secondary_features, y):
                 X_train, X_test = secondary_features[train_index], secondary_features[test_index]
                 y_train, y_test = y[train_index], y[test_index]
                 est = est.fit(X_train, y_train)
