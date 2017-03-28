@@ -385,3 +385,64 @@ def specific_base_learner(id):
             session.delete(base_learner)
             session.commit()
             return my_message('Deleted base learner')
+
+
+@app.route('/ensemble/stacked/', methods=['GET', 'POST'])
+def create_new_stacked_ensemble():
+    path = functions.get_path_from_query_string(request)
+    req_body = request.get_json()
+
+    with functions.DBContextManager(path) as session:
+        if request.method == 'GET':
+                return jsonify(
+                    map(lambda x: x.serialize, session.query(models.StackedEnsemble).all())
+                )
+
+        if request.method == 'POST':
+            base_learners = session.query(models.BaseLearner).\
+                filter(models.BaseLearner.id.in_(req_body['base_learner_ids'])).all()
+            if len(base_learners) != len(req_body['base_learner_ids']):
+                raise exceptions.UserError('Not all base learners found')
+
+            base_learner_origin = session.query(models.BaseLearnerOrigin).\
+                filter_by(id=req_body['base_learner_origin_id']).first()
+            if base_learner_origin is None:
+                raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+
+            # Retrieve full hyperparameters
+            est = base_learner_origin.return_estimator()
+            est.set_params(**req_body['secondary_learner_hyperparameters'])
+            hyperparameters = est.get_params()
+
+            stacked_ensemble = models.StackedEnsemble(
+                secondary_learner_hyperparameters=hyperparameters,
+                base_learners=base_learners,
+                base_learner_origin=base_learner_origin,
+                append_original=req_body['append_original'],
+                job_status='queued'
+            )
+
+            session.add(stacked_ensemble)
+            session.commit()
+
+            rqtasks.evaluate_stacked_ensemble.delay(path, stacked_ensemble.id)
+
+            return my_message('Created stacked ensemble')
+
+
+@app.route('/ensemble/stacked/<int:id>/', methods=['GET', 'DELETE'])
+def specific_stacked_ensemble(id):
+    path = functions.get_path_from_query_string(request)
+
+    with functions.DBContextManager(path) as session:
+        stacked_ensemble = session.query(models.StackedEnsemble).filter_by(id=id).first()
+        if stacked_ensemble is None:
+            raise exceptions.UserError('Stacked ensemble {} not found'.format(id), 404)
+
+        if request.method == 'GET':
+            return jsonify(stacked_ensemble.serialize)
+
+        if request.method == 'DELETE':
+            session.delete(stacked_ensemble)
+            session.commit()
+            return my_message('Deleted stacked ensemble')
