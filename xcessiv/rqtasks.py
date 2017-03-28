@@ -131,6 +131,15 @@ def evaluate_stacked_ensemble(path, ensemble_id):
             extraction = session.query(models.Extraction).first()
             if extraction.meta_feature_generation['method'] == 'cv':
                 X, y = extraction.return_train_dataset()
+                #  We need to retrieve original order of meta-features
+                cv = StratifiedKFold(
+                    n_splits=extraction.meta_feature_generation['folds'],
+                    shuffle=True,
+                    random_state=extraction.meta_feature_generation['seed']
+                )
+                indices_list = [test_index for train_index, test_index in cv.split(X, y)]
+                indices = np.concatenate(indices_list)
+                X, y = X[indices], y[indices]
             else:
                 X, y = extraction.return_holdout_dataset()
 
