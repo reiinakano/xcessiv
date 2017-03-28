@@ -96,3 +96,8 @@ def generate_meta_features(path, base_learner_id):
             session.add(base_learner)
             session.commit()
             raise
+
+
+@job('default', connection=redis_conn, timeout=86400)
+def evaluate_ensemble(path, ensemble_id):
+    pass
