@@ -403,6 +403,9 @@ def create_new_stacked_ensemble():
                 filter(models.BaseLearner.id.in_(req_body['base_learner_ids'])).all()
             if len(base_learners) != len(req_body['base_learner_ids']):
                 raise exceptions.UserError('Not all base learners found')
+            for learner in base_learners:
+                if learner.job_status != 'finished':
+                    raise exceptions.UserError('Not all base learners have finished')
 
             base_learner_origin = session.query(models.BaseLearnerOrigin).\
                 filter_by(id=req_body['base_learner_origin_id']).first()
