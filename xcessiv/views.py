@@ -24,14 +24,13 @@ def handle_user_error(error):
 @app.route('/ensemble/', methods=['POST'])
 def create_new_ensemble():
     req_body = request.get_json()
-    location = req_body['location']
     ensemble_name = req_body['ensemble_name']
 
-    if os.path.exists(location):
+    if os.path.exists(ensemble_name):
         return my_message("File/folder already exists", 400)
 
-    os.makedirs(location)
-    xcessiv_notebook_path = os.path.join(location, ensemble_name + ".xcnb")
+    os.makedirs(ensemble_name)
+    xcessiv_notebook_path = os.path.join(ensemble_name, app.config['XCESSIV_NOTEBOOK_NAME'])
     sqlite_url = 'sqlite:///{}'.format(xcessiv_notebook_path)
     engine = create_engine(sqlite_url)
 
@@ -39,7 +38,7 @@ def create_new_ensemble():
 
     # Initialize
     extraction = models.Extraction()
-    with functions.DBContextManager(xcessiv_notebook_path) as session:
+    with functions.DBContextManager(ensemble_name) as session:
         session.add(extraction)
         session.commit()
 

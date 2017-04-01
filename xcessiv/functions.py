@@ -1,7 +1,6 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import imp
 import sys
-import json
 import os
 import hashlib
 import numpy as np
@@ -10,8 +9,7 @@ from sqlalchemy.orm import Session
 from six import exec_
 from sklearn.datasets import load_iris
 from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import accuracy_score
-from xcessiv import exceptions
+from xcessiv import app, exceptions
 
 
 def hash_file(path, block_size=65536):
@@ -189,16 +187,16 @@ class DBContextManager():
     """Use this context manager to automatically start and close a database session
 
     Examples:
-        >>> with DBContextManager('myproject.xcnb') as session:
+        >>> with DBContextManager('ProjectFolder') as session:
         >>>     # Do stuff with session
     """
     def __init__(self, path):
         """Initialize context manager
 
         Args:
-            path (str): Path to sqlite xcnb notebook
+            path (str, unicode): Path to project folder
         """
-        self.path = path
+        self.path = os.path.join(path, app.config['XCESSIV_NOTEBOOK_NAME'])
 
     def __enter__(self):
         if not os.path.exists(self.path):

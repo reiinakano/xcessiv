@@ -9,14 +9,12 @@ class TestCreateNewEnsemble(unittest.TestCase):
     def setUp(self):
         self.app = app.test_client()
         self.test_location = 'test_folder'
-        self.test_notebook = 'test_xcessiv'
-        self.path = os.path.join(self.test_location, self.test_notebook+".xcnb")
 
     def tearDown(self):
         if os.path.exists(os.path.join(self.test_location,
-                                       self.test_notebook+".xcnb")):
+                                       app.config['XCESSIV_NOTEBOOK_NAME'])):
             os.remove(os.path.join(self.test_location,
-                                   self.test_notebook+".xcnb"))
+                                   app.config['XCESSIV_NOTEBOOK_NAME']))
             os.rmdir(self.test_location)
 
     def test_creation(self):
@@ -24,16 +22,15 @@ class TestCreateNewEnsemble(unittest.TestCase):
             '/ensemble/',
             data=json.dumps(
                 {
-                    'location': self.test_location,
-                    'ensemble_name': self.test_notebook
+                    'ensemble_name': self.test_location
                 }
             ),
             content_type='application/json'
         )
         assert rv.status_code == 200
         assert os.path.exists(os.path.join(self.test_location,
-                                           self.test_notebook+".xcnb"))
-        with functions.DBContextManager(self.path) as session:
+                                           app.config['XCESSIV_NOTEBOOK_NAME']))
+        with functions.DBContextManager(self.test_location) as session:
             extraction = session.query(models.Extraction).all()
             assert len(extraction) == 1
             assert extraction[0].main_dataset == constants.DEFAULT_EXTRACTION_MAIN_DATASET
@@ -46,8 +43,7 @@ class TestCreateNewEnsemble(unittest.TestCase):
             '/ensemble/',
             data=json.dumps(
                 {
-                    'location': self.test_location,
-                    'ensemble_name': self.test_notebook
+                    'ensemble_name': self.test_location
                 }
             ),
             content_type='application/json'
@@ -57,8 +53,7 @@ class TestCreateNewEnsemble(unittest.TestCase):
             '/ensemble/',
             data=json.dumps(
                 {
-                    'location': self.test_location,
-                    'ensemble_name': self.test_notebook
+                    'ensemble_name': self.test_location
                 }
             ),
             content_type='application/json'

@@ -4,3 +4,4 @@ REDIS_DB = 8
 QUEUES = ['default']
 
 XCESSIV_META_FEATURES_FOLDER = 'meta-features'
+XCESSIV_NOTEBOOK_NAME = 'xcnb.db'

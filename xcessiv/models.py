@@ -284,10 +284,10 @@ class BaseLearner(Base):
         """Returns path for meta-features
 
         Args:
-            path (str): Absolute/local path of xcessiv notebook
+            path (str): Absolute/local path of xcessiv folder
         """
         return os.path.join(
-                os.path.dirname(path),
+                path,
                 app.config['XCESSIV_META_FEATURES_FOLDER'],
                 str(self.id)
             ) + '.npy'
