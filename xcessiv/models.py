@@ -54,11 +54,13 @@ class Extraction(Base):
     main_dataset = Column(JsonEncodedDict)
     test_dataset = Column(JsonEncodedDict)
     meta_feature_generation = Column(JsonEncodedDict)
+    data_statistics = Column(JsonEncodedDict)
 
     def __init__(self):
         self.main_dataset = constants.DEFAULT_EXTRACTION_MAIN_DATASET
         self.test_dataset = constants.DEFAULT_EXTRACTION_TEST_DATASET
         self.meta_feature_generation = constants.DEFAULT_EXTRACTION_META_FEATURE_GENERATION
+        self.data_statistics = None
 
     def return_main_dataset(self):
         """Returns main data set from self

@@ -9,8 +9,79 @@ import numpy as np
 import os
 import sys
 import traceback
-from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
 from sklearn.model_selection import StratifiedKFold
+
+
+def extraction_data_statistics(path):
+    """ Generates data statistics for the given data extraction setup stored
+    in Xcessiv notebook.
+
+    This is in rqtasks.py but not as a job yet. Temporarily call this directly
+    while I'm figuring out Javascript lel.
+
+    Args:
+        path (str, unicode): Path to xcessiv notebook
+    """
+    with functions.DBContextManager(path) as session:
+        extraction = session.query(models.Extraction).first()
+        X, y = extraction.return_main_dataset()
+
+        if extraction.test_dataset['method'] == 'split_from_main':
+            X, X_test, y, y_test = train_test_split(
+                X,
+                y,
+                test_size=extraction.test_dataset['split_ratio'],
+                random_state=extraction.test_dataset['split_seed'],
+                stratify=y
+            )
+        elif extraction.test_dataset['method'] == 'source':
+            if 'source' not in extraction.test_dataset or not extraction.test_dataset['source']:
+                raise exceptions.UserError('Source is empty')
+
+            extraction_code = "".join(extraction.test_dataset["source"])
+            extraction_function = functions.\
+                import_object_from_string_code(extraction_code, "extract_test_dataset")
+            X_test, y_test = extraction_function()
+        else:
+            X_test, y_test = None, None
+
+        if extraction.meta_feature_generation['method'] == 'holdout_split':
+            X, X_holdout, y, y_holdout = train_test_split(
+                X,
+                y,
+                test_size=extraction.meta_feature_generation['split_ratio'],
+                random_state=extraction.meta_feature_generation['seed'],
+                stratify=y
+            )
+        elif extraction.meta_feature_generation['method'] == 'holdout_source':
+            if 'source' not in extraction.meta_feature_generation or \
+                    not extraction.meta_feature_generation['source']:
+                raise exceptions.UserError('Source is empty')
+
+            extraction_code = "".join(extraction.meta_feature_generation["source"])
+            extraction_function = functions.\
+                import_object_from_string_code(extraction_code,
+                                               "extract_holdout_dataset")
+            X_holdout, y_holdout = extraction_function()
+        else:
+            X_holdout, y_holdout = None, None
+
+        data_stats = dict()
+        data_stats['train_data_stats'] = functions.verify_dataset(X, y)
+        if X_test is not None:
+            data_stats['test_data_stats'] = functions.verify_dataset(X_test, y_test)
+        else:
+            data_stats['test_data_stats'] = None
+        if X_holdout is not None:
+            data_stats['holdout_data_stats'] = functions.verify_dataset(X_holdout, y_holdout)
+        else:
+            data_stats['holdout_data_stats'] = None
+
+        extraction.data_statistics = data_stats
+
+        session.add(extraction)
+        session.commit()
 
 
 @job('default', connection=redis_conn, timeout=86400)
