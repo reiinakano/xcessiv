@@ -1,19 +1,17 @@
 import React, { Component } from 'react';
 import './App.css';
-import CodeBox from './CodeBox';
+import MainDataExtraction from './DatasetExtraction/MainDataExtraction';
 
 class App extends Component {
   render() {
     return (
-      <div>
-        <div className="App">
-          <div className="App-header">
-            <h2>Xcessiv</h2>
-          </div>
+      <div className="App">
+        <div className="App-header">
+          <h2>Xcessiv</h2>
         </div>
-        <CodeBox defaultText='# Enter code here'/>
+        <MainDataExtraction path='test'/>
       </div>
-    );
+    )
   }
 }
 
