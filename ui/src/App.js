@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import MainDataExtraction from './DatasetExtraction/MainDataExtraction';
+import TestDataExtraction from './DatasetExtraction/TestDataExtraction';
+
 
 class App extends Component {
   render() {
@@ -10,6 +12,7 @@ class App extends Component {
           <h2>Xcessiv</h2>
         </div>
         <MainDataExtraction path='test'/>
+        <TestDataExtraction path='test'/>
       </div>
     )
   }
