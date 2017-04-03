@@ -18,7 +18,7 @@ class MainDataExtraction extends Component {
 	  .then(response => response.json())
 	  .then(json => {
 	  	console.log(json)
-	  	this.oldCode = json.source.join('')
+	  	this.oldCode = json.source
 	    this.setState({
 	      newCode: this.oldCode,
 	      same: true
@@ -28,7 +28,7 @@ class MainDataExtraction extends Component {
 
   saveSetup() {
     var payload = {
-    	"source": [this.state.newCode]
+    	"source": this.state.newCode
     };
 
     fetch(
@@ -43,7 +43,7 @@ class MainDataExtraction extends Component {
       .then(response => response.json())
       .then(json => {
 	  	console.log(json)
-	  	this.oldCode = json.source.join('')
+	  	this.oldCode = json.source
 	    this.setState({
 	      newCode: this.oldCode,
 	      same: true
