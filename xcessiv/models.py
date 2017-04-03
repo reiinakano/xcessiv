@@ -74,10 +74,10 @@ class Extraction(Base):
             raise exceptions.UserError('Source is empty')
 
         extraction_code = "".join(self.main_dataset["source"])
-        extraction_function = functions.import_object_from_string_code(extraction_code,
-                                                                       "extract_main_dataset")
 
         try:
+            extraction_function = functions.import_object_from_string_code(extraction_code,
+                                                                           "extract_main_dataset")
             X, y = extraction_function()
         except Exception as e:
             raise exceptions.UserError('User code exception', exception_message=str(e))
