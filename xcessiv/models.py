@@ -195,7 +195,7 @@ class BaseLearnerOrigin(Base):
 
     def __init__(self, source=None, name='',
                  meta_feature_generator='predict_proba', metric_generators=None):
-        self.source = list() if source is None else source
+        self.source = '' if source is None else source
         self.name = name
         self.validation_results = dict()
         self.final = False
