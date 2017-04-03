@@ -7,14 +7,14 @@ from sklearn.ensemble import RandomForestClassifier
 class TestReturnTrainDataFromJSON(unittest.TestCase):
     def setUp(self):
         self.extraction = models.Extraction()
-        self.extraction.main_dataset['source'] = [
+        self.extraction.main_dataset['source'] = ''.join([
             "from sklearn.datasets import load_digits\n",
             "\n",
             "\n",
             "def extract_main_dataset():\n",
             "    X, y = load_digits(return_X_y=True)\n",
             "    return X, y"
-        ]
+        ])
 
     def test_main_is_train(self):
         X, y = self.extraction.return_train_dataset()
@@ -50,14 +50,14 @@ class TestReturnTrainDataFromJSON(unittest.TestCase):
 class TestReturnTestDataFromJSON(unittest.TestCase):
     def setUp(self):
         self.extraction = models.Extraction()
-        self.extraction.main_dataset['source'] = [
+        self.extraction.main_dataset['source'] = ''.join([
             "from sklearn.datasets import load_digits\n",
             "\n",
             "\n",
             "def extract_main_dataset():\n",
             "    X, y = load_digits(return_X_y=True)\n",
             "    return X, y"
-        ]
+        ])
         self.extraction.test_dataset['method'] = 'split_from_main'
         self.extraction.test_dataset['split_ratio'] = 0.1
         self.extraction.test_dataset['split_seed'] = 8
@@ -69,12 +69,12 @@ class TestReturnTestDataFromJSON(unittest.TestCase):
 
     def test_test_dataset_from_source(self):
         self.extraction.test_dataset["method"] = "source"
-        self.extraction.test_dataset["source"] = [
+        self.extraction.test_dataset["source"] = ''.join([
             "from sklearn.datasets import load_digits\n",
             "def extract_test_dataset():\n",
             "    X, y = load_digits(return_X_y=True)\n",
             "    return X, y"
-        ]
+        ])
         X, y = self.extraction.return_test_dataset()
         assert X.shape == (1797, 64)
         assert y.shape == (1797,)
@@ -83,14 +83,14 @@ class TestReturnTestDataFromJSON(unittest.TestCase):
 class TestReturnHoldoutDataFromJSON(unittest.TestCase):
     def setUp(self):
         self.extraction = models.Extraction()
-        self.extraction.main_dataset['source'] = [
+        self.extraction.main_dataset['source'] = ''.join([
             "from sklearn.datasets import load_digits\n",
             "\n",
             "\n",
             "def extract_main_dataset():\n",
             "    X, y = load_digits(return_X_y=True)\n",
             "    return X, y"
-        ]
+        ])
         self.extraction.meta_feature_generation['method'] = 'holdout_split'
         self.extraction.meta_feature_generation['seed'] = 8
         self.extraction.meta_feature_generation['split_ratio'] = 0.1
@@ -110,12 +110,12 @@ class TestReturnHoldoutDataFromJSON(unittest.TestCase):
 
     def test_holdout_dataset_from_source(self):
         self.extraction.meta_feature_generation["method"] = "holdout_source"
-        self.extraction.meta_feature_generation["source"] = [
+        self.extraction.meta_feature_generation["source"] = ''.join([
             "from sklearn.datasets import load_digits\n",
             "def extract_holdout_dataset():\n",
             "    X, y = load_digits(return_X_y=True)\n",
             "    return X, y"
-        ]
+        ])
         X, y = self.extraction.return_holdout_dataset()
         assert X.shape == (1797, 64)
         assert y.shape == (1797,)
@@ -124,10 +124,10 @@ class TestReturnHoldoutDataFromJSON(unittest.TestCase):
 class TestReturnEstimator(unittest.TestCase):
     def setUp(self):
         self.base_learner_origin = models.BaseLearnerOrigin(
-            source=[
+            source=''.join([
                 "from sklearn.ensemble import RandomForestClassifier\n",
                 "base_learner = RandomForestClassifier(random_state=8)"
-            ]
+            ])
         )
 
     def test_return_estimator_from_json(self):

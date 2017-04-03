@@ -61,7 +61,7 @@ class Extraction(Base):
         if not self.main_dataset['source']:
             raise exceptions.UserError('Source is empty')
 
-        extraction_code = "".join(self.main_dataset["source"])
+        extraction_code = self.main_dataset["source"]
 
         try:
             extraction_function = functions.import_object_from_string_code(extraction_code,
@@ -128,7 +128,7 @@ class Extraction(Base):
             if 'source' not in self.test_dataset or not self.test_dataset['source']:
                 raise exceptions.UserError('Source is empty')
 
-            extraction_code = "".join(self.test_dataset["source"])
+            extraction_code = self.test_dataset["source"]
             extraction_function = functions.\
                 import_object_from_string_code(extraction_code, "extract_test_dataset")
             X_test, y_test = extraction_function()
@@ -170,7 +170,7 @@ class Extraction(Base):
                     not self.meta_feature_generation['source']:
                 raise exceptions.UserError('Source is empty')
 
-            extraction_code = "".join(self.meta_feature_generation["source"])
+            extraction_code = self.meta_feature_generation["source"]
             extraction_function = functions.\
                 import_object_from_string_code(extraction_code,
                                                "extract_holdout_dataset")
@@ -220,7 +220,7 @@ class BaseLearnerOrigin(Base):
         Returns:
             est (estimator): Estimator object
         """
-        extraction_code = "".join(self.source)
+        extraction_code = self.source
         estimator = functions.import_object_from_string_code(extraction_code, "base_learner")
         return estimator
 

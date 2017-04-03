@@ -39,7 +39,7 @@ def extraction_data_statistics(path):
             if 'source' not in extraction.test_dataset or not extraction.test_dataset['source']:
                 raise exceptions.UserError('Source is empty')
 
-            extraction_code = "".join(extraction.test_dataset["source"])
+            extraction_code = extraction.test_dataset["source"]
             extraction_function = functions.\
                 import_object_from_string_code(extraction_code, "extract_test_dataset")
             X_test, y_test = extraction_function()
@@ -59,7 +59,7 @@ def extraction_data_statistics(path):
                     not extraction.meta_feature_generation['source']:
                 raise exceptions.UserError('Source is empty')
 
-            extraction_code = "".join(extraction.meta_feature_generation["source"])
+            extraction_code = extraction.meta_feature_generation["source"]
             extraction_function = functions.\
                 import_object_from_string_code(extraction_code,
                                                "extract_holdout_dataset")
@@ -141,7 +141,7 @@ def generate_meta_features(path, base_learner_id):
 
             for key in base_learner.base_learner_origin.metric_generators:
                 metric_generator = functions.import_object_from_string_code(
-                    ''.join(base_learner.base_learner_origin.metric_generators[key]),
+                    base_learner.base_learner_origin.metric_generators[key],
                     'metric_generator'
                 )
                 base_learner.individual_score[key] = metric_generator(y_true, meta_features)
@@ -240,7 +240,7 @@ def evaluate_stacked_ensemble(path, ensemble_id):
 
             for key in stacked_ensemble.base_learner_origin.metric_generators:
                 metric_generator = functions.import_object_from_string_code(
-                    ''.join(stacked_ensemble.base_learner_origin.metric_generators[key]),
+                    stacked_ensemble.base_learner_origin.metric_generators[key],
                     'metric_generator'
                 )
                 stacked_ensemble.individual_score[key] = metric_generator(y_true, preds)

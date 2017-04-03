@@ -314,7 +314,7 @@ def search_base_learner(id):
     elif req_body['method'] == 'random':
         try:
             param_distributions = functions.import_object_from_string_code(
-                ''.join(req_body['source']),
+                req_body['source'],
                 'param_distributions'
             )
         except exceptions.UserError:
