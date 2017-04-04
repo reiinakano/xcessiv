@@ -66,7 +66,7 @@ class MainDataExtraction extends Component {
       indentUnit: 4
     };
   	return <div className='MainDataExtraction'>
-  	  <h2> Main Dataset Extraction Setup </h2>
+  	  <h2> Main Dataset Extraction Setup {!this.state.same && '*'}</h2>
   	  <h3> Main Dataset Extraction Source </h3>
   	  <CodeMirror value={this.state.newCode} onChange={this.newSource} options={options}/>
   	  <button disabled={this.state.same} onClick={this.saveSetup}> Save Main Dataset Extraction Setup </button>
