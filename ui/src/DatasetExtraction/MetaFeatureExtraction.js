@@ -6,8 +6,27 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 
-function NoTestMessage(props) {
-  return <p>You have chosen not to use a test dataset.</p>
+class CVForm extends Component {
+  render() {
+
+    return (
+      <div>
+        <p>You have chosen to use cross-validation to generate meta-features</p>
+        <div className='SplitFormLabel'>
+          <label>
+            Number of folds:
+            <input name='foldsValue' type='number' min='2' value={this.props.folds} onChange={this.props.onCVFormChange}/>
+          </label>
+        </div>
+        <div className='SplitFormLabel'>
+          <label>
+            Random Seed:
+            <input name='seedValue' type='number' value={this.props.seed} onChange={this.props.onCVFormChange}/>
+          </label>
+        </div>
+      </div>
+    )
+  }
 }
 
 class SplitForm extends Component {
@@ -15,7 +34,7 @@ class SplitForm extends Component {
 
     return (
       <div>
-        <p>You have chosen to split off a test dataset from the main dataset</p>
+        <p>You have chosen to split a holdout set from the main dataset.</p>
         <div className='SplitFormLabel'>
           <label>
             Test Dataset Ratio:
@@ -33,6 +52,7 @@ class SplitForm extends Component {
   }
 }
 
+
 class SourceForm extends Component {
   render() {
     var options = {
@@ -41,7 +61,7 @@ class SourceForm extends Component {
     };
     return (
       <div>
-        <p>You have chosen to write your own code to retrieve a test dataset</p>
+        <p>You have chosen to write your own code to retrieve a holdout dataset for meta-feature generation</p>
         <CodeMirror value={this.props.value} 
         onChange={this.props.onChange} options={options}/>
       </div>
@@ -49,26 +69,28 @@ class SourceForm extends Component {
   }
 }
 
-class TestDataExtraction extends Component {
+class MetaFeatureExtraction extends Component {
   constructor(props) {
     super(props);
     this.state = {config: {
-    	"method": null,
+    	"method": 'cv',
       "split_ratio": 0.1,
-      "split_seed": 8,
-      "source": ''
+      "seed": 8,
+      "source": '',
+      "folds": 5
       },
       same: true
 	};
     this.handleOptionChange = this.handleOptionChange.bind(this);
     this.saveSetup = this.saveSetup.bind(this);
+    this.onCVFormChange = this.onCVFormChange.bind(this);
     this.onSplitFormChange = this.onSplitFormChange.bind(this);
     this.onSourceFormChange = this.onSourceFormChange.bind(this);
   }
 
   // Get request from server to populate fields
   componentDidMount() {
-    fetch('/ensemble/extraction/test-dataset/?path=' + this.props.path)
+    fetch('/ensemble/extraction/meta-feature-generation/?path=' + this.props.path)
     .then(response => response.json())
     .then(json => {
       console.log(json)
@@ -84,15 +106,29 @@ class TestDataExtraction extends Component {
   handleOptionChange(event) {
     var new_option = event.target.value;
 
-    // special case since radiobutton value can't be null
-    if (new_option === 'NONE') {
-      new_option = null;
-    }
-
     var newConfig = JSON.parse(JSON.stringify(this.state.config));
     newConfig.method = new_option;
     console.log(event.target.value);
     console.log(isEqual(newConfig, this.savedConfig))
+    this.setState({
+      config: newConfig,
+      same: isEqual(newConfig, this.savedConfig)
+    })
+  }
+
+  // Handle change in CV form
+  onCVFormChange(event) {
+    const target = event.target;
+    const name = target.name;
+
+    var newConfig = JSON.parse(JSON.stringify(this.state.config));
+    if (name === 'foldsValue') {
+      newConfig.folds = parseInt(target.value, 10);
+    }
+    else {
+      newConfig.seed = parseInt(target.value, 10);
+    }
+
     this.setState({
       config: newConfig,
       same: isEqual(newConfig, this.savedConfig)
@@ -109,7 +145,7 @@ class TestDataExtraction extends Component {
       newConfig.split_ratio = parseFloat(target.value);
     }
     else {
-      newConfig.split_seed = parseInt(target.value, 10);
+      newConfig.seed = parseInt(target.value, 10);
     }
 
     this.setState({
@@ -133,7 +169,7 @@ class TestDataExtraction extends Component {
     var payload = this.state.config;
 
     fetch(
-      '/ensemble/extraction/test-dataset/?path=' + this.props.path,
+      '/ensemble/extraction/meta-feature-generation/?path=' + this.props.path,
       {
       	method: "PATCH",
       	body: JSON.stringify( payload ),
@@ -153,31 +189,34 @@ class TestDataExtraction extends Component {
   }
 
   render() {
-
   	return <div className='MainDataExtraction'>
-  	  <h2> Test Dataset Extraction Setup {!this.state.same && '*'}</h2>
-  	  <h3> Test Dataset Extraction Method </h3>
+  	  <h2> MetaFeature Generation Setup {!this.state.same && '*'}</h2>
+  	  <h3> MetaFeature Generation Method </h3>
       <div>
-        <input type='radio' value="NONE" 
-        name="test_extraction_method"
-        checked={this.state.config.method === null}
-        onChange={this.handleOptionChange}/> No test dataset
-        <input type='radio' value="split_from_main" 
-        name="test_extraction_method" 
-        checked={this.state.config.method === 'split_from_main'}
-        onChange={this.handleOptionChange}/> Split from main dataset
-        <input type='radio' value="source" 
-        name="test_extraction_method"
-        checked={this.state.config.method === 'source'}
-        onChange={this.handleOptionChange}/> Extract with source code
+        <input type='radio' value="cv" 
+        name="meta_feature_method"
+        checked={this.state.config.method === 'cv'}
+        onChange={this.handleOptionChange}/> Cross-Validation
+        <input type='radio' value="holdout_split" 
+        name="meta_feature_method" 
+        checked={this.state.config.method === 'holdout_split'}
+        onChange={this.handleOptionChange}/> Split holdout set from main dataset
+        <input type='radio' value="holdout_source" 
+        name="meta_feature_method"
+        checked={this.state.config.method === 'holdout_source'}
+        onChange={this.handleOptionChange}/> Extract holdout set with source code
       </div>
-      {this.state.config.method === 'split_from_main' && 
-        <SplitForm split_ratio={this.state.config.split_ratio} 
-        split_seed={this.state.config.split_seed} 
-        onSplitFormChange={this.onSplitFormChange}/>
+      {this.state.config.method === 'cv' && 
+        <CVForm folds={this.state.config.folds} 
+        seed={this.state.config.seed} 
+        onCVFormChange={this.onCVFormChange}/>
       }
-      {this.state.config.method === null && <NoTestMessage />}
-      {this.state.config.method === 'source' &&
+      {this.state.config.method === 'holdout_split' &&
+        <SplitForm split_ratio={this.state.config.split_ratio} 
+        split_seed={this.state.config.seed} 
+        onSplitFormChange={this.onSplitFormChange} />
+      }
+      {this.state.config.method === 'holdout_source' &&
         <SourceForm value={this.state.config.source} 
         onChange={this.onSourceFormChange} />
       }
@@ -186,4 +225,4 @@ class TestDataExtraction extends Component {
   }
 }
 
-export default TestDataExtraction;
+export default MetaFeatureExtraction;

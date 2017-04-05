@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import MainDataExtraction from './DatasetExtraction/MainDataExtraction';
 import TestDataExtraction from './DatasetExtraction/TestDataExtraction';
+import MetaFeatureExtraction from './DatasetExtraction/MetaFeatureExtraction';
 
 
 class App extends Component {
@@ -13,6 +14,7 @@ class App extends Component {
         </div>
         <MainDataExtraction path='test'/>
         <TestDataExtraction path='test'/>
+        <MetaFeatureExtraction path='test'/>
       </div>
     )
   }
