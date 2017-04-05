@@ -4,6 +4,7 @@ import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
+import $ from 'jquery';
 
 
 class SplitForm extends Component {
@@ -29,17 +30,14 @@ class SplitForm extends Component {
   }
 }
 
-SplitForm.defaultProps = {
-  split_ratio: 0.33,
-  split_seed: 8
-};
-
-
 class TestDataExtraction extends Component {
   constructor(props) {
     super(props);
     this.state = {config: {
-    	"method": null
+    	"method": null,
+      "split_ratio": 0.1,
+      "split_seed": 8,
+      "source": ''
       },
       same: true
 	};
@@ -112,9 +110,9 @@ class TestDataExtraction extends Component {
 	  .then(response => response.json())
 	  .then(json => {
 	  	console.log(json)
-	  	this.savedConfig = json
+	  	this.savedConfig = $.extend({}, this.state.config, json)
 	    this.setState({
-	      config: json,
+	      config: this.savedConfig,
 	      same: true
 	    })
 	  });
