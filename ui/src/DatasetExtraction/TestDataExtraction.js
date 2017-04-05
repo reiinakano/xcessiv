@@ -6,6 +6,9 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 
+function NoTestMessage(props) {
+  return <p>You have chosen not to use a test dataset.</p>
+}
 
 class SplitForm extends Component {
   render() {
@@ -30,6 +33,22 @@ class SplitForm extends Component {
   }
 }
 
+class SourceForm extends Component {
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+    return (
+      <div>
+        <p>You have chosen to write your own code to retrieve a test dataset</p>
+        <CodeMirror value={this.props.value} 
+        onChange={this.props.onChange} options={options}/>
+      </div>
+    )
+  }
+}
+
 class TestDataExtraction extends Component {
   constructor(props) {
     super(props);
@@ -44,8 +63,24 @@ class TestDataExtraction extends Component {
     this.handleOptionChange = this.handleOptionChange.bind(this);
     this.saveSetup = this.saveSetup.bind(this);
     this.onSplitFormChange = this.onSplitFormChange.bind(this);
+    this.onSourceFormChange = this.onSourceFormChange.bind(this);
   }
 
+  // Get request from server to populate fields
+  componentDidMount() {
+    fetch('/ensemble/extraction/test-dataset/?path=' + this.props.path)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json)
+      this.savedConfig = $.extend({}, this.state.config, json)
+      this.setState({
+        config: this.savedConfig,
+        same: true
+      })
+    });
+  }
+
+  // Handle change in extraction method
   handleOptionChange(event) {
     var new_option = event.target.value;
 
@@ -64,6 +99,7 @@ class TestDataExtraction extends Component {
     })
   }
 
+  // Handle change in split form
   onSplitFormChange(event) {
     const target = event.target;
     const name = target.name;
@@ -82,6 +118,17 @@ class TestDataExtraction extends Component {
     })
   }
 
+  //Handle change in source code form
+  onSourceFormChange(value) {
+    var newConfig = JSON.parse(JSON.stringify(this.state.config));
+    newConfig.source = value;
+    this.setState({
+      config: newConfig,
+      same: isEqual(newConfig, this.savedConfig)
+    });
+  }
+
+  // Save all changes to server
   saveSetup() {
     var payload = this.state.config;
 
@@ -100,19 +147,6 @@ class TestDataExtraction extends Component {
 	  	this.savedConfig = json
 	    this.setState({
 	      config: json,
-	      same: true
-	    })
-	  });
-  }
-
-  componentDidMount() {
-  	fetch('/ensemble/extraction/test-dataset/?path=' + this.props.path)
-	  .then(response => response.json())
-	  .then(json => {
-	  	console.log(json)
-	  	this.savedConfig = $.extend({}, this.state.config, json)
-	    this.setState({
-	      config: this.savedConfig,
 	      same: true
 	    })
 	  });
@@ -141,6 +175,11 @@ class TestDataExtraction extends Component {
         <SplitForm split_ratio={this.state.config.split_ratio} 
         split_seed={this.state.config.split_seed} 
         onSplitFormChange={this.onSplitFormChange}/>
+      }
+      {this.state.config.method === null && <NoTestMessage />}
+      {this.state.config.method === 'source' &&
+        <SourceForm value={this.state.config.source} 
+        onChange={this.onSourceFormChange} />
       }
       <button disabled={this.state.same} onClick={this.saveSetup}> Save Test Dataset Extraction Setup </button>
   	</div>
