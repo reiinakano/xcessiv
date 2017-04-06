@@ -3,6 +3,7 @@ import './App.css';
 import MainDataExtraction from './DatasetExtraction/MainDataExtraction';
 import TestDataExtraction from './DatasetExtraction/TestDataExtraction';
 import MetaFeatureExtraction from './DatasetExtraction/MetaFeatureExtraction';
+import DataVerificationResult from './DatasetExtraction/DataVerificationResult';
 
 
 class App extends Component {
@@ -15,6 +16,7 @@ class App extends Component {
         <MainDataExtraction path='test'/>
         <TestDataExtraction path='test'/>
         <MetaFeatureExtraction path='test'/>
+        <DataVerificationResult path='test'/>
       </div>
     )
   }

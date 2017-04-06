@@ -37,7 +37,7 @@ class SplitForm extends Component {
         <p>You have chosen to split a holdout set from the main dataset.</p>
         <div className='SplitFormLabel'>
           <label>
-            Test Dataset Ratio:
+            Holdout Dataset Ratio:
             <input name='ratioValue' type='number' step='0.001' min='0' max='1' value={this.props.split_ratio} onChange={this.props.onSplitFormChange}/>
           </label>
         </div>
@@ -220,7 +220,7 @@ class MetaFeatureExtraction extends Component {
         <SourceForm value={this.state.config.source} 
         onChange={this.onSourceFormChange} />
       }
-      <button disabled={this.state.same} onClick={this.saveSetup}> Save Test Dataset Extraction Setup </button>
+      <button disabled={this.state.same} onClick={this.saveSetup}> Save Meta-Feature Generation Setup </button>
   	</div>
   }
 }

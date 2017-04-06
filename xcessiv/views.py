@@ -145,7 +145,7 @@ def verify_extraction_meta_feature_generation():
     return jsonify(functions.verify_dataset(X_holdout, y_holdout))
 
 
-@app.route('/ensemble/extraction/verify-all/', methods=['GET'])
+@app.route('/ensemble/extraction/verification/', methods=['GET', 'POST'])
 def verify_full_extraction():
     """This is an experimental endpoint to simultaneously verify data
     statistics and extraction for training, test, and holdout datasets.
@@ -154,7 +154,8 @@ def verify_full_extraction():
     """
     path = functions.get_path_from_query_string(request)
 
-    rqtasks.extraction_data_statistics(path)
+    if request.method == 'POST':
+        rqtasks.extraction_data_statistics(path)
 
     with functions.DBContextManager(path) as session:
         extraction = session.query(models.Extraction).first()
