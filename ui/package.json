@@ -6,6 +6,7 @@
   "dependencies": {
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
+    "rc-collapse": "^1.6.12",
     "react": "^15.4.2",
     "react-codemirror": "^0.3.0",
     "react-contenteditable": "^2.0.2",
