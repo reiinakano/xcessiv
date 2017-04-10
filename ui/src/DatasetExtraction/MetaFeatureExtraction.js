@@ -73,14 +73,14 @@ class MetaFeatureExtraction extends Component {
   constructor(props) {
     super(props);
     this.state = {config: {
-    	"method": 'cv',
+      "method": 'cv',
       "split_ratio": 0.1,
       "seed": 8,
       "source": '',
       "folds": 5
       },
       same: true
-	};
+  };
     this.handleOptionChange = this.handleOptionChange.bind(this);
     this.saveSetup = this.saveSetup.bind(this);
     this.onCVFormChange = this.onCVFormChange.bind(this);
@@ -171,27 +171,27 @@ class MetaFeatureExtraction extends Component {
     fetch(
       '/ensemble/extraction/meta-feature-generation/?path=' + this.props.path,
       {
-      	method: "PATCH",
-      	body: JSON.stringify( payload ),
-      	headers: new Headers({
-      	  'Content-Type': 'application/json'
-      	})
+        method: "PATCH",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
       })
       .then(response => response.json())
       .then(json => {
-	  	console.log(json)
-	  	this.savedConfig = json
-	    this.setState({
-	      config: json,
-	      same: true
-	    })
-	  });
+      console.log(json)
+      this.savedConfig = json
+      this.setState({
+        config: json,
+        same: true
+      })
+    });
   }
 
   render() {
-  	return <div className='MainDataExtraction'>
-  	  <h2> MetaFeature Generation Setup {!this.state.same && '*'}</h2>
-  	  <h3> MetaFeature Generation Method </h3>
+    return <div className='MainDataExtraction'>
+      <h2> MetaFeature Generation Setup {!this.state.same && '*'}</h2>
+      <h3> MetaFeature Generation Method </h3>
       <div>
         <input type='radio' value="cv" 
         name="meta_feature_method"
@@ -221,7 +221,7 @@ class MetaFeatureExtraction extends Component {
         onChange={this.onSourceFormChange} />
       }
       <button disabled={this.state.same} onClick={this.saveSetup}> Save Meta-Feature Generation Setup </button>
-  	</div>
+    </div>
   }
 }
 
