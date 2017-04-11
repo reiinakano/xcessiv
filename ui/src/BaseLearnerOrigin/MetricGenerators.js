@@ -48,7 +48,7 @@ class MetricGenerators extends Component {
   render() {
     return(
       <div>
-        <h4>Metrics to be calculated</h4>
+        <h4>Metrics to be calculated from meta-features</h4>
         <Collapse activeKey={this.state.activeKey} onChange={this.onActiveChange}
         accordion={false}>
           {this.getItems()}
