@@ -6,6 +6,18 @@ import 'codemirror/mode/python/python';
 import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
 import { isEqual } from 'lodash';
+import $ from 'jquery';
+
+function ValidationResults(props) {
+  const items = [];
+  for (var key in props.validation_results) {
+      items.push(<li key={key}>{key + ': ' + props.validation_results[key]}</li>)
+    }
+  return <div>
+    <h4>Base learner metrics on toy data</h4>
+    <ul>{items}</ul>
+  </div>
+}
 
 class BaseLearnerOrigin extends Component {
 
@@ -24,6 +36,9 @@ class BaseLearnerOrigin extends Component {
     this.handleChangeSource = this.handleChangeSource.bind(this);
     this.handleChangeMetaFeatureGenerator = this.handleChangeMetaFeatureGenerator.bind(this);
     this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
+    this.clearChanges = this.clearChanges.bind(this);
+    this.saveSetup = this.saveSetup.bind(this);
+    this.verifyLearner = this.verifyLearner.bind(this);
   }
 
   // Returns true if changing value of 'key' to 'value' in state will result in
@@ -92,12 +107,58 @@ class BaseLearnerOrigin extends Component {
     });
   }
 
+  // Clear any unsaved changes
+  clearChanges() {
+    if (confirm('Are you sure you want to clear all unsaved changes?')) {
+      this.setState($.extend({}, {same: true}, this.savedState));
+    }
+  }
+
+  // Save any changes to server
+  saveSetup() {
+    var payload = {
+      name: this.state['name'],
+      meta_feature_generator: this.state['meta_feature_generator'],
+      metric_generators: this.state['metric_generators'],
+      source: this.state['source']
+    };
+
+    fetch(
+      '/ensemble/base-learner-origins/' + this.props.id + '/?path=' + this.props.path,
+      {
+        method: "PATCH",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      })
+      .then(response => response.json())
+      .then(json => {
+      console.log(json)
+      this.savedState = json;
+      this.setState($.extend({}, {same: true}, json));
+    });
+  }
+
+  // Verify Base Learner Origin + Metric Generators
+  verifyLearner() {
+
+    fetch(
+      '/ensemble/base-learner-origins/' + this.props.id + '/verify/?path=' + this.props.path,
+      )
+      .then(response => response.json())
+      .then(json => {
+      console.log(json)
+      this.savedState = json;
+      this.setState($.extend({}, {same: true}, json));
+    });
+  }
+
   render() {
     var options = {
       lineNumbers: true,
       indentUnit: 4
     };
-    console.log(this.props.id);
 
     return (
       <div className='BaseLearnerOrigin'>
@@ -121,6 +182,13 @@ class BaseLearnerOrigin extends Component {
         <MetricGenerators 
         generators={this.state.metric_generators} 
         onGeneratorChange={this.handleChangeMetricGenerator} />
+        <ValidationResults validation_results={this.state.validation_results} />
+        <button disabled={this.state.same}
+        onClick={this.clearChanges}> Clear unsaved changes </button>
+        <button disabled={this.state.same} 
+        onClick={this.saveSetup}> Save Base Learner Setup</button>
+        <button disabled={!this.state.same} 
+        onClick={this.verifyLearner}>Verify on toy data</button>
       </div>
     )
   }

@@ -18,7 +18,7 @@ class App extends Component {
         <TestDataExtraction path='test'/>
         <MetaFeatureExtraction path='test'/>
         <DataVerificationResult path='test'/>
-        <BaseLearnerOrigin path='test' id={1}/>
+        <BaseLearnerOrigin path='test' id={5}/>
       </div>
     )
   }
