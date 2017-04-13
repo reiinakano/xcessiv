@@ -62,6 +62,42 @@ function ClearModal(props) {
   )
 }
 
+function FinalizeModal(props) {
+  return (
+    <ReactModal 
+      isOpen={props.isOpen} 
+      onRequestClose={props.onRequestClose}
+      contentLabel='Finalize Base learner'
+      style={{
+        overlay : {
+          zIndex            : 1000
+        },
+        content : {
+          top                        : '50%',
+          left                       : '50%',
+          right                      : 'auto',
+          bottom                     : 'auto',
+          marginRight                : '-50%',
+          transform                  : 'translate(-50%, -50%)',
+          border                     : '1px solid #ccc',
+          background                 : '#fff',
+          overflow                   : 'auto',
+          WebkitOverflowScrolling    : 'touch',
+          borderRadius               : '4px',
+          outline                    : 'none',
+          padding                    : '20px'
+        }
+      }}
+    >
+      <p>Are you sure you want to finalize this base learner setup?</p>
+      <p>You will no longer be allowed to make changes to this base 
+      learner after this</p>
+      <button onClick={props.onRequestClose}>Cancel</button>
+      <button onClick={props.handleYes}>Yes</button>
+    </ReactModal>
+  )
+}
+
 class BaseLearnerOrigin extends Component {
 
   constructor(props) {
@@ -74,7 +110,8 @@ class BaseLearnerOrigin extends Component {
       final: false,
       validation_results: {},
       same: true,
-      showClearModal: false
+      showClearModal: false,
+      showFinalizeModal: false
     };
     this.handleChangeTitle = this.handleChangeTitle.bind(this);
     this.handleChangeSource = this.handleChangeSource.bind(this);
@@ -87,12 +124,15 @@ class BaseLearnerOrigin extends Component {
     this.handleCloseClearModal = this.handleCloseClearModal.bind(this);
     this.saveSetup = this.saveSetup.bind(this);
     this.verifyLearner = this.verifyLearner.bind(this);
+    this.confirmLearner = this.confirmLearner.bind(this);
+    this.handleOpenFinalizeModal = this.handleOpenFinalizeModal.bind(this);
+    this.handleCloseFinalizeModal = this.handleCloseFinalizeModal.bind(this);
   }
 
   // Returns true if changing value of 'key' to 'value' in state will result in
   // different state from that stored in database.
   stateNoChange(key, value) {
-    var nextState = omit(this.state, ['same', 'showClearModal']);
+    var nextState = omit(this.state, ['same', 'showClearModal', 'showFinalizeModal']);
     nextState[key] = value
     return isEqual(nextState, this.savedState);
   }
@@ -219,10 +259,32 @@ class BaseLearnerOrigin extends Component {
     });
   }
 
+  // Confirm Base Learner Origin
+  confirmLearner() {
+    fetch(
+      '/ensemble/base-learner-origins/' + this.props.id + '/confirm/?path=' + this.props.path,
+      )
+      .then(response => response.json())
+      .then(json => {
+      console.log(json)
+      this.savedState = omit(json, 'id');
+      this.setState($.extend({}, {same: true, showFinalizeModal: false}, this.savedState));
+    });
+  }
+
+  handleOpenFinalizeModal() {
+    this.setState({showFinalizeModal: true});
+  }
+
+  handleCloseFinalizeModal() {
+    this.setState({showFinalizeModal: false});
+  }
+
   render() {
     var options = {
       lineNumbers: true,
-      indentUnit: 4
+      indentUnit: 4,
+      readOnly: this.state.final
     };
 
     return (
@@ -230,7 +292,7 @@ class BaseLearnerOrigin extends Component {
         <h3>
           {!this.state.same && '*'}
           <ContentEditable html={this.state.name} 
-          disabled={false} 
+          disabled={this.state.final} 
           onChange={this.handleChangeTitle} />
         </h3>
         <CodeMirror value={this.state.source} 
@@ -239,26 +301,32 @@ class BaseLearnerOrigin extends Component {
         <div className='SplitFormLabel'>
           <label>
             Meta-feature generator method: 
-            <input type='text' 
+            <input type='text' readOnly={this.state.final}
             value={this.state.meta_feature_generator} 
             onChange={this.handleChangeMetaFeatureGenerator}/>
           </label>
         </div>
         <MetricGenerators 
+        disabled={this.state.final}
         generators={this.state.metric_generators} 
         onGeneratorChange={this.handleChangeMetricGenerator} 
         handleAddMetricGenerator={this.handleAddMetricGenerator} 
         handleDeleteMetricGenerator={this.handleDeleteMetricGenerator} />
         <ValidationResults validation_results={this.state.validation_results} />
-        <button disabled={this.state.same}
+        <button disabled={this.state.same || this.state.final}
         onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
         <ClearModal isOpen={this.state.showClearModal} 
         onRequestClose={this.handleCloseClearModal}
         handleYes={this.clearChanges} />
-        <button disabled={this.state.same} 
+        <button disabled={this.state.same || this.state.final} 
         onClick={this.saveSetup}> Save Base Learner Setup</button>
-        <button disabled={!this.state.same} 
+        <button disabled={!this.state.same || this.state.final} 
         onClick={this.verifyLearner}>Verify on toy data</button>
+        <button disabled={!this.state.same || this.state.final}
+        onClick={this.handleOpenFinalizeModal}>Finalize Base Learner Setup</button>
+        <FinalizeModal isOpen={this.state.showFinalizeModal} 
+        onRequestClose={this.handleCloseFinalizeModal}
+        handleYes={this.confirmLearner} />
       </div>
     )
   }

@@ -7,7 +7,7 @@ import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from six import exec_
-from sklearn.datasets import load_iris
+from sklearn.datasets import load_breast_cancer
 from sklearn.model_selection import StratifiedKFold
 from xcessiv import app, exceptions
 
@@ -128,7 +128,7 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators):
         performance_dict (mapping): Mapping from performance metric
             name to performance metric value e.g. "Accuracy": 0.963
     """
-    X, y = load_iris(return_X_y=True)
+    X, y = load_breast_cancer(return_X_y=True)
 
     if not hasattr(est, "get_params"):
         raise exceptions.UserError('Estimator does not have get_params method')

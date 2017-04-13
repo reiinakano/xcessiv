@@ -105,13 +105,15 @@ class MetricGenerators extends Component {
       
       var options = {
         lineNumbers: true,
-        indentUnit: 4
+        indentUnit: 4,
+        readOnly: this.props.disabled
       };
       items.push(<Panel key={key} header={key}>
         <CodeMirror value={this.props.generators[key]} 
         onChange={this.props.onGeneratorChange.bind(null, key)} 
         options={options}/>
-        <button onClick={this.handleOpenDeleteModal}>Delete</button>
+        <button disabled={this.props.disabled} 
+        onClick={this.handleOpenDeleteModal}>Delete</button>
         <DeleteModal isOpen={this.state.showDeleteModal} 
         onRequestClose={this.handleCloseDeleteModal}
         onDelete={this.handleDeleteMetricGenerator.bind(null, key)} />
@@ -163,7 +165,8 @@ class MetricGenerators extends Component {
         accordion={false}>
           {this.getItems()}
         </Collapse>
-        <button onClick={this.handleOpenAddNewModal}>Add new metric generator</button>
+        <button disabled={this.props.disabled}
+        onClick={this.handleOpenAddNewModal}>Add new metric generator</button>
         <AddNewModal isOpen={this.state.showAddNewModal} 
         onRequestClose={this.handleCloseAddNewModal}
         onAdd={this.handleAddMetricGenerator} />
