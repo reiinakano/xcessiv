@@ -7,6 +7,27 @@ import 'rc-collapse/assets/index.css';
 import Collapse, { Panel } from 'rc-collapse';
 import ReactModal from 'react-modal';
 
+const modalStyle = {
+  overlay : {
+    zIndex            : 1000
+  },
+  content : {
+    top                        : '50%',
+    left                       : '50%',
+    right                      : 'auto',
+    bottom                     : 'auto',
+    marginRight                : '-50%',
+    transform                  : 'translate(-50%, -50%)',
+    border                     : '1px solid #ccc',
+    background                 : '#fff',
+    overflow                   : 'auto',
+    WebkitOverflowScrolling    : 'touch',
+    borderRadius               : '4px',
+    outline                    : 'none',
+    padding                    : '20px'
+  }
+}
+
 class AddNewModal extends Component {
   constructor(props) {
     super(props);
@@ -27,26 +48,7 @@ class AddNewModal extends Component {
         isOpen={this.props.isOpen} 
         onRequestClose={this.props.onRequestClose}
         contentLabel='Add new metric generator'
-        style={{
-          overlay : {
-            zIndex            : 1000
-          },
-          content : {
-            top                        : '50%',
-            left                       : '50%',
-            right                      : 'auto',
-            bottom                     : 'auto',
-            marginRight                : '-50%',
-            transform                  : 'translate(-50%, -50%)',
-            border                     : '1px solid #ccc',
-            background                 : '#fff',
-            overflow                   : 'auto',
-            WebkitOverflowScrolling    : 'touch',
-            borderRadius               : '4px',
-            outline                    : 'none',
-            padding                    : '20px'
-          }
-        }}
+        style={modalStyle}
       >
         <p>Name new metric</p>
         <label>
@@ -67,26 +69,7 @@ function DeleteModal(props) {
       isOpen={props.isOpen} 
       onRequestClose={props.onRequestClose}
       contentLabel='Delete metric generator'
-      style={{
-        overlay : {
-          zIndex            : 1000
-        },
-        content : {
-          top                        : '50%',
-          left                       : '50%',
-          right                      : 'auto',
-          bottom                     : 'auto',
-          marginRight                : '-50%',
-          transform                  : 'translate(-50%, -50%)',
-          border                     : '1px solid #ccc',
-          background                 : '#fff',
-          overflow                   : 'auto',
-          WebkitOverflowScrolling    : 'touch',
-          borderRadius               : '4px',
-          outline                    : 'none',
-          padding                    : '20px'
-        }
-      }}
+      style={modalStyle}
     >
       <p>Are you sure you want to delete this metric generator?</p>
       <button onClick={props.onRequestClose}>Cancel</button>
@@ -125,10 +108,10 @@ class MetricGenerators extends Component {
         indentUnit: 4
       };
       items.push(<Panel key={key} header={key}>
-        <button onClick={this.handleOpenDeleteModal}>Delete</button>
         <CodeMirror value={this.props.generators[key]} 
         onChange={this.props.onGeneratorChange.bind(null, key)} 
         options={options}/>
+        <button onClick={this.handleOpenDeleteModal}>Delete</button>
         <DeleteModal isOpen={this.state.showDeleteModal} 
         onRequestClose={this.handleCloseDeleteModal}
         onDelete={this.handleDeleteMetricGenerator.bind(null, key)} />
