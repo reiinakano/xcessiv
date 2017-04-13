@@ -5,7 +5,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
-import { isEqual } from 'lodash';
+import { isEqual, omit } from 'lodash';
 import $ from 'jquery';
 
 function ValidationResults(props) {
@@ -44,14 +44,7 @@ class BaseLearnerOrigin extends Component {
   // Returns true if changing value of 'key' to 'value' in state will result in
   // different state from that stored in database.
   stateNoChange(key, value) {
-    var nextState = {
-      name: this.state['name'],
-      meta_feature_generator: this.state['meta_feature_generator'],
-      metric_generators: this.state['metric_generators'],
-      source: this.state['source'],
-      final: this.state['final'],
-      validation_results: this.state['validation_results']
-    };
+    var nextState = omit(this.state, 'same');
     nextState[key] = value
     return isEqual(nextState, this.savedState);
   }
@@ -62,14 +55,7 @@ class BaseLearnerOrigin extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json)
-      this.savedState = {
-        name: json['name'],
-        meta_feature_generator: json['meta_feature_generator'],
-        metric_generators: json['metric_generators'],
-        source: json['source'],
-        final: json['final'],
-        validation_results: json['validation_results']
-      };
+      this.savedState = omit(json, 'id');
       this.setState(this.savedState);
     });
   }
@@ -77,6 +63,7 @@ class BaseLearnerOrigin extends Component {
   // Change name of base learner origin
   handleChangeTitle(evt) {
     console.log(evt.target.value);
+    console.log(this.stateNoChange('name', evt.target.value));
     this.setState({name: evt.target.value, 
       same: this.stateNoChange('name', evt.target.value)});
   }
@@ -135,8 +122,8 @@ class BaseLearnerOrigin extends Component {
       .then(response => response.json())
       .then(json => {
       console.log(json)
-      this.savedState = json;
-      this.setState($.extend({}, {same: true}, json));
+      this.savedState = omit(json, 'id');
+      this.setState($.extend({}, {same: true}, this.savedState));
     });
   }
 
@@ -149,8 +136,8 @@ class BaseLearnerOrigin extends Component {
       .then(response => response.json())
       .then(json => {
       console.log(json)
-      this.savedState = json;
-      this.setState($.extend({}, {same: true}, json));
+      this.savedState = omit(json, 'id');
+      this.setState($.extend({}, {same: true}, this.savedState));
     });
   }
 
