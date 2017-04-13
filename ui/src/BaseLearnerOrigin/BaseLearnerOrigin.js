@@ -81,6 +81,7 @@ class BaseLearnerOrigin extends Component {
     this.handleChangeMetaFeatureGenerator = this.handleChangeMetaFeatureGenerator.bind(this);
     this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
     this.handleAddMetricGenerator = this.handleAddMetricGenerator.bind(this);
+    this.handleDeleteMetricGenerator = this.handleDeleteMetricGenerator.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.handleOpenClearModal = this.handleOpenClearModal.bind(this);
     this.handleCloseClearModal = this.handleCloseClearModal.bind(this);
@@ -147,6 +148,17 @@ class BaseLearnerOrigin extends Component {
     if (!(metric_name in this.state.metric_generators)) {
       var new_metric_generators = JSON.parse(JSON.stringify(this.state.metric_generators));
       new_metric_generators[metric_name] = default_metric_generator_code;
+      this.setState({
+        metric_generators: new_metric_generators,
+        same: this.stateNoChange('metric_generators', new_metric_generators)
+      });
+    }
+  }
+
+  // Delete metric generator
+  handleDeleteMetricGenerator(metric_name) {
+    if (metric_name in this.state.metric_generators) {
+      var new_metric_generators = omit(this.state.metric_generators, metric_name);
       this.setState({
         metric_generators: new_metric_generators,
         same: this.stateNoChange('metric_generators', new_metric_generators)
@@ -235,7 +247,8 @@ class BaseLearnerOrigin extends Component {
         <MetricGenerators 
         generators={this.state.metric_generators} 
         onGeneratorChange={this.handleChangeMetricGenerator} 
-        handleAddMetricGenerator={this.handleAddMetricGenerator} />
+        handleAddMetricGenerator={this.handleAddMetricGenerator} 
+        handleDeleteMetricGenerator={this.handleDeleteMetricGenerator} />
         <ValidationResults validation_results={this.state.validation_results} />
         <button disabled={this.state.same}
         onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
