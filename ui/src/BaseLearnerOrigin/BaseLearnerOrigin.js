@@ -17,6 +17,27 @@ const default_metric_generator_code = `def metric_generator(y_true, y_probas):
     return 0.88
 `
 
+const modalStyle = {
+  overlay : {
+    zIndex            : 1000
+  },
+  content : {
+    top                        : '50%',
+    left                       : '50%',
+    right                      : 'auto',
+    bottom                     : 'auto',
+    marginRight                : '-50%',
+    transform                  : 'translate(-50%, -50%)',
+    border                     : '1px solid #ccc',
+    background                 : '#fff',
+    overflow                   : 'auto',
+    WebkitOverflowScrolling    : 'touch',
+    borderRadius               : '4px',
+    outline                    : 'none',
+    padding                    : '20px'
+  }
+}
+
 function ValidationResults(props) {
   const items = [];
   for (var key in props.validation_results) {
@@ -34,26 +55,7 @@ function ClearModal(props) {
       isOpen={props.isOpen} 
       onRequestClose={props.onRequestClose}
       contentLabel='Clear Changes'
-      style={{
-        overlay : {
-          zIndex            : 1000
-        },
-        content : {
-          top                        : '50%',
-          left                       : '50%',
-          right                      : 'auto',
-          bottom                     : 'auto',
-          marginRight                : '-50%',
-          transform                  : 'translate(-50%, -50%)',
-          border                     : '1px solid #ccc',
-          background                 : '#fff',
-          overflow                   : 'auto',
-          WebkitOverflowScrolling    : 'touch',
-          borderRadius               : '4px',
-          outline                    : 'none',
-          padding                    : '20px'
-        }
-      }}
+      style={modalStyle}
     >
       <p>Are you sure you want to clear all unsaved changes?</p>
       <button onClick={props.onRequestClose}>Cancel</button>
@@ -68,26 +70,7 @@ function FinalizeModal(props) {
       isOpen={props.isOpen} 
       onRequestClose={props.onRequestClose}
       contentLabel='Finalize Base learner'
-      style={{
-        overlay : {
-          zIndex            : 1000
-        },
-        content : {
-          top                        : '50%',
-          left                       : '50%',
-          right                      : 'auto',
-          bottom                     : 'auto',
-          marginRight                : '-50%',
-          transform                  : 'translate(-50%, -50%)',
-          border                     : '1px solid #ccc',
-          background                 : '#fff',
-          overflow                   : 'auto',
-          WebkitOverflowScrolling    : 'touch',
-          borderRadius               : '4px',
-          outline                    : 'none',
-          padding                    : '20px'
-        }
-      }}
+      style={modalStyle}
     >
       <p>Are you sure you want to finalize this base learner setup?</p>
       <p>You will no longer be allowed to make changes to this base 
