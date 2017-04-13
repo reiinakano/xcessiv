@@ -72,6 +72,7 @@ class BaseLearnerOrigin extends Component {
     this.handleChangeSource = this.handleChangeSource.bind(this);
     this.handleChangeMetaFeatureGenerator = this.handleChangeMetaFeatureGenerator.bind(this);
     this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
+    this.handleAddMetricGenerator = this.handleAddMetricGenerator.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.handleOpenClearModal = this.handleOpenClearModal.bind(this);
     this.handleCloseClearModal = this.handleCloseClearModal.bind(this);
@@ -130,6 +131,19 @@ class BaseLearnerOrigin extends Component {
       metric_generators: new_metric_generators,
       same: this.stateNoChange('metric_generators', new_metric_generators)
     });
+  }
+
+  // Add new metric generator
+  handleAddMetricGenerator(metric_name) {
+    console.log(metric_name);
+    if (!(metric_name in this.state.metric_generators)) {
+      var new_metric_generators = JSON.parse(JSON.stringify(this.state.metric_generators));
+      new_metric_generators[metric_name] = '';
+      this.setState({
+        metric_generators: new_metric_generators,
+        same: this.stateNoChange('metric_generators', new_metric_generators)
+      });
+    }
   }
 
   // Clear any unsaved changes
@@ -212,7 +226,8 @@ class BaseLearnerOrigin extends Component {
         </div>
         <MetricGenerators 
         generators={this.state.metric_generators} 
-        onGeneratorChange={this.handleChangeMetricGenerator} />
+        onGeneratorChange={this.handleChangeMetricGenerator} 
+        handleAddMetricGenerator={this.handleAddMetricGenerator} />
         <ValidationResults validation_results={this.state.validation_results} />
         <button disabled={this.state.same}
         onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
