@@ -9,6 +9,14 @@ import { isEqual, omit } from 'lodash';
 import $ from 'jquery';
 import ReactModal from 'react-modal';
 
+const default_metric_generator_code = `def metric_generator(y_true, y_probas):
+    """This function must return a numerical value given two numpy arrays 
+    containing the ground truth labels and generated meta-features, in that order.
+    (In this example, \`y_true\` and \`y_probas\`)
+    """
+    return 0.88
+`
+
 function ValidationResults(props) {
   const items = [];
   for (var key in props.validation_results) {
@@ -138,7 +146,7 @@ class BaseLearnerOrigin extends Component {
     console.log(metric_name);
     if (!(metric_name in this.state.metric_generators)) {
       var new_metric_generators = JSON.parse(JSON.stringify(this.state.metric_generators));
-      new_metric_generators[metric_name] = '';
+      new_metric_generators[metric_name] = default_metric_generator_code;
       this.setState({
         metric_generators: new_metric_generators,
         same: this.stateNoChange('metric_generators', new_metric_generators)
