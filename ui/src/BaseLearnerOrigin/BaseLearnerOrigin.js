@@ -7,6 +7,7 @@ import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
 import { isEqual, omit } from 'lodash';
 import $ from 'jquery';
+import ReactModal from 'react-modal';
 
 function ValidationResults(props) {
   const items = [];
@@ -17,6 +18,40 @@ function ValidationResults(props) {
     <h4>Base learner metrics on toy data</h4>
     <ul>{items}</ul>
   </div>
+}
+
+function ClearModal(props) {
+  return (
+    <ReactModal 
+      isOpen={props.isOpen} 
+      onRequestClose={props.onRequestClose}
+      contentLabel='Clear Changes'
+      style={{
+        overlay : {
+          zIndex            : 1000
+        },
+        content : {
+          top                        : '50%',
+          left                       : '50%',
+          right                      : 'auto',
+          bottom                     : 'auto',
+          marginRight                : '-50%',
+          transform                  : 'translate(-50%, -50%)',
+          border                     : '1px solid #ccc',
+          background                 : '#fff',
+          overflow                   : 'auto',
+          WebkitOverflowScrolling    : 'touch',
+          borderRadius               : '4px',
+          outline                    : 'none',
+          padding                    : '20px'
+        }
+      }}
+    >
+      <p>Are you sure you want to clear all unsaved changes?</p>
+      <button onClick={props.onRequestClose}>Cancel</button>
+      <button onClick={props.handleYes}>Yes</button>
+    </ReactModal>
+  )
 }
 
 class BaseLearnerOrigin extends Component {
@@ -30,13 +65,16 @@ class BaseLearnerOrigin extends Component {
       source: '',
       final: false,
       validation_results: {},
-      same: true
+      same: true,
+      showClearModal: false
     };
     this.handleChangeTitle = this.handleChangeTitle.bind(this);
     this.handleChangeSource = this.handleChangeSource.bind(this);
     this.handleChangeMetaFeatureGenerator = this.handleChangeMetaFeatureGenerator.bind(this);
     this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
+    this.handleOpenClearModal = this.handleOpenClearModal.bind(this);
+    this.handleCloseClearModal = this.handleCloseClearModal.bind(this);
     this.saveSetup = this.saveSetup.bind(this);
     this.verifyLearner = this.verifyLearner.bind(this);
   }
@@ -44,7 +82,7 @@ class BaseLearnerOrigin extends Component {
   // Returns true if changing value of 'key' to 'value' in state will result in
   // different state from that stored in database.
   stateNoChange(key, value) {
-    var nextState = omit(this.state, 'same');
+    var nextState = omit(this.state, ['same', 'showClearModal']);
     nextState[key] = value
     return isEqual(nextState, this.savedState);
   }
@@ -96,9 +134,15 @@ class BaseLearnerOrigin extends Component {
 
   // Clear any unsaved changes
   clearChanges() {
-    if (confirm('Are you sure you want to clear all unsaved changes?')) {
-      this.setState($.extend({}, {same: true}, this.savedState));
-    }
+    this.setState($.extend({}, {same: true, showClearModal: false}, this.savedState));
+  }
+
+  handleOpenClearModal() {
+    this.setState({showClearModal: true});
+  }
+
+  handleCloseClearModal() {
+    this.setState({showClearModal: false});
   }
 
   // Save any changes to server
@@ -171,7 +215,10 @@ class BaseLearnerOrigin extends Component {
         onGeneratorChange={this.handleChangeMetricGenerator} />
         <ValidationResults validation_results={this.state.validation_results} />
         <button disabled={this.state.same}
-        onClick={this.clearChanges}> Clear unsaved changes </button>
+        onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
+        <ClearModal isOpen={this.state.showClearModal} 
+        onRequestClose={this.handleCloseClearModal}
+        handleYes={this.clearChanges} />
         <button disabled={this.state.same} 
         onClick={this.saveSetup}> Save Base Learner Setup</button>
         <button disabled={!this.state.same} 
