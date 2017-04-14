@@ -10,6 +10,7 @@ import Collapse, { Panel } from 'rc-collapse';
 import { isEqual, omit } from 'lodash';
 import $ from 'jquery';
 import ReactModal from 'react-modal';
+import FaCheck from 'react-icons/lib/fa/check';
 
 const default_metric_generator_code = `def metric_generator(y_true, y_probas):
     """This function must return a numerical value given two numpy arrays 
@@ -281,12 +282,17 @@ class BaseLearnerOrigin extends Component {
       indentUnit: 4,
       readOnly: this.state.final
     };
+    var header = <b>
+      {'ID: ' + this.props.id + ' '}
+      {this.state.name + (!this.state.same ? '* ' : ' ')} 
+      {this.state.final && <FaCheck />}
+    </b>
 
     return (
       <div>
       <Collapse activeKey={this.state.activeKey} onChange={this.onActiveChange}
         accordion={false}>
-        <Panel key={this.props.id} header={this.state.name + (!this.state.same ? '*' : '') + ' ' + (this.state.final ? 'FINAL' : '')}>
+        <Panel key={this.props.id} header={header}>
           <h3>
             <ContentEditable html={this.state.name} 
             disabled={this.state.final} 

@@ -6,7 +6,7 @@ class ListBaseLearnerOrigin extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      ids: [5]
+      ids: []
     };
   }
 
