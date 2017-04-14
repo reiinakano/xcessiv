@@ -84,6 +84,23 @@ function FinalizeModal(props) {
   )
 }
 
+function DeleteModal(props) {
+  return (
+    <ReactModal 
+      isOpen={props.isOpen} 
+      onRequestClose={props.onRequestClose}
+      contentLabel='Delete Base learner'
+      style={modalStyle}
+    >
+      <p>Are you sure you want to delete this base learner setup?</p>
+      <p>You will also lose all base learners that have been scored using this setup</p>
+      <p><strong>This action is irreversible.</strong></p>
+      <button onClick={props.onRequestClose}>Cancel</button>
+      <button onClick={props.handleYes}>Yes</button>
+    </ReactModal>
+  )
+}
+
 class BaseLearnerOrigin extends Component {
 
   constructor(props) {
@@ -98,6 +115,7 @@ class BaseLearnerOrigin extends Component {
       same: true,
       showClearModal: false,
       showFinalizeModal: false,
+      showDeleteModal: false,
       activeKey: []
     };
     this.onActiveChange = this.onActiveChange.bind(this);
@@ -115,6 +133,9 @@ class BaseLearnerOrigin extends Component {
     this.confirmLearner = this.confirmLearner.bind(this);
     this.handleOpenFinalizeModal = this.handleOpenFinalizeModal.bind(this);
     this.handleCloseFinalizeModal = this.handleCloseFinalizeModal.bind(this);
+    this.handleOpenDeleteModal = this.handleOpenDeleteModal.bind(this);
+    this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
+    this.handleDeleteLearner = this.handleDeleteLearner.bind(this);
   }
 
   // Returns true if changing value of 'key' to 'value' in state will result in
@@ -213,6 +234,19 @@ class BaseLearnerOrigin extends Component {
 
   handleCloseClearModal() {
     this.setState({showClearModal: false});
+  }
+
+  handleOpenDeleteModal() {
+    this.setState({showDeleteModal: true});
+  }
+
+  handleCloseDeleteModal() {
+    this.setState({showDeleteModal: false});
+  }
+
+  handleDeleteLearner() {
+    this.props.deleteLearner(this.props.id);
+    this.handleCloseDeleteModal();
   }
 
   // Save any changes to server
@@ -333,6 +367,10 @@ class BaseLearnerOrigin extends Component {
           <FinalizeModal isOpen={this.state.showFinalizeModal} 
           onRequestClose={this.handleCloseFinalizeModal}
           handleYes={this.confirmLearner} />
+          <button onClick={this.handleOpenDeleteModal}>Delete Base Learner Setup</button>
+          <DeleteModal isOpen={this.state.showDeleteModal}
+          onRequestClose={this.handleCloseDeleteModal}
+          handleYes={this.handleDeleteLearner} />
         </Panel>
       </Collapse>
       </div>
