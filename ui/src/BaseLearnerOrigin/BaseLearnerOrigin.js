@@ -5,6 +5,8 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
+import 'rc-collapse/assets/index.css';
+import Collapse, { Panel } from 'rc-collapse';
 import { isEqual, omit } from 'lodash';
 import $ from 'jquery';
 import ReactModal from 'react-modal';
@@ -94,8 +96,10 @@ class BaseLearnerOrigin extends Component {
       validation_results: {},
       same: true,
       showClearModal: false,
-      showFinalizeModal: false
+      showFinalizeModal: false,
+      activeKey: []
     };
+    this.onActiveChange = this.onActiveChange.bind(this);
     this.handleChangeTitle = this.handleChangeTitle.bind(this);
     this.handleChangeSource = this.handleChangeSource.bind(this);
     this.handleChangeMetaFeatureGenerator = this.handleChangeMetaFeatureGenerator.bind(this);
@@ -115,9 +119,17 @@ class BaseLearnerOrigin extends Component {
   // Returns true if changing value of 'key' to 'value' in state will result in
   // different state from that stored in database.
   stateNoChange(key, value) {
-    var nextState = omit(this.state, ['same', 'showClearModal', 'showFinalizeModal']);
+    var nextState = omit(this.state, ['same', 'showClearModal', 'showFinalizeModal', 'activeKey']);
     nextState[key] = value
     return isEqual(nextState, this.savedState);
+  }
+
+  // Handler when active panel changes
+  onActiveChange(activeKey) {
+    console.log(activeKey);
+    this.setState({
+      activeKey
+    });
   }
 
   // Get request from server to populate fields
@@ -271,45 +283,52 @@ class BaseLearnerOrigin extends Component {
     };
 
     return (
-      <div className='BaseLearnerOrigin'>
-        <h3>
-          {!this.state.same && '*'}
-          <ContentEditable html={this.state.name} 
-          disabled={this.state.final} 
-          onChange={this.handleChangeTitle} />
-        </h3>
-        <CodeMirror value={this.state.source} 
-        onChange={this.handleChangeSource} 
-        options={options}/>
-        <div className='SplitFormLabel'>
-          <label>
-            Meta-feature generator method: 
-            <input type='text' readOnly={this.state.final}
-            value={this.state.meta_feature_generator} 
-            onChange={this.handleChangeMetaFeatureGenerator}/>
-          </label>
-        </div>
-        <MetricGenerators 
-        disabled={this.state.final}
-        generators={this.state.metric_generators} 
-        onGeneratorChange={this.handleChangeMetricGenerator} 
-        handleAddMetricGenerator={this.handleAddMetricGenerator} 
-        handleDeleteMetricGenerator={this.handleDeleteMetricGenerator} />
-        <ValidationResults validation_results={this.state.validation_results} />
-        <button disabled={this.state.same || this.state.final}
-        onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
-        <ClearModal isOpen={this.state.showClearModal} 
-        onRequestClose={this.handleCloseClearModal}
-        handleYes={this.clearChanges} />
-        <button disabled={this.state.same || this.state.final} 
-        onClick={this.saveSetup}> Save Base Learner Setup</button>
-        <button disabled={!this.state.same || this.state.final} 
-        onClick={this.verifyLearner}>Verify on toy data</button>
-        <button disabled={!this.state.same || this.state.final}
-        onClick={this.handleOpenFinalizeModal}>Finalize Base Learner Setup</button>
-        <FinalizeModal isOpen={this.state.showFinalizeModal} 
-        onRequestClose={this.handleCloseFinalizeModal}
-        handleYes={this.confirmLearner} />
+      <div>
+      <Collapse activeKey={this.state.activeKey} onChange={this.onActiveChange}
+        accordion={false}>
+        <Panel key={this.props.id} header={this.state.name + (!this.state.same ? '*' : '') + ' ' + (this.state.final ? 'FINAL' : '')}>
+          <h3>
+            <ContentEditable html={this.state.name} 
+            disabled={this.state.final} 
+            onChange={this.handleChangeTitle} />
+          </h3>
+          <h4>
+            {this.state.final && 'This base learner setup has been finalized and can no longer be modified.'}
+          </h4>
+          <CodeMirror value={this.state.source} 
+          onChange={this.handleChangeSource} 
+          options={options}/>
+          <div className='SplitFormLabel'>
+            <label>
+              Meta-feature generator method: 
+              <input type='text' readOnly={this.state.final}
+              value={this.state.meta_feature_generator} 
+              onChange={this.handleChangeMetaFeatureGenerator}/>
+            </label>
+          </div>
+          <MetricGenerators 
+          disabled={this.state.final}
+          generators={this.state.metric_generators} 
+          onGeneratorChange={this.handleChangeMetricGenerator} 
+          handleAddMetricGenerator={this.handleAddMetricGenerator} 
+          handleDeleteMetricGenerator={this.handleDeleteMetricGenerator} />
+          <ValidationResults validation_results={this.state.validation_results} />
+          <button disabled={this.state.same || this.state.final}
+          onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
+          <ClearModal isOpen={this.state.showClearModal} 
+          onRequestClose={this.handleCloseClearModal}
+          handleYes={this.clearChanges} />
+          <button disabled={this.state.same || this.state.final} 
+          onClick={this.saveSetup}> Save Base Learner Setup</button>
+          <button disabled={!this.state.same || this.state.final} 
+          onClick={this.verifyLearner}>Verify on toy data</button>
+          <button disabled={!this.state.same || this.state.final}
+          onClick={this.handleOpenFinalizeModal}>Finalize Base Learner Setup</button>
+          <FinalizeModal isOpen={this.state.showFinalizeModal} 
+          onRequestClose={this.handleCloseFinalizeModal}
+          handleYes={this.confirmLearner} />
+        </Panel>
+      </Collapse>
       </div>
     )
   }
