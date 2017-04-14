@@ -141,7 +141,9 @@ class BaseLearnerOrigin extends Component {
   // Returns true if changing value of 'key' to 'value' in state will result in
   // different state from that stored in database.
   stateNoChange(key, value) {
-    var nextState = omit(this.state, ['same', 'showClearModal', 'showFinalizeModal', 'activeKey']);
+    var nextState = omit(this.state, 
+      ['same', 'showClearModal', 'showFinalizeModal', 
+      'showDeleteModal', 'activeKey']);
     nextState[key] = value
     return isEqual(nextState, this.savedState);
   }

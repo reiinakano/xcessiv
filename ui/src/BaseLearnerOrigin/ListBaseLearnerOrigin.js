@@ -9,6 +9,7 @@ class ListBaseLearnerOrigin extends Component {
       ids: []
     };
     this.deleteBaseLearnerOrigin = this.deleteBaseLearnerOrigin.bind(this);
+    this.createBaseLearnerOrigin = this.createBaseLearnerOrigin.bind(this);
   }
 
   // Get request from server to populate fields
@@ -39,6 +40,27 @@ class ListBaseLearnerOrigin extends Component {
     return items;
   }
 
+  // Creates a new base learner origin
+  createBaseLearnerOrigin() {
+    var payload = {};
+    fetch(
+      '/ensemble/base-learner-origins/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      })
+      .then(response => response.json())
+      .then(json => {
+        console.log(json);
+        const ids = this.state.ids.slice();
+        ids.push(json.id);
+        this.setState({ids: ids});
+      });
+  }
+
   deleteBaseLearnerOrigin(bloId) {
     fetch(
       '/ensemble/base-learner-origins/' + bloId + '/?path=' + this.props.path,
@@ -64,6 +86,7 @@ class ListBaseLearnerOrigin extends Component {
     return <div className='BaseLearnerOrigin'>
       <h2>Base Learner Types</h2>
       {this.getItems()}
+      <button onClick={this.createBaseLearnerOrigin}>Add new base learner origin</button>
     </div>;
   }
 }

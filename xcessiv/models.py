@@ -193,9 +193,9 @@ class BaseLearnerOrigin(Base):
     base_learners = relationship('BaseLearner', back_populates='base_learner_origin')
     stacked_ensembles = relationship('StackedEnsemble', back_populates='base_learner_origin')
 
-    def __init__(self, source=None, name='',
+    def __init__(self, source='', name='Base Learner Setup',
                  meta_feature_generator='predict_proba', metric_generators=None):
-        self.source = '' if source is None else source
+        self.source = source
         self.name = name
         self.validation_results = dict()
         self.final = False
