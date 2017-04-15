@@ -4,9 +4,17 @@ import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import 'rc-collapse/assets/index.css';
-import $ from 'jquery';
+import {omit} from 'lodash';
 import Collapse, { Panel } from 'rc-collapse';
 import ReactModal from 'react-modal';
+
+const default_metric_generator_code = `def metric_generator(y_true, y_probas):
+    """This function must return a numerical value given two numpy arrays 
+    containing the ground truth labels and generated meta-features, in that order.
+    (In this example, \`y_true\` and \`y_probas\`)
+    """
+    return 0.88
+`
 
 const modalStyle = {
   overlay : {
@@ -87,12 +95,11 @@ class MetricGenerators extends Component {
       showAddNewModal: false,
       showDeleteModal: false
     };
-    this.onActiveChange = this.onActiveChange.bind(this);
     this.handleOpenAddNewModal = this.handleOpenAddNewModal.bind(this);
     this.handleCloseAddNewModal = this.handleCloseAddNewModal.bind(this);
-    this.handleAddMetricGenerator = this.handleAddMetricGenerator.bind(this);
     this.handleOpenDeleteModal = this.handleOpenDeleteModal.bind(this);
     this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
+    this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
     this.handleDeleteMetricGenerator = this.handleDeleteMetricGenerator.bind(this);
   }
 
@@ -111,7 +118,7 @@ class MetricGenerators extends Component {
       };
       items.push(<Panel key={key} header={key}>
         <CodeMirror value={this.props.generators[key]} 
-        onChange={this.props.onGeneratorChange.bind(null, key)} 
+        onChange={this.handleChangeMetricGenerator.bind(null, key)} 
         options={options}/>
         <button disabled={this.props.disabled} 
         onClick={this.handleOpenDeleteModal}>Delete</button>
@@ -140,11 +147,17 @@ class MetricGenerators extends Component {
     this.setState({showAddNewModal: false});
   }
 
+  handleChangeMetricGenerator(metric_name, source) {
+    var newGenerators = JSON.parse(JSON.stringify(this.props.generators));
+    newGenerators[metric_name] = source;
+    this.props.handleGeneratorChange(newGenerators);
+  }
+
   handleAddMetricGenerator(metric_name) {
 
     if (!(metric_name in this.props.generators)) {
       var newGenerators = JSON.parse(JSON.stringify(this.props.generators));
-      newGenerators[metric_name] = 'default_metric_generator_code';
+      newGenerators[metric_name] = default_metric_generator_code;
       this.props.handleGeneratorChange(newGenerators);
     }
     this.setState({showAddNewModal: false});
@@ -159,7 +172,10 @@ class MetricGenerators extends Component {
   }
 
   handleDeleteMetricGenerator(metric_name) {
-    this.props.handleDeleteMetricGenerator(metric_name);
+    if (metric_name in this.props.generators) {
+      var newGenerators = omit(this.props.generators, metric_name);
+      this.props.handleGeneratorChange(newGenerators);
+    }
     this.setState({showDeleteModal: false});
   }
 
@@ -167,7 +183,8 @@ class MetricGenerators extends Component {
     return(
       <div>
         <h4>Metrics to be calculated from meta-features</h4>
-        <Collapse activeKey={this.state.activeKey} onChange={this.onActiveChange}
+        <Collapse activeKey={this.state.activeKey} 
+        onChange={(activeKey) => this.onActiveChange(activeKey)}
         accordion={false}>
           {this.getItems()}
         </Collapse>
@@ -175,7 +192,7 @@ class MetricGenerators extends Component {
         onClick={this.handleOpenAddNewModal}>Add new metric generator</button>
         <AddNewModal isOpen={this.state.showAddNewModal} 
         onRequestClose={this.handleCloseAddNewModal}
-        onAdd={this.handleAddMetricGenerator} />
+        onAdd={(metric_name) => this.handleAddMetricGenerator(metric_name)} />
       </div>);
   }
 }

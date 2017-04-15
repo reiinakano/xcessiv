@@ -19,14 +19,6 @@ const serverProps = ['name',
                      'final',
                      'validation_results'];
 
-const default_metric_generator_code = `def metric_generator(y_true, y_probas):
-    """This function must return a numerical value given two numpy arrays 
-    containing the ground truth labels and generated meta-features, in that order.
-    (In this example, \`y_true\` and \`y_probas\`)
-    """
-    return 0.88
-`
-
 const modalStyle = {
   overlay : {
     zIndex            : 1000
@@ -126,10 +118,6 @@ class BaseLearnerOrigin extends Component {
       activeKey: []
     };
     this.onActiveChange = this.onActiveChange.bind(this);
-    this.handleDataChange = this.handleDataChange.bind(this);
-    this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
-    this.handleAddMetricGenerator = this.handleAddMetricGenerator.bind(this);
-    this.handleDeleteMetricGenerator = this.handleDeleteMetricGenerator.bind(this);
     this.clearChanges = this.clearChanges.bind(this);
     this.handleOpenClearModal = this.handleOpenClearModal.bind(this);
     this.handleCloseClearModal = this.handleCloseClearModal.bind(this);
@@ -185,42 +173,6 @@ class BaseLearnerOrigin extends Component {
       newState['same'] = isEqual(newState, savedState);
       return newState;
     })
-  }
-
-  // Change metric generator
-  handleChangeMetricGenerator(metric_name, source) {
-    console.log(metric_name);
-    console.log(source);
-    var new_metric_generators = JSON.parse(JSON.stringify(this.state.metric_generators));
-    new_metric_generators[metric_name] = source;
-    this.setState({
-      metric_generators: new_metric_generators,
-      same: this.stateNoChange('metric_generators', new_metric_generators)
-    });
-  }
-
-  // Add new metric generator
-  handleAddMetricGenerator(metric_name) {
-    console.log(metric_name);
-    if (!(metric_name in this.state.metric_generators)) {
-      var new_metric_generators = JSON.parse(JSON.stringify(this.state.metric_generators));
-      new_metric_generators[metric_name] = default_metric_generator_code;
-      this.setState({
-        metric_generators: new_metric_generators,
-        same: this.stateNoChange('metric_generators', new_metric_generators)
-      });
-    }
-  }
-
-  // Delete metric generator
-  handleDeleteMetricGenerator(metric_name) {
-    if (metric_name in this.state.metric_generators) {
-      var new_metric_generators = omit(this.state.metric_generators, metric_name);
-      this.setState({
-        metric_generators: new_metric_generators,
-        same: this.stateNoChange('metric_generators', new_metric_generators)
-      });
-    }
   }
 
   // Clear any unsaved changes
