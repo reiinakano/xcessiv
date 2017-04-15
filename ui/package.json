@@ -13,7 +13,9 @@
     "react-dom": "^15.4.2",
     "react-icons": "^2.2.3",
     "react-modal": "^1.7.3",
-    "react-syntax-highlighter": "^5.1.2"
+    "react-redux": "^5.0.4",
+    "react-syntax-highlighter": "^5.1.2",
+    "redux": "^3.6.0"
   },
   "devDependencies": {
     "react-scripts": "0.9.5"

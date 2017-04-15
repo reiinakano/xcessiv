@@ -4,8 +4,12 @@ import MainDataExtraction from './DatasetExtraction/MainDataExtraction';
 import TestDataExtraction from './DatasetExtraction/TestDataExtraction';
 import MetaFeatureExtraction from './DatasetExtraction/MetaFeatureExtraction';
 import DataVerificationResult from './DatasetExtraction/DataVerificationResult';
-import ListBaseLearnerOrigin from './BaseLearnerOrigin/ListBaseLearnerOrigin'
+import ListBaseLearnerOrigin from './BaseLearnerOrigin/ListBaseLearnerOrigin';
+import BaseLearnerOrigin from './components/BaseLearnerOrigin'
 
+function justLog() {
+  console.log(arguments);
+}
 
 class App extends Component {
   render() {
@@ -19,6 +23,20 @@ class App extends Component {
         <MetaFeatureExtraction path='test'/>
         <DataVerificationResult path='test'/>
         <ListBaseLearnerOrigin path='test' />
+        <BaseLearnerOrigin 
+        data={{final: false, id: 1, name: 'uh', meta_feature_generator: 'predict_proba'}} 
+        same={false}
+        active={true}
+        showModal={null}
+        onActiveChange={justLog} 
+        handleDataChange={justLog}
+        handleOpenModal={justLog}
+        handleCloseModal={justLog}
+        clearDataChanges={justLog}
+        saveSetup={justLog}
+        verifyLearner={justLog}
+        confirmLearner={justLog}
+        deleteLearner={justLog} />
       </div>
     )
   }

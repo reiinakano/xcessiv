@@ -319,8 +319,9 @@ class BaseLearnerOrigin extends Component {
       readOnly: this.state.final
     };
     var header = <b>
+      {(!this.state.same ? '* ' : ' ')}
       {'ID: ' + this.props.id + ' '}
-      {this.state.name + (!this.state.same ? '* ' : ' ')} 
+      {this.state.name + ' '} 
       {this.state.final && <FaCheck />}
     </b>
 
