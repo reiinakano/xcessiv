@@ -7,10 +7,17 @@ import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
 import 'rc-collapse/assets/index.css';
 import Collapse, { Panel } from 'rc-collapse';
-import { isEqual, omit } from 'lodash';
+import { isEqual, omit, pick } from 'lodash';
 import $ from 'jquery';
 import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
+
+const serverProps = ['name', 
+                     'meta_feature_generator', 
+                     'metric_generators',
+                     'source',
+                     'final',
+                     'validation_results'];
 
 const default_metric_generator_code = `def metric_generator(y_true, y_probas):
     """This function must return a numerical value given two numpy arrays 
@@ -119,9 +126,7 @@ class BaseLearnerOrigin extends Component {
       activeKey: []
     };
     this.onActiveChange = this.onActiveChange.bind(this);
-    this.handleChangeTitle = this.handleChangeTitle.bind(this);
-    this.handleChangeSource = this.handleChangeSource.bind(this);
-    this.handleChangeMetaFeatureGenerator = this.handleChangeMetaFeatureGenerator.bind(this);
+    this.handleDataChange = this.handleDataChange.bind(this);
     this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
     this.handleAddMetricGenerator = this.handleAddMetricGenerator.bind(this);
     this.handleDeleteMetricGenerator = this.handleDeleteMetricGenerator.bind(this);
@@ -162,31 +167,24 @@ class BaseLearnerOrigin extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json)
-      this.savedState = omit(json, 'id');
+      this.savedState = pick(json, serverProps);
       this.setState(this.savedState);
     });
   }
 
-  // Change name of base learner origin
-  handleChangeTitle(evt) {
-    console.log(evt.target.value);
-    console.log(this.stateNoChange('name', evt.target.value));
-    this.setState({name: evt.target.value, 
-      same: this.stateNoChange('name', evt.target.value)});
-  }
-
-  // Change source code
-  handleChangeSource(value) {
+  handleDataChange(key, value) {
+    console.log(key);
     console.log(value);
-    this.setState({source: value,
-      same: this.stateNoChange('source', value)});
-  }
+    var savedState = this.savedState;
 
-  // Change meta-feature generator
-  handleChangeMetaFeatureGenerator(event) {
-    console.log(event.target.value);
-    this.setState({meta_feature_generator: event.target.value,
-      same: this.stateNoChange('meta_feature_generator', event.target.value)});
+    this.setState((prevState) => {
+      prevState = pick(prevState, serverProps);
+
+      var newState = $.extend({}, prevState); // Copy
+      newState[key] = value;
+      newState['same'] = isEqual(newState, savedState);
+      return newState;
+    })
   }
 
   // Change metric generator
@@ -272,7 +270,7 @@ class BaseLearnerOrigin extends Component {
       .then(response => response.json())
       .then(json => {
       console.log(json)
-      this.savedState = omit(json, 'id');
+      this.savedState = pick(json, serverProps);
       this.setState($.extend({}, {same: true}, this.savedState));
     });
   }
@@ -286,7 +284,7 @@ class BaseLearnerOrigin extends Component {
       .then(response => response.json())
       .then(json => {
       console.log(json)
-      this.savedState = omit(json, 'id');
+      this.savedState = pick(json, serverProps);
       this.setState($.extend({}, {same: true}, this.savedState));
     });
   }
@@ -299,7 +297,7 @@ class BaseLearnerOrigin extends Component {
       .then(response => response.json())
       .then(json => {
       console.log(json)
-      this.savedState = omit(json, 'id');
+      this.savedState = pick(json, serverProps);
       this.setState($.extend({}, {same: true, showFinalizeModal: false}, this.savedState));
     });
   }
@@ -332,28 +330,30 @@ class BaseLearnerOrigin extends Component {
           <h3>
             <ContentEditable html={this.state.name} 
             disabled={this.state.final} 
-            onChange={this.handleChangeTitle} />
+            onChange={(evt) => this.handleDataChange('name', evt.target.value)} />
           </h3>
           <h4>
             {this.state.final && 'This base learner setup has been finalized and can no longer be modified.'}
           </h4>
           <CodeMirror value={this.state.source} 
-          onChange={this.handleChangeSource} 
+          onChange={(src) => this.handleDataChange('source', src)} 
           options={options}/>
           <div className='SplitFormLabel'>
             <label>
               Meta-feature generator method: 
               <input type='text' readOnly={this.state.final}
               value={this.state.meta_feature_generator} 
-              onChange={this.handleChangeMetaFeatureGenerator}/>
+              onChange={(evt) => this.handleDataChange('meta_feature_generator', evt.target.value)}/>
             </label>
           </div>
+
           <MetricGenerators 
           disabled={this.state.final}
           generators={this.state.metric_generators} 
           onGeneratorChange={this.handleChangeMetricGenerator} 
-          handleAddMetricGenerator={this.handleAddMetricGenerator} 
+          handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} 
           handleDeleteMetricGenerator={this.handleDeleteMetricGenerator} />
+
           <ValidationResults validation_results={this.state.validation_results} />
           <button disabled={this.state.same || this.state.final}
           onClick={this.handleOpenClearModal}> Clear unsaved changes </button>

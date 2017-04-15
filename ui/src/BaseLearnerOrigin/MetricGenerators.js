@@ -4,6 +4,7 @@ import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import 'rc-collapse/assets/index.css';
+import $ from 'jquery';
 import Collapse, { Panel } from 'rc-collapse';
 import ReactModal from 'react-modal';
 
@@ -57,7 +58,7 @@ class AddNewModal extends Component {
           onChange={this.handleNameChange} />
         </label>
         <button onClick={this.props.onRequestClose}>Cancel</button>
-        <button onClick={this.props.onAdd.bind(null, this.state.name)}>Add</button>
+        <button onClick={() => this.props.onAdd(this.state.name)}>Add</button>
       </ReactModal>
     )
   }
@@ -140,7 +141,12 @@ class MetricGenerators extends Component {
   }
 
   handleAddMetricGenerator(metric_name) {
-    this.props.handleAddMetricGenerator(metric_name);
+
+    if (!(metric_name in this.props.generators)) {
+      var newGenerators = JSON.parse(JSON.stringify(this.props.generators));
+      newGenerators[metric_name] = 'default_metric_generator_code';
+      this.props.handleGeneratorChange(newGenerators);
+    }
     this.setState({showAddNewModal: false});
   }
 
