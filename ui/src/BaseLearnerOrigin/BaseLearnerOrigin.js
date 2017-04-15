@@ -7,7 +7,7 @@ import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
 import 'rc-collapse/assets/index.css';
 import Collapse, { Panel } from 'rc-collapse';
-import { isEqual, omit, pick } from 'lodash';
+import { isEqual, pick } from 'lodash';
 import $ from 'jquery';
 import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
@@ -117,28 +117,6 @@ class BaseLearnerOrigin extends Component {
       showDeleteModal: false,
       activeKey: []
     };
-    this.onActiveChange = this.onActiveChange.bind(this);
-    this.clearChanges = this.clearChanges.bind(this);
-    this.handleOpenClearModal = this.handleOpenClearModal.bind(this);
-    this.handleCloseClearModal = this.handleCloseClearModal.bind(this);
-    this.saveSetup = this.saveSetup.bind(this);
-    this.verifyLearner = this.verifyLearner.bind(this);
-    this.confirmLearner = this.confirmLearner.bind(this);
-    this.handleOpenFinalizeModal = this.handleOpenFinalizeModal.bind(this);
-    this.handleCloseFinalizeModal = this.handleCloseFinalizeModal.bind(this);
-    this.handleOpenDeleteModal = this.handleOpenDeleteModal.bind(this);
-    this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
-    this.handleDeleteLearner = this.handleDeleteLearner.bind(this);
-  }
-
-  // Returns true if changing value of 'key' to 'value' in state will result in
-  // different state from that stored in database.
-  stateNoChange(key, value) {
-    var nextState = omit(this.state, 
-      ['same', 'showClearModal', 'showFinalizeModal', 
-      'showDeleteModal', 'activeKey']);
-    nextState[key] = value
-    return isEqual(nextState, this.savedState);
   }
 
   // Handler when active panel changes
@@ -276,20 +254,24 @@ class BaseLearnerOrigin extends Component {
 
     return (
       <div>
-      <Collapse activeKey={this.state.activeKey} onChange={this.onActiveChange}
+      <Collapse activeKey={this.state.activeKey} onChange={(activeKey) => this.onActiveChange(activeKey)}
         accordion={false}>
         <Panel key={this.props.id} header={header}>
+
           <h3>
             <ContentEditable html={this.state.name} 
             disabled={this.state.final} 
             onChange={(evt) => this.handleDataChange('name', evt.target.value)} />
           </h3>
+
           <h4>
             {this.state.final && 'This base learner setup has been finalized and can no longer be modified.'}
           </h4>
+
           <CodeMirror value={this.state.source} 
           onChange={(src) => this.handleDataChange('source', src)} 
           options={options}/>
+
           <div className='SplitFormLabel'>
             <label>
               Meta-feature generator method: 
@@ -302,29 +284,33 @@ class BaseLearnerOrigin extends Component {
           <MetricGenerators 
           disabled={this.state.final}
           generators={this.state.metric_generators} 
-          onGeneratorChange={this.handleChangeMetricGenerator} 
-          handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} 
-          handleDeleteMetricGenerator={this.handleDeleteMetricGenerator} />
+          handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} />
 
           <ValidationResults validation_results={this.state.validation_results} />
+
           <button disabled={this.state.same || this.state.final}
-          onClick={this.handleOpenClearModal}> Clear unsaved changes </button>
+          onClick={() => this.handleOpenClearModal()}> Clear unsaved changes </button>
           <ClearModal isOpen={this.state.showClearModal} 
-          onRequestClose={this.handleCloseClearModal}
-          handleYes={this.clearChanges} />
+          onRequestClose={() => this.handleCloseClearModal()}
+          handleYes={() => this.clearChanges()} />
+
           <button disabled={this.state.same || this.state.final} 
-          onClick={this.saveSetup}> Save Base Learner Setup</button>
+          onClick={() => this.saveSetup()}> Save Base Learner Setup</button>
+
           <button disabled={!this.state.same || this.state.final} 
-          onClick={this.verifyLearner}>Verify on toy data</button>
+          onClick={() => this.verifyLearner()}>Verify on toy data</button>
+
           <button disabled={!this.state.same || this.state.final}
-          onClick={this.handleOpenFinalizeModal}>Finalize Base Learner Setup</button>
+          onClick={() => this.handleOpenFinalizeModal()}>Finalize Base Learner Setup</button>
           <FinalizeModal isOpen={this.state.showFinalizeModal} 
-          onRequestClose={this.handleCloseFinalizeModal}
-          handleYes={this.confirmLearner} />
-          <button onClick={this.handleOpenDeleteModal}>Delete Base Learner Setup</button>
+          onRequestClose={() => this.handleCloseFinalizeModal()}
+          handleYes={() => this.confirmLearner()} />
+
+          <button onClick={() => this.handleOpenDeleteModal()}>Delete Base Learner Setup</button>
           <DeleteModal isOpen={this.state.showDeleteModal}
-          onRequestClose={this.handleCloseDeleteModal}
-          handleYes={this.handleDeleteLearner} />
+          onRequestClose={() => this.handleCloseDeleteModal()}
+          handleYes={() => this.handleDeleteLearner()} />
+
         </Panel>
       </Collapse>
       </div>
