@@ -297,7 +297,7 @@ class BaseLearnerOrigin extends Component {
       {this.state.name + ' '} 
       {this.state.final && <FaCheck />}
       {Boolean(this.state.asyncStatus) && (this.state.asyncStatus + ' ')}
-      {Boolean(this.state.asyncStatus) && <FaSpinner />}
+      {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
       {showExlamationCircle && <FaExclamationCircle />}
     </b>
 
