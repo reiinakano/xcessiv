@@ -11,6 +11,8 @@ import { isEqual, pick } from 'lodash';
 import $ from 'jquery';
 import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
+import FaSpinner from 'react-icons/lib/fa/spinner';
+import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 
 const serverProps = ['name', 
                      'meta_feature_generator', 
@@ -38,6 +40,24 @@ const modalStyle = {
     outline                    : 'none',
     padding                    : '20px'
   }
+}
+
+function handleErrors(response) {
+  if (!response.ok) {
+    var error = new Error(response.statusText);
+
+    // Unexpected error
+    if (response.status === 500) {
+      error.errMessage = 'Unexpected error';
+      throw error;
+    }
+    return response.json()
+      .then(errorBody => {
+        error.errMessage = errorBody.message
+        throw error;
+      });
+  }
+  return response;
 }
 
 function ValidationResults(props) {
@@ -115,7 +135,9 @@ class BaseLearnerOrigin extends Component {
       showClearModal: false,
       showFinalizeModal: false,
       showDeleteModal: false,
-      activeKey: []
+      activeKey: [],
+      asyncStatus: '',
+      errorMessage: ''
     };
   }
 
@@ -207,29 +229,47 @@ class BaseLearnerOrigin extends Component {
 
   // Verify Base Learner Origin + Metric Generators
   verifyLearner() {
-
+    this.setState({asyncStatus: 'Verifying...'});
     fetch(
       '/ensemble/base-learner-origins/' + this.props.id + '/verify/?path=' + this.props.path,
-      )
-      .then(response => response.json())
-      .then(json => {
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
       console.log(json)
       this.savedState = pick(json, serverProps);
-      this.setState($.extend({}, {same: true}, this.savedState));
+      this.setState($.extend({}, {same: true, asyncStatus: '', errorMessage: ''}, this.savedState));
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      var errorMessage = error.message + ' ' + error.errMessage
+      this.setState({asyncStatus: '', errorMessage: errorMessage});
     });
   }
 
   // Confirm Base Learner Origin
   confirmLearner() {
+    this.setState({
+      asyncStatus: 'Finalizing base learner...',
+      showFinalizeModal: false
+    });
     fetch(
       '/ensemble/base-learner-origins/' + this.props.id + '/confirm/?path=' + this.props.path,
       )
-      .then(response => response.json())
-      .then(json => {
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
       console.log(json)
       this.savedState = pick(json, serverProps);
-      this.setState($.extend({}, {same: true, showFinalizeModal: false}, this.savedState));
-    });
+      this.setState($.extend({}, {same: true, asyncStatus: '', errorMessage: ''}, this.savedState));
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      var errorMessage = error.message + ' ' + error.errMessage
+      this.setState({asyncStatus: '', errorMessage: errorMessage});
+    });;
   }
 
   handleOpenFinalizeModal() {
@@ -241,16 +281,24 @@ class BaseLearnerOrigin extends Component {
   }
 
   render() {
+    var disableAll = (this.state.final || Boolean(this.state.asyncStatus));
+
     var options = {
       lineNumbers: true,
       indentUnit: 4,
-      readOnly: this.state.final
+      readOnly: disableAll
     };
+
+    var showExlamationCircle = !this.state.asyncStatus && Boolean(this.state.errorMessage);
+
     var header = <b>
       {(!this.state.same ? '* ' : ' ')}
       {'ID: ' + this.props.id + ' '}
       {this.state.name + ' '} 
       {this.state.final && <FaCheck />}
+      {Boolean(this.state.asyncStatus) && (this.state.asyncStatus + ' ')}
+      {Boolean(this.state.asyncStatus) && <FaSpinner />}
+      {showExlamationCircle && <FaExclamationCircle />}
     </b>
 
     return (
@@ -261,12 +309,16 @@ class BaseLearnerOrigin extends Component {
 
           <h3>
             <ContentEditable html={this.state.name} 
-            disabled={this.state.final} 
+            disabled={disableAll} 
             onChange={(evt) => this.handleDataChange('name', evt.target.value)} />
           </h3>
 
           <h4>
             {this.state.final && 'This base learner setup has been finalized and can no longer be modified.'}
+          </h4>
+
+          <h4>
+            {this.state.errorMessage}
           </h4>
 
           <CodeMirror value={this.state.source} 
@@ -276,32 +328,32 @@ class BaseLearnerOrigin extends Component {
           <div className='SplitFormLabel'>
             <label>
               Meta-feature generator method: 
-              <input type='text' readOnly={this.state.final}
+              <input type='text' readOnly={disableAll}
               value={this.state.meta_feature_generator} 
               onChange={(evt) => this.handleDataChange('meta_feature_generator', evt.target.value)}/>
             </label>
           </div>
 
           <MetricGenerators 
-          disabled={this.state.final}
+          disabled={disableAll}
           generators={this.state.metric_generators} 
           handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} />
 
           <ValidationResults validation_results={this.state.validation_results} />
 
-          <button disabled={this.state.same || this.state.final}
+          <button disabled={this.state.same || disableAll}
           onClick={() => this.handleOpenClearModal()}> Clear unsaved changes </button>
           <ClearModal isOpen={this.state.showClearModal} 
           onRequestClose={() => this.handleCloseClearModal()}
           handleYes={() => this.clearChanges()} />
 
-          <button disabled={this.state.same || this.state.final} 
+          <button disabled={this.state.same || disableAll} 
           onClick={() => this.saveSetup()}> Save Base Learner Setup</button>
 
-          <button disabled={!this.state.same || this.state.final} 
+          <button disabled={!this.state.same || disableAll} 
           onClick={() => this.verifyLearner()}>Verify on toy data</button>
 
-          <button disabled={!this.state.same || this.state.final}
+          <button disabled={!this.state.same || disableAll}
           onClick={() => this.handleOpenFinalizeModal()}>Finalize Base Learner Setup</button>
           <FinalizeModal isOpen={this.state.showFinalizeModal} 
           onRequestClose={() => this.handleCloseFinalizeModal()}
