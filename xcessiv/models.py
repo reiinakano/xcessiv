@@ -67,6 +67,8 @@ class Extraction(Base):
             extraction_function = functions.import_object_from_string_code(extraction_code,
                                                                            "extract_main_dataset")
             X, y = extraction_function()
+        except exceptions.UserError:
+            raise
         except Exception as e:
             raise exceptions.UserError('User code exception', exception_message=str(e))
 
