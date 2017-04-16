@@ -26,6 +26,7 @@ def extraction_data_statistics(path):
     with functions.DBContextManager(path) as session:
         extraction = session.query(models.Extraction).first()
         X, y = extraction.return_main_dataset()
+        functions.verify_dataset(X, y)
 
         if extraction.test_dataset['method'] == 'split_from_main':
             X, X_test, y, y_test = train_test_split(
