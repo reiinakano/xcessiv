@@ -313,15 +313,10 @@ def search_base_learner(id):
     if req_body['method'] == 'grid':
         iterator = ParameterGrid(req_body['param_grid'])
     elif req_body['method'] == 'random':
-        try:
-            param_distributions = functions.import_object_from_string_code(
-                req_body['source'],
-                'param_distributions'
-            )
-        except exceptions.UserError:
-            raise
-        except Exception as e:
-            raise exceptions.UserError('User code exception', exception_message=repr(e))
+        param_distributions = functions.import_object_from_string_code(
+            req_body['source'],
+            'param_distributions'
+        )
         iterator = ParameterSampler(param_distributions, n_iter=req_body['n_iter'])
 
     else:

@@ -63,12 +63,10 @@ class Extraction(Base):
 
         extraction_code = self.main_dataset["source"]
 
+        extraction_function = functions.import_object_from_string_code(extraction_code,
+                                                                       "extract_main_dataset")
         try:
-            extraction_function = functions.import_object_from_string_code(extraction_code,
-                                                                           "extract_main_dataset")
             X, y = extraction_function()
-        except exceptions.UserError:
-            raise
         except Exception as e:
             raise exceptions.UserError('User code exception', exception_message=str(e))
 
@@ -223,10 +221,8 @@ class BaseLearnerOrigin(Base):
             est (estimator): Estimator object
         """
         extraction_code = self.source
-        try:
-            estimator = functions.import_object_from_string_code(extraction_code, "base_learner")
-        except Exception as e:
-            raise exceptions.UserError(repr(e))
+        estimator = functions.import_object_from_string_code(extraction_code, "base_learner")
+
         return estimator
 
 

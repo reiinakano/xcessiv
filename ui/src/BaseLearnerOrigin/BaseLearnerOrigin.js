@@ -53,7 +53,7 @@ function handleErrors(response) {
     }
     return response.json()
       .then(errorBody => {
-        error.errMessage = errorBody.message
+        error.errMessage = JSON.stringify(errorBody);
         throw error;
       });
   }

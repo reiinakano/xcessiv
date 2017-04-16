@@ -60,7 +60,10 @@ def import_object_from_string_code(code, object):
     """
     sha256 = hashlib.sha256(code).hexdigest()
     module = imp.new_module(sha256)
-    exec_(code, module.__dict__)
+    try:
+        exec_(code, module.__dict__)
+    except Exception as e:
+        raise exceptions.UserError('User code exception', exception_message=str(e))
     sys.modules[sha256] = module
     try:
         return getattr(module, object)
@@ -154,11 +157,12 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators):
         raise exceptions.UserError('Estimator\'s meta-feature generator '
                                    'does not produce valid shape')
     for key in metric_generators:
+
+        metric_generator = import_object_from_string_code(
+            metric_generators[key],
+            'metric_generator'
+        )
         try:
-            metric_generator = import_object_from_string_code(
-                ''.join(metric_generators[key]),
-                'metric_generator'
-            )
             performance_dict[key] = metric_generator(true_labels, preds)
         except Exception as e:
             raise exceptions.UserError(repr(e))
