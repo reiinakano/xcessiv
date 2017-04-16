@@ -95,8 +95,6 @@ class MetricGenerators extends Component {
       showAddNewModal: false,
       showDeleteModal: false
     };
-    this.handleOpenAddNewModal = this.handleOpenAddNewModal.bind(this);
-    this.handleCloseAddNewModal = this.handleCloseAddNewModal.bind(this);
     this.handleOpenDeleteModal = this.handleOpenDeleteModal.bind(this);
     this.handleCloseDeleteModal = this.handleCloseDeleteModal.bind(this);
     this.handleChangeMetricGenerator = this.handleChangeMetricGenerator.bind(this);
@@ -189,9 +187,9 @@ class MetricGenerators extends Component {
           {this.getItems()}
         </Collapse>
         <button disabled={this.props.disabled}
-        onClick={this.handleOpenAddNewModal}>Add new metric generator</button>
+        onClick={() => this.handleOpenAddNewModal()}>Add new metric generator</button>
         <AddNewModal isOpen={this.state.showAddNewModal} 
-        onRequestClose={this.handleCloseAddNewModal}
+        onRequestClose={() => this.handleCloseAddNewModal()}
         onAdd={(metric_name) => this.handleAddMetricGenerator(metric_name)} />
       </div>);
   }
