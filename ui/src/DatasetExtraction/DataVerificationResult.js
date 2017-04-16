@@ -127,7 +127,7 @@ class DataVerificationResult extends Component {
       <button disabled={Boolean(this.state.asyncStatus)}
       onClick={this.calculateStatistics}>Calculate Extracted Datasets Statistics</button>
       {Boolean(this.state.asyncStatus) && (' ' + this.state.asyncStatus + ' ')}
-      {Boolean(this.state.asyncStatus) && <FaSpinner/>}
+      {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
     </div>
     )
 

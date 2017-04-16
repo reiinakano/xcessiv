@@ -221,7 +221,10 @@ class BaseLearnerOrigin(Base):
             est (estimator): Estimator object
         """
         extraction_code = self.source
-        estimator = functions.import_object_from_string_code(extraction_code, "base_learner")
+        try:
+            estimator = functions.import_object_from_string_code(extraction_code, "base_learner")
+        except Exception as e:
+            raise exceptions.UserError(repr(e))
         return estimator
 
 
