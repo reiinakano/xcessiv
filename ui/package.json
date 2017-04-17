@@ -9,10 +9,13 @@
     "rc-collapse": "^1.6.12",
     "react": "^15.4.2",
     "react-codemirror": "^0.3.0",
+    "react-collapse": "^2.3.3",
     "react-contenteditable": "^2.0.2",
     "react-dom": "^15.4.2",
+    "react-height": "^2.2.0",
     "react-icons": "^2.2.3",
     "react-modal": "^1.7.3",
+    "react-motion": "^0.4.7",
     "react-syntax-highlighter": "^5.1.2"
   },
   "devDependencies": {
