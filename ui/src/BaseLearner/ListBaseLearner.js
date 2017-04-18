@@ -39,8 +39,9 @@ class ListBaseLearner extends Component {
 
   render() {
     return(
-      <div className='BaseLearner'>
-        <table>
+      <div className='BaseLearnerPadding'>
+        <h2>Base Learners</h2>
+        <table className='BaseLearner'>
           <tbody>
             <tr>
               <th>ID</th>
