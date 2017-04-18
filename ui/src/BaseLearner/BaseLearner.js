@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import './BaseLearner.css';
 import Collapse from 'react-collapse';
 import { omit } from 'lodash';
+import FaCheck from 'react-icons/lib/fa/check';
+import FaSpinner from 'react-icons/lib/fa/spinner';
+import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 
 function DisplayHyperparameters(props) {
   const items = [];
@@ -71,22 +74,35 @@ class BaseLearner extends Component {
 
   render() {
     var errored = (this.state.data.job_status === 'errored');
+    var status_icon
+    if (this.state.data.job_status === 'errored') {
+      status_icon = <FaExclamationCircle />
+    }
+    else if (this.state.data.job_status === 'finished') {
+      status_icon = <FaCheck />
+    }
+    else {
+      status_icon = <FaSpinner className='load-animate'/>
+    }
 
     return (
       <tbody>
         <tr onClick={() => this.onCollapseOpen()}>
           <td>{this.props.id}</td>
           <td>{String(this.state.data.base_learner_origin_id)}</td>
-          <td>{String(this.state.data.individual_score.Accuracy)}</td>
-          <td>{String(this.state.data.individual_score.Recall)}</td>
-          <td>{this.state.data.job_status}</td>
+          <td>{String(this.state.data.individual_score.Accuracy).substring(0, 5)}</td>
+          <td>{String(this.state.data.individual_score.Recall).substring(0, 5)}</td>
+          <td>{status_icon}</td>
         </tr>
         <tr>
-          <td colSpan='5'>
-            <Collapse isOpened={this.state.open} keepCollapsedContent={true}>
-              {errored && <DisplayError description={this.state.data.description} />}
-              <DisplayHyperparameters hyperparameters={this.state.data.hyperparameters} />
-              <DisplayScores individual_score={this.state.data.individual_score} />
+          <td colSpan='5' style={{padding: 0}}>
+            <Collapse isOpened={this.state.open}>
+              <div className='collapse'>
+                {errored && <DisplayError description={this.state.data.description} />}
+                <DisplayHyperparameters hyperparameters={this.state.data.hyperparameters} />
+                <DisplayScores individual_score={this.state.data.individual_score} />
+                Job ID: {this.state.data.job_id}
+              </div>
             </Collapse>
           </td>
         </tr>
