@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './BaseLearner.css';
 import Collapse from 'react-collapse';
-import { omit } from 'lodash';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
@@ -44,27 +43,8 @@ class BaseLearner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: {
-        base_learner_origin_id: 2,
-        description: {},
-        hyperparameters: {},
-        individual_score: {},
-        job_id: '',
-        job_status: '',
-        meta_features_exists: false
-      },
       open: false
     };
-  }
-
-  // Get request from server to populate fields
-  componentDidMount() {
-    fetch('/ensemble/base-learners/' + this.props.id + '/?path=' + this.props.path)
-    .then(response => response.json())
-    .then(json => {
-      console.log(json)
-      this.setState({data: omit(json, 'id')});
-    });
   }
 
   // Open collapse
@@ -73,12 +53,12 @@ class BaseLearner extends Component {
   }
 
   render() {
-    var errored = (this.state.data.job_status === 'errored');
+    var errored = (this.props.data.job_status === 'errored');
     var status_icon
-    if (this.state.data.job_status === 'errored') {
+    if (this.props.data.job_status === 'errored') {
       status_icon = <FaExclamationCircle />
     }
-    else if (this.state.data.job_status === 'finished') {
+    else if (this.props.data.job_status === 'finished') {
       status_icon = <FaCheck />
     }
     else {
@@ -88,20 +68,20 @@ class BaseLearner extends Component {
     return (
       <tbody>
         <tr onClick={() => this.onCollapseOpen()}>
-          <td>{this.props.id}</td>
-          <td>{String(this.state.data.base_learner_origin_id)}</td>
-          <td>{String(this.state.data.individual_score.Accuracy).substring(0, 5)}</td>
-          <td>{String(this.state.data.individual_score.Recall).substring(0, 5)}</td>
+          <td>{this.props.data.id}</td>
+          <td>{String(this.props.data.base_learner_origin_id)}</td>
+          <td>{String(this.props.data.individual_score.Accuracy).substring(0, 5)}</td>
+          <td>{String(this.props.data.individual_score.Recall).substring(0, 5)}</td>
           <td>{status_icon}</td>
         </tr>
         <tr>
           <td colSpan='5' style={{padding: 0}}>
             <Collapse isOpened={this.state.open}>
               <div className='collapse'>
-                {errored && <DisplayError description={this.state.data.description} />}
-                <DisplayHyperparameters hyperparameters={this.state.data.hyperparameters} />
-                <DisplayScores individual_score={this.state.data.individual_score} />
-                Job ID: {this.state.data.job_id}
+                {errored && <DisplayError description={this.props.data.description} />}
+                <DisplayHyperparameters hyperparameters={this.props.data.hyperparameters} />
+                <DisplayScores individual_score={this.props.data.individual_score} />
+                Job ID: {this.props.data.job_id}
               </div>
             </Collapse>
           </td>

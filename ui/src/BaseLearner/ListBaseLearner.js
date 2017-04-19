@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import './BaseLearner.css';
 import BaseLearner from './BaseLearner';
+import $ from 'jquery';
 
 class ListBaseLearner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      ids: []
+      baseLearners: []
     };
   }
 
@@ -16,23 +17,33 @@ class ListBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json)
-      const ids = []
+      const baseLearners = []
       for (var i=0; i < json.length; i++) {
-        ids.push(json[i].id);
+        baseLearners.push(json[i]);
       }
-      this.setState({ids: ids});
+      this.setState({baseLearners: baseLearners});
+    });
+  }
+
+  // Callback to update a base learner in the list
+  updateBaseLearner(id, newData) {
+    this.setState((prevState) => {
+      var newState = $.extend({}, prevState); // Copy
+      var idx = newState.baseLearners.findIndex((x) => x.id === id);
+      newState.baseLearners[idx] = newData;
+      return newState;
     });
   }
 
   getItems() {
     const items = [];
-    var arrayLength = this.state.ids.length;
+    var arrayLength = this.state.baseLearners.length;
     for (var i=0; i < arrayLength; i++) {
       items.push(
         <BaseLearner 
-        key={this.state.ids[i]} 
+        key={this.state.baseLearners[i].id} 
         path={this.props.path} 
-        id={this.state.ids[i]} />);
+        data={this.state.baseLearners[i]} />);
     }
     return items;
   }
@@ -46,7 +57,7 @@ class ListBaseLearner extends Component {
             <tr>
               <th>ID</th>
               <th>Type ID</th>
-              <th>Accuracy</th>
+              <th><a onClick={() => console.log('kl')}>Accuracy</a></th>
               <th>Recall</th>
               <th>Status</th>
             </tr>
