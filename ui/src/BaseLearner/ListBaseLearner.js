@@ -7,7 +7,9 @@ class ListBaseLearner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      baseLearners: []
+      baseLearners: [],
+      ascending: null,
+      includedMetrics: ['Accuracy', 'Recall', 'Precision']
     };
   }
 
@@ -35,6 +37,34 @@ class ListBaseLearner extends Component {
     });
   }
 
+  // Sort
+  sortList(ascending) {
+    this.setState((prevState) => {
+      var newState = $.extend({}, prevState); // Copy
+      newState.baseLearners.sort((a, b) => {
+        a = a.individual_score.Accuracy;
+        b = b.individual_score.Accuracy;
+        if (a === undefined) {
+          return 1;
+        }
+        else if (b === undefined) {
+          return -1;
+        }
+        else if (a === b){
+          return 0;
+        }
+        else if (ascending) {
+          return a < b ? -1 : 1;
+        }
+        else {
+          return a < b ? 1 : -1;
+        }
+      });
+      newState.ascending = ascending;
+      return newState;
+    });
+  }
+
   getItems() {
     const items = [];
     var arrayLength = this.state.baseLearners.length;
@@ -43,7 +73,24 @@ class ListBaseLearner extends Component {
         <BaseLearner 
         key={this.state.baseLearners[i].id} 
         path={this.props.path} 
-        data={this.state.baseLearners[i]} />);
+        data={this.state.baseLearners[i]} 
+        includedMetrics={this.state.includedMetrics} />);
+    }
+    return items;
+  }
+
+  // Return headers for included metrics
+  getIncludedMetrics() {
+    const items = [];
+    var arrayLength = this.state.includedMetrics.length;
+    for (var i = 0; i < arrayLength; i++) {
+      items.push(
+        <td key={i}>
+          <a onClick={() => this.sortList(false)}>
+            {this.state.includedMetrics[i]}
+          </a>
+        </td>
+      );
     }
     return items;
   }
@@ -57,8 +104,7 @@ class ListBaseLearner extends Component {
             <tr>
               <th>ID</th>
               <th>Type ID</th>
-              <th><a onClick={() => console.log('kl')}>Accuracy</a></th>
-              <th>Recall</th>
+              {this.getIncludedMetrics()}
               <th>Status</th>
             </tr>
           </tbody>

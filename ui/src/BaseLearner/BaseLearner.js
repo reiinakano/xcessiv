@@ -52,6 +52,18 @@ class BaseLearner extends Component {
     this.setState((prevState) => ({open: !prevState.open}));
   }
 
+  // Return td of selected metrics
+  getIncludedMetrics() {
+    const items = [];
+    var arrayLength = this.props.includedMetrics.length;
+    for (var i = 0; i < arrayLength; i++) {
+      items.push(
+        <td key={i}>{String(this.props.data.individual_score[this.props.includedMetrics[i]]).substring(0, 5)}</td>
+      );
+    }
+    return items;
+  }
+
   render() {
     var errored = (this.props.data.job_status === 'errored');
     var status_icon
@@ -70,12 +82,11 @@ class BaseLearner extends Component {
         <tr onClick={() => this.onCollapseOpen()}>
           <td>{this.props.data.id}</td>
           <td>{String(this.props.data.base_learner_origin_id)}</td>
-          <td>{String(this.props.data.individual_score.Accuracy).substring(0, 5)}</td>
-          <td>{String(this.props.data.individual_score.Recall).substring(0, 5)}</td>
+          {this.getIncludedMetrics()}
           <td>{status_icon}</td>
         </tr>
         <tr>
-          <td colSpan='5' style={{padding: 0}}>
+          <td colSpan={3 + this.props.includedMetrics.length} style={{padding: 0}}>
             <Collapse isOpened={this.state.open}>
               <div className='collapse'>
                 {errored && <DisplayError description={this.props.data.description} />}
