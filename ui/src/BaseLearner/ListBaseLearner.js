@@ -8,8 +8,11 @@ class ListBaseLearner extends Component {
     super(props);
     this.state = {
       baseLearners: [],
-      ascending: null,
-      includedMetrics: ['Accuracy', 'Recall', 'Precision']
+      ascending: false,
+      includedMetrics: ['Accuracy', 'Recall', 'Precision'],
+      includedHyperparameters: ['max_depth'],
+      col: 'id',
+      type: null
     };
   }
 
@@ -38,12 +41,19 @@ class ListBaseLearner extends Component {
   }
 
   // Sort
-  sortList(ascending) {
+  sortList(col, ascending, type) {
     this.setState((prevState) => {
+      console.log(arguments)
       var newState = $.extend({}, prevState); // Copy
       newState.baseLearners.sort((a, b) => {
-        a = a.individual_score.Accuracy;
-        b = b.individual_score.Accuracy;
+        if (type === null) {
+          a = a[col];
+          b = b[col];
+        }
+        else {
+          a = a[type][col];
+          b = b[type][col];
+        }
         if (a === undefined) {
           return 1;
         }
@@ -61,8 +71,20 @@ class ListBaseLearner extends Component {
         }
       });
       newState.ascending = ascending;
+      newState.col = col;
+      newState.type = type;
       return newState;
     });
+  }
+
+  // Higher level sort function to be called by headers
+  sortFromHeader(col, type) {
+    if (this.state.col === col && this.state.type === type) {
+      this.sortList(col, !this.state.ascending, type);
+    }
+    else {
+      this.sortList(col, true, type);
+    }
   }
 
   getItems() {
@@ -74,24 +96,43 @@ class ListBaseLearner extends Component {
         key={this.state.baseLearners[i].id} 
         path={this.props.path} 
         data={this.state.baseLearners[i]} 
-        includedMetrics={this.state.includedMetrics} />);
+        includedMetrics={this.state.includedMetrics}
+        includedHyperparameters={this.state.includedHyperparameters} />);
     }
     return items;
   }
 
   // Return headers for included metrics
   getIncludedMetrics() {
-    const items = [];
-    var arrayLength = this.state.includedMetrics.length;
-    for (var i = 0; i < arrayLength; i++) {
-      items.push(
-        <td key={i}>
-          <a onClick={() => this.sortList(false)}>
-            {this.state.includedMetrics[i]}
+
+    const items = this.state.includedMetrics.map((el, index) => {
+      return (
+        <th key={index}>
+          <a onClick={() => this.sortFromHeader(el, 'individual_score')}>
+            {el}
+            {(this.state.type === 'individual_score' && this.state.col === el) ? (this.state.ascending ? '↓' : '↑') : ' '}
           </a>
-        </td>
-      );
-    }
+        </th>
+      )
+    })
+
+    return items;
+  }
+
+  // Return headers for included hyperparameters
+  getIncludedHyperparameters() {
+
+    const items = this.state.includedHyperparameters.map((el, index) => {
+      return (
+        <th key={index}>
+          <a onClick={() => this.sortFromHeader(el, 'hyperparameters')}>
+            {el}
+            {(this.state.type === 'hyperparameters' && this.state.col === el) ? (this.state.ascending ? '↓' : '↑') : ' '}
+          </a>
+        </th>
+      )
+    })
+
     return items;
   }
 
@@ -102,9 +143,20 @@ class ListBaseLearner extends Component {
         <table className='BaseLearner'>
           <tbody>
             <tr>
-              <th>ID</th>
-              <th>Type ID</th>
+              <th>
+                <a onClick={() => this.sortFromHeader('id', null)}>
+                  ID
+                  {(this.state.type === null && this.state.col === 'id') ? (this.state.ascending ? '↓' : '↑') : ' '}
+                </a>
+              </th>
+              <th>
+                <a onClick={() => this.sortFromHeader('base_learner_origin_id', null)}>
+                  Type ID
+                  {(this.state.type === null && this.state.col === 'base_learner_origin_id') ? (this.state.ascending ? '↓' : '↑') : ' '}
+                </a>
+              </th>
               {this.getIncludedMetrics()}
+              {this.getIncludedHyperparameters()}
               <th>Status</th>
             </tr>
           </tbody>

@@ -64,6 +64,18 @@ class BaseLearner extends Component {
     return items;
   }
 
+  // Return td of selected hyperparameters
+  getIncludedHyperparameters() {
+    const items = [];
+    var arrayLength = this.props.includedHyperparameters.length;
+    for (var i = 0; i < arrayLength; i++) {
+      items.push(
+        <td key={i}>{this.props.data.hyperparameters[this.props.includedHyperparameters[i]]}</td>
+      );
+    }
+    return items;
+  }
+
   render() {
     var errored = (this.props.data.job_status === 'errored');
     var status_icon
@@ -83,10 +95,12 @@ class BaseLearner extends Component {
           <td>{this.props.data.id}</td>
           <td>{String(this.props.data.base_learner_origin_id)}</td>
           {this.getIncludedMetrics()}
+          {this.getIncludedHyperparameters()}
           <td>{status_icon}</td>
         </tr>
         <tr>
-          <td colSpan={3 + this.props.includedMetrics.length} style={{padding: 0}}>
+          <td colSpan={3 + this.props.includedMetrics.length + this.props.includedHyperparameters.length} 
+          style={{padding: 0}}>
             <Collapse isOpened={this.state.open}>
               <div className='collapse'>
                 {errored && <DisplayError description={this.props.data.description} />}
