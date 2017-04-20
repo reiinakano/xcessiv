@@ -12,6 +12,7 @@ class ListBaseLearner extends Component {
     this.state = {
       baseLearners: [],
       ascending: false,
+      metricsOptions: [],
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
       includedHyperparameters: ['max_depth'],
       col: 'id',
@@ -30,9 +31,15 @@ class ListBaseLearner extends Component {
       const baseLearners = [];
       const filterOptionsSet = new Set([]);
       const filterOptions = [];
+      const metricsOptionsSet = new Set([]);
+      const metricsOptions = [];
       for (var i=0; i < json.length; i++) {
         baseLearners.push(json[i]);
         filterOptionsSet.add(json[i].base_learner_origin_id);
+        for (var el in json[i].individual_score) {
+          metricsOptionsSet.add(el);
+        }
+        
       }
       
       for (let item of filterOptionsSet) {
@@ -42,9 +49,17 @@ class ListBaseLearner extends Component {
         });
       }
 
+      for (let item of metricsOptionsSet) {
+        metricsOptions.push({
+          label: String(item),
+          value: item
+        });
+      }
+
       this.setState({
         baseLearners: baseLearners, 
-        filterOptions: filterOptions
+        filterOptions: filterOptions,
+        metricsOptions: metricsOptions
       });
     });
   }
@@ -63,6 +78,12 @@ class ListBaseLearner extends Component {
   handleFilterChange(value) {
     console.log(value);
     this.setState({filterList: value.map((x) => x.value)});
+  }
+
+  // Callback for additional metrics
+  handleMetricsChange(value) {
+    console.log(value);
+    this.setState({includedMetrics: value.map((x) => x.value)});
   }
 
   // Sort
@@ -176,6 +197,11 @@ class ListBaseLearner extends Component {
         placeholder="Filter for Base Learner Type" 
         options={this.state.filterOptions} 
         onChange={(x) => this.handleFilterChange(x)} />
+        <Select multi
+        value={this.state.includedMetrics} 
+        placeholder="Add additional metrics to display" 
+        options={this.state.metricsOptions} 
+        onChange={(x) => this.handleMetricsChange(x)} />
         <table className='BaseLearner'>
           <tbody>
             <tr>
