@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './BaseLearner.css';
 import BaseLearner from './BaseLearner';
 import $ from 'jquery';
+import { includes } from 'lodash';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
 
@@ -61,7 +62,7 @@ class ListBaseLearner extends Component {
   // Callback for additional filter
   handleFilterChange(value) {
     console.log(value);
-    this.setState({filterList: value});
+    this.setState({filterList: value.map((x) => x.value)});
   }
 
   // Sort
@@ -115,13 +116,19 @@ class ListBaseLearner extends Component {
     const items = [];
     var arrayLength = this.state.baseLearners.length;
     for (var i=0; i < arrayLength; i++) {
-      items.push(
-        <BaseLearner 
-        key={this.state.baseLearners[i].id} 
-        path={this.props.path} 
-        data={this.state.baseLearners[i]} 
-        includedMetrics={this.state.includedMetrics}
-        includedHyperparameters={this.state.includedHyperparameters} />);
+      var inFilterList = includes(this.state.filterList, 
+        this.state.baseLearners[i].base_learner_origin_id);
+      if (!this.state.filterList.length || inFilterList){
+        items.push(
+          <BaseLearner 
+          key={this.state.baseLearners[i].id} 
+          path={this.props.path} 
+          data={this.state.baseLearners[i]} 
+          includedMetrics={this.state.includedMetrics}
+          includedHyperparameters={this.state.includedHyperparameters} />
+        );
+      }
+      
     }
     return items;
   }
