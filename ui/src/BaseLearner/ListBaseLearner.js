@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './BaseLearner.css';
 import BaseLearner from './BaseLearner';
 import $ from 'jquery';
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 
 class ListBaseLearner extends Component {
   constructor(props) {
@@ -12,6 +14,8 @@ class ListBaseLearner extends Component {
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
       includedHyperparameters: ['max_depth'],
       col: 'id',
+      filterOptions: [],
+      filterList: [],
       type: null
     };
   }
@@ -22,11 +26,25 @@ class ListBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json)
-      const baseLearners = []
+      const baseLearners = [];
+      const filterOptionsSet = new Set([]);
+      const filterOptions = [];
       for (var i=0; i < json.length; i++) {
         baseLearners.push(json[i]);
+        filterOptionsSet.add(json[i].base_learner_origin_id);
       }
-      this.setState({baseLearners: baseLearners});
+      
+      for (let item of filterOptionsSet) {
+        filterOptions.push({
+          label: String(item),
+          value: item
+        });
+      }
+
+      this.setState({
+        baseLearners: baseLearners, 
+        filterOptions: filterOptions
+      });
     });
   }
 
@@ -38,6 +56,12 @@ class ListBaseLearner extends Component {
       newState.baseLearners[idx] = newData;
       return newState;
     });
+  }
+
+  // Callback for additional filter
+  handleFilterChange(value) {
+    console.log(value);
+    this.setState({filterList: value});
   }
 
   // Sort
@@ -140,6 +164,11 @@ class ListBaseLearner extends Component {
     return(
       <div className='BaseLearnerPadding'>
         <h2>Base Learners</h2>
+        <Select multi
+        value={this.state.filterList} 
+        placeholder="Filter for Base Learner Type" 
+        options={this.state.filterOptions} 
+        onChange={(x) => this.handleFilterChange(x)} />
         <table className='BaseLearner'>
           <tbody>
             <tr>

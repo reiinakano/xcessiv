@@ -16,6 +16,7 @@
     "react-icons": "^2.2.3",
     "react-modal": "^1.7.3",
     "react-motion": "^0.4.7",
+    "react-select": "^1.0.0-rc.3",
     "react-syntax-highlighter": "^5.1.2"
   },
   "devDependencies": {
