@@ -14,7 +14,8 @@ class ListBaseLearner extends Component {
       ascending: false,
       metricsOptions: [],
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
-      includedHyperparameters: ['max_depth'],
+      hyperparametersOptions: [],
+      includedHyperparameters: [],
       col: 'id',
       filterOptions: [],
       filterList: [],
@@ -33,12 +34,13 @@ class ListBaseLearner extends Component {
       const filterOptions = [];
       const metricsOptionsSet = new Set([]);
       const metricsOptions = [];
+      const hyperparametersOptionsSet = new Set([]);
+      const hyperparametersOptions = [];
       for (var i=0; i < json.length; i++) {
         baseLearners.push(json[i]);
         filterOptionsSet.add(json[i].base_learner_origin_id);
-        for (var el in json[i].individual_score) {
-          metricsOptionsSet.add(el);
-        }
+        for (var el in json[i].individual_score) metricsOptionsSet.add(el);
+        for (var el in json[i].hyperparameters) hyperparametersOptionsSet.add(el);
         
       }
       
@@ -56,10 +58,18 @@ class ListBaseLearner extends Component {
         });
       }
 
+      for (let item of hyperparametersOptionsSet) {
+        hyperparametersOptions.push({
+          label: String(item),
+          value: item
+        });
+      }
+
       this.setState({
         baseLearners: baseLearners, 
         filterOptions: filterOptions,
-        metricsOptions: metricsOptions
+        metricsOptions: metricsOptions,
+        hyperparametersOptions: hyperparametersOptions
       });
     });
   }
@@ -84,6 +94,12 @@ class ListBaseLearner extends Component {
   handleMetricsChange(value) {
     console.log(value);
     this.setState({includedMetrics: value.map((x) => x.value)});
+  }
+
+  // Callback for additional hyperparameters
+  handleHyperparametersChange(value) {
+    console.log(value);
+    this.setState({includedHyperparameters: value.map((x) => x.value)});
   }
 
   // Sort
@@ -202,6 +218,11 @@ class ListBaseLearner extends Component {
         placeholder="Add additional metrics to display" 
         options={this.state.metricsOptions} 
         onChange={(x) => this.handleMetricsChange(x)} />
+        <Select multi
+        value={this.state.includedHyperparameters} 
+        placeholder="Add additional hyperparameters to display" 
+        options={this.state.hyperparametersOptions} 
+        onChange={(x) => this.handleHyperparametersChange(x)} />
         <table className='BaseLearner'>
           <tbody>
             <tr>

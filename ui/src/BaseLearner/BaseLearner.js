@@ -70,7 +70,9 @@ class BaseLearner extends Component {
     var arrayLength = this.props.includedHyperparameters.length;
     for (var i = 0; i < arrayLength; i++) {
       items.push(
-        <td key={i}>{this.props.data.hyperparameters[this.props.includedHyperparameters[i]]}</td>
+        <td key={i}>
+        {String(this.props.data.hyperparameters[this.props.includedHyperparameters[i]])}
+        </td>
       );
     }
     return items;
