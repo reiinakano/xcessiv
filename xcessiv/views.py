@@ -209,6 +209,9 @@ def specific_base_learner_origin(id):
             return jsonify(base_learner_origin.serialize)
 
         if request.method == 'DELETE':
+            for learner in base_learner_origin.base_learners:
+                learner.delete_meta_features(path)
+                session.delete(learner)
             session.delete(base_learner_origin)
             session.commit()
             return my_message('Deleted base learner origin')
@@ -371,8 +374,7 @@ def get_base_learners():
 
         if request.method == 'DELETE':  # Go crazy and delete everything
             for base_learner in base_learners:
-                if os.path.exists(base_learner.meta_features_path(path)):
-                    os.remove(base_learner.meta_features_path(path))
+                base_learner.delete_meta_features(path)
                 session.delete(base_learner)
             session.commit()
             return my_message('Deleted all base learners')
@@ -391,8 +393,7 @@ def specific_base_learner(id):
             return jsonify(base_learner.serialize)
 
         if request.method == 'DELETE':
-            if os.path.exists(base_learner.meta_features_path(path)):
-                os.remove(base_learner.meta_features_path(path))
+            base_learner.delete_meta_features(path)
             session.delete(base_learner)
             session.commit()
             return my_message('Deleted base learner')

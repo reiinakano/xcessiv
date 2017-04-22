@@ -296,6 +296,15 @@ class BaseLearner(Base):
             base_learner_origin_id=self.base_learner_origin_id
         )
 
+    def delete_meta_features(self, path):
+        """Deletes meta-features of base learner if it exists
+
+        Args:
+            path (str): Absolute/local path of xcessiv folder
+        """
+        if os.path.exists(self.meta_features_path(path)):
+            os.remove(self.meta_features_path(path))
+
 
 class StackedEnsemble(Base):
     """This table contains StackedEnsembles created in the xcessiv notebook"""

@@ -11,7 +11,7 @@ class ListBaseLearner extends Component {
     super(props);
     this.state = {
       baseLearners: [],
-      ascending: false,
+      ascending: true,
       metricsOptions: [],
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
       hyperparametersOptions: [],
@@ -39,8 +39,8 @@ class ListBaseLearner extends Component {
       for (var i=0; i < json.length; i++) {
         baseLearners.push(json[i]);
         filterOptionsSet.add(json[i].base_learner_origin_id);
-        for (var el in json[i].individual_score) metricsOptionsSet.add(el);
-        for (var el in json[i].hyperparameters) hyperparametersOptionsSet.add(el);
+        for (let el in json[i].individual_score) metricsOptionsSet.add(el);
+        for (let el in json[i].hyperparameters) hyperparametersOptionsSet.add(el);
         
       }
       
