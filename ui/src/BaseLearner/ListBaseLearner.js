@@ -82,6 +82,7 @@ class ListBaseLearner extends Component {
       newState.baseLearners[idx] = newData;
       return newState;
     });
+    this.sortList(this.state.col, this.state.ascending, this.state.type);
   }
 
   // Callback for additional filter
@@ -150,23 +151,21 @@ class ListBaseLearner extends Component {
   }
 
   getItems() {
-    const items = [];
-    var arrayLength = this.state.baseLearners.length;
-    for (var i=0; i < arrayLength; i++) {
-      var inFilterList = includes(this.state.filterList, 
-        this.state.baseLearners[i].base_learner_origin_id);
-      if (!this.state.filterList.length || inFilterList){
-        items.push(
-          <BaseLearner 
-          key={this.state.baseLearners[i].id} 
-          path={this.props.path} 
-          data={this.state.baseLearners[i]} 
-          includedMetrics={this.state.includedMetrics}
-          includedHyperparameters={this.state.includedHyperparameters} />
-        );
-      }
-      
-    }
+
+    const items = this.state.baseLearners.filter((el) => {
+      return (!this.state.filterList.length || includes(this.state.filterList, el.base_learner_origin_id));
+    }).map((el, index) => {
+      return (
+        <BaseLearner 
+        key={el.id} 
+        path={this.props.path} 
+        data={el} 
+        includedMetrics={this.state.includedMetrics}
+        includedHyperparameters={this.state.includedHyperparameters} 
+        onUpdate={(newData) => this.updateBaseLearner(el.id, newData)} />
+      );
+    });
+
     return items;
   }
 

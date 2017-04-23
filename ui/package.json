@@ -20,6 +20,8 @@
     "react-syntax-highlighter": "^5.1.2"
   },
   "devDependencies": {
+    "eslint": "^3.19.0",
+    "eslint-config-google": "^0.7.1",
     "react-scripts": "0.9.5"
   },
   "scripts": {

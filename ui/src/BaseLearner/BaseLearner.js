@@ -1,9 +1,27 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import './BaseLearner.css';
 import Collapse from 'react-collapse';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
+
+function handleErrors(response) {
+  if (!response.ok) {
+    var error = new Error(response.statusText);
+
+    // Unexpected error
+    if (response.status === 500) {
+      error.errMessage = 'Unexpected error';
+      throw error;
+    }
+    return response.json()
+      .then(errorBody => {
+        error.errMessage = JSON.stringify(errorBody);
+        throw error;
+      });
+  }
+  return response;
+}
 
 function DisplayHyperparameters(props) {
   const items = [];
@@ -45,6 +63,34 @@ class BaseLearner extends Component {
     this.state = {
       open: false
     };
+  }
+
+  fetchUntilFinished() {
+    fetch('/ensemble/base-learners/' + this.props.data.id + '/?path=' + this.props.path)
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      if (json.job_status === 'queued' || json.job_status === 'started') {
+        // Delay 5 seconds
+        setTimeout(() => this.fetchUntilFinished(), 5000);
+      }
+      else {
+        // Update base learner
+        this.props.onUpdate(json);
+        console.log('Job is done');
+      }
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+    });
+  }
+
+  componentDidMount() {
+    if (this.props.data.job_status === 'queued' || this.props.data.job_status === 'started') {
+      this.fetchUntilFinished();
+    }
   }
 
   // Open collapse
