@@ -314,7 +314,11 @@ def search_base_learner(id):
     path = functions.get_path_from_query_string(request)
     req_body = request.get_json()
     if req_body['method'] == 'grid':
-        iterator = ParameterGrid(req_body['param_grid'])
+        param_grid = functions.import_object_from_string_code(
+            req_body['source'],
+            'param_grid'
+        )
+        iterator = ParameterGrid(param_grid)
     elif req_body['method'] == 'random':
         param_distributions = functions.import_object_from_string_code(
             req_body['source'],
