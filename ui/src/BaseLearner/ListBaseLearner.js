@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import './BaseLearner.css';
 import BaseLearner from './BaseLearner';
-import $ from 'jquery';
 import { includes } from 'lodash';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
@@ -10,79 +9,13 @@ class ListBaseLearner extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      baseLearners: [],
-      ascending: true,
-      metricsOptions: [],
+      sortAscending: true,
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
-      hyperparametersOptions: [],
       includedHyperparameters: [],
-      col: 'id',
-      filterOptions: [],
+      sortCol: 'id',
       filterList: [],
-      type: null
+      sortType: null
     };
-  }
-
-  // Get request from server to populate fields
-  componentDidMount() {
-    fetch('/ensemble/base-learners/?path=' + this.props.path)
-    .then(response => response.json())
-    .then(json => {
-      console.log(json)
-      const baseLearners = [];
-      const filterOptionsSet = new Set([]);
-      const filterOptions = [];
-      const metricsOptionsSet = new Set([]);
-      const metricsOptions = [];
-      const hyperparametersOptionsSet = new Set([]);
-      const hyperparametersOptions = [];
-      for (var i=0; i < json.length; i++) {
-        baseLearners.push(json[i]);
-        filterOptionsSet.add(json[i].base_learner_origin_id);
-        for (let el in json[i].individual_score) metricsOptionsSet.add(el);
-        for (let el in json[i].hyperparameters) hyperparametersOptionsSet.add(el);
-        
-      }
-      
-      for (let item of filterOptionsSet) {
-        filterOptions.push({
-          label: String(item),
-          value: item
-        });
-      }
-
-      for (let item of metricsOptionsSet) {
-        metricsOptions.push({
-          label: String(item),
-          value: item
-        });
-      }
-
-      for (let item of hyperparametersOptionsSet) {
-        hyperparametersOptions.push({
-          label: String(item),
-          value: item
-        });
-      }
-
-      this.setState({
-        baseLearners: baseLearners, 
-        filterOptions: filterOptions,
-        metricsOptions: metricsOptions,
-        hyperparametersOptions: hyperparametersOptions
-      });
-    });
-  }
-
-  // Callback to update a base learner in the list
-  updateBaseLearner(id, newData) {
-    this.setState((prevState) => {
-      var newState = $.extend({}, prevState); // Copy
-      var idx = newState.baseLearners.findIndex((x) => x.id === id);
-      newState.baseLearners[idx] = newData;
-      return newState;
-    });
-    this.sortList(this.state.col, this.state.ascending, this.state.type);
   }
 
   // Callback for additional filter
@@ -104,55 +37,51 @@ class ListBaseLearner extends Component {
   }
 
   // Sort
-  sortList(col, ascending, type) {
-    this.setState((prevState) => {
-      console.log(arguments)
-      var newState = $.extend({}, prevState); // Copy
-      newState.baseLearners.sort((a, b) => {
-        if (type === null) {
-          a = a[col];
-          b = b[col];
-        }
-        else {
-          a = a[type][col];
-          b = b[type][col];
-        }
-        if (a === undefined) {
-          return 1;
-        }
-        else if (b === undefined) {
-          return -1;
-        }
-        else if (a === b){
-          return 0;
-        }
-        else if (ascending) {
-          return a < b ? -1 : 1;
-        }
-        else {
-          return a < b ? 1 : -1;
-        }
-      });
-      newState.ascending = ascending;
-      newState.col = col;
-      newState.type = type;
-      return newState;
+  returnSortedList() {
+    var sortedBaseLearners = this.props.baseLearners.slice()
+    sortedBaseLearners.sort((a, b) => {
+      if (this.state.sortType === null) {
+        a = a[this.state.sortCol];
+        b = b[this.state.sortCol];
+      }
+      else {
+        a = a[this.state.sortType][this.state.sortCol];
+        b = b[this.state.sortType][this.state.sortCol];
+      }
+      if (a === undefined) {
+        return 1;
+      }
+      else if (b === undefined) {
+        return -1;
+      }
+      else if (a === b){
+        return 0;
+      }
+      else if (this.state.sortAscending) {
+        return a < b ? -1 : 1;
+      }
+      else {
+        return a < b ? 1 : -1;
+      }
     });
+    return sortedBaseLearners;
   }
 
   // Higher level sort function to be called by headers
-  sortFromHeader(col, type) {
-    if (this.state.col === col && this.state.type === type) {
-      this.sortList(col, !this.state.ascending, type);
+  sortFromHeader(sortCol, sortType) {
+    if (this.state.sortCol === sortCol && this.state.sortType === sortType) {
+      this.setState({sortAscending: !this.state.sortAscending});
     }
     else {
-      this.sortList(col, true, type);
+      this.setState({sortCol: sortCol, sortAscending: true, sortType: sortType});
     }
   }
 
   getItems() {
 
-    const items = this.state.baseLearners.filter((el) => {
+    var sortedBaseLearners = this.returnSortedList();
+
+    const items = sortedBaseLearners.filter((el) => {
       return (!this.state.filterList.length || includes(this.state.filterList, el.base_learner_origin_id));
     }).map((el, index) => {
       return (
@@ -162,7 +91,7 @@ class ListBaseLearner extends Component {
         data={el} 
         includedMetrics={this.state.includedMetrics}
         includedHyperparameters={this.state.includedHyperparameters} 
-        onUpdate={(newData) => this.updateBaseLearner(el.id, newData)} />
+        onUpdate={(newData) => this.props.updateBaseLearner(el.id, newData)} />
       );
     });
 
@@ -177,7 +106,7 @@ class ListBaseLearner extends Component {
         <th key={index}>
           <a onClick={() => this.sortFromHeader(el, 'individual_score')}>
             {el}
-            {(this.state.type === 'individual_score' && this.state.col === el) ? (this.state.ascending ? '↓' : '↑') : ' '}
+            {(this.state.sortType === 'individual_score' && this.state.sortCol === el) ? (this.state.sortAscending ? '↓' : '↑') : ' '}
           </a>
         </th>
       )
@@ -194,7 +123,7 @@ class ListBaseLearner extends Component {
         <th key={index}>
           <a onClick={() => this.sortFromHeader(el, 'hyperparameters')}>
             {el}
-            {(this.state.type === 'hyperparameters' && this.state.col === el) ? (this.state.ascending ? '↓' : '↑') : ' '}
+            {(this.state.sortType === 'hyperparameters' && this.state.sortCol === el) ? (this.state.sortAscending ? '↓' : '↑') : ' '}
           </a>
         </th>
       )
@@ -210,17 +139,17 @@ class ListBaseLearner extends Component {
         <Select multi
         value={this.state.filterList} 
         placeholder="Filter for Base Learner Type" 
-        options={this.state.filterOptions} 
+        options={this.props.filterOptions} 
         onChange={(x) => this.handleFilterChange(x)} />
         <Select multi
         value={this.state.includedMetrics} 
         placeholder="Add additional metrics to display" 
-        options={this.state.metricsOptions} 
+        options={this.props.metricsOptions} 
         onChange={(x) => this.handleMetricsChange(x)} />
         <Select multi
         value={this.state.includedHyperparameters} 
         placeholder="Add additional hyperparameters to display" 
-        options={this.state.hyperparametersOptions} 
+        options={this.props.hyperparametersOptions} 
         onChange={(x) => this.handleHyperparametersChange(x)} />
         <table className='BaseLearner'>
           <tbody>
@@ -228,13 +157,13 @@ class ListBaseLearner extends Component {
               <th>
                 <a onClick={() => this.sortFromHeader('id', null)}>
                   ID
-                  {(this.state.type === null && this.state.col === 'id') ? (this.state.ascending ? '↓' : '↑') : ' '}
+                  {(this.state.sortType === null && this.state.sortCol === 'id') ? (this.state.sortAscending ? '↓' : '↑') : ' '}
                 </a>
               </th>
               <th>
                 <a onClick={() => this.sortFromHeader('base_learner_origin_id', null)}>
                   Type ID
-                  {(this.state.type === null && this.state.col === 'base_learner_origin_id') ? (this.state.ascending ? '↓' : '↑') : ' '}
+                  {(this.state.sortType === null && this.state.sortCol === 'base_learner_origin_id') ? (this.state.sortAscending ? '↓' : '↑') : ' '}
                 </a>
               </th>
               {this.getIncludedMetrics()}
