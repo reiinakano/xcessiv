@@ -14,12 +14,12 @@ import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 
-const serverProps = ['name', 
-                     'meta_feature_generator', 
-                     'metric_generators',
-                     'source',
-                     'final',
-                     'validation_results'];
+const changeableProps = [
+  'name', 
+  'meta_feature_generator', 
+  'metric_generators', 
+  'source'
+];
 
 const modalStyle = {
   overlay : {
@@ -125,12 +125,12 @@ class BaseLearnerOrigin extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: 'Edit base learner origin name',
-      meta_feature_generator: '',
-      metric_generators: {'Accuracy': ''},
-      source: '',
-      final: false,
-      validation_results: {},
+      unsavedData: {
+        name: this.props.data.name,
+        meta_feature_generator: this.props.data.meta_feature_generator,
+        metric_generators: this.props.data.metric_generators,
+        source: this.props.data.source
+      },
       same: true,
       showClearModal: false,
       showFinalizeModal: false,
@@ -149,35 +149,27 @@ class BaseLearnerOrigin extends Component {
     });
   }
 
-  // Get request from server to populate fields
-  componentDidMount() {
-    fetch('/ensemble/base-learner-origins/' + this.props.id + '/?path=' + this.props.path)
-    .then(response => response.json())
-    .then(json => {
-      console.log(json)
-      this.savedState = pick(json, serverProps);
-      this.setState(this.savedState);
-    });
-  }
-
   handleDataChange(key, value) {
     console.log(key);
     console.log(value);
-    var savedState = this.savedState;
 
     this.setState((prevState) => {
-      prevState = pick(prevState, serverProps);
 
       var newState = $.extend({}, prevState); // Copy
-      newState[key] = value;
-      newState['same'] = isEqual(newState, savedState);
+      newState.unsavedData[key] = value;
+      newState['same'] = isEqual(newState.unsavedData, 
+        pick(this.props.data, changeableProps));
       return newState;
     })
   }
 
   // Clear any unsaved changes
   clearChanges() {
-    this.setState($.extend({}, {same: true, showClearModal: false}, this.savedState));
+    this.setState({
+      same: true, 
+      showClearModal: false, 
+      unsavedData: pick(this.props.data, changeableProps)
+    });
   }
 
   handleOpenClearModal() {
@@ -197,33 +189,29 @@ class BaseLearnerOrigin extends Component {
   }
 
   handleDeleteLearner() {
-    this.props.deleteLearner(this.props.id);
+    this.props.deleteLearner();
     this.handleCloseDeleteModal();
   }
 
   // Save any changes to server
   saveSetup() {
-    var payload = {
-      name: this.state['name'],
-      meta_feature_generator: this.state['meta_feature_generator'],
-      metric_generators: this.state['metric_generators'],
-      source: this.state['source']
-    };
+    var payload = this.state.unsavedData;
 
     fetch(
-      '/ensemble/base-learner-origins/' + this.props.id + '/?path=' + this.props.path,
+      '/ensemble/base-learner-origins/' + this.props.data.id + '/?path=' + this.props.path,
       {
         method: "PATCH",
         body: JSON.stringify( payload ),
         headers: new Headers({
           'Content-Type': 'application/json'
         })
-      })
-      .then(response => response.json())
-      .then(json => {
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
       console.log(json)
-      this.savedState = pick(json, serverProps);
-      this.setState($.extend({}, {same: true}, this.savedState));
+      this.props.updateBaseLearnerOrigin(json);
+      this.setState({same: true});
     });
   }
 
@@ -231,14 +219,14 @@ class BaseLearnerOrigin extends Component {
   verifyLearner() {
     this.setState({asyncStatus: 'Verifying...'});
     fetch(
-      '/ensemble/base-learner-origins/' + this.props.id + '/verify/?path=' + this.props.path,
+      '/ensemble/base-learner-origins/' + this.props.data.id + '/verify/?path=' + this.props.path,
     )
     .then(handleErrors)
     .then(response => response.json())
     .then(json => {
       console.log(json)
-      this.savedState = pick(json, serverProps);
-      this.setState($.extend({}, {same: true, asyncStatus: '', errorMessage: ''}, this.savedState));
+      this.props.updateBaseLearnerOrigin(json);
+      this.setState({asyncStatus: '', errorMessage: ''});
     })
     .catch(error => {
       console.log(error.message);
@@ -255,14 +243,14 @@ class BaseLearnerOrigin extends Component {
       showFinalizeModal: false
     });
     fetch(
-      '/ensemble/base-learner-origins/' + this.props.id + '/confirm/?path=' + this.props.path,
+      '/ensemble/base-learner-origins/' + this.props.data.id + '/confirm/?path=' + this.props.path,
       )
     .then(handleErrors)
     .then(response => response.json())
     .then(json => {
-      console.log(json)
-      this.savedState = pick(json, serverProps);
-      this.setState($.extend({}, {same: true, asyncStatus: '', errorMessage: ''}, this.savedState));
+      console.log(json);
+      this.props.updateBaseLearnerOrigin(json);
+      this.setState({asyncStatus: '', errorMessage: ''});
     })
     .catch(error => {
       console.log(error.message);
@@ -281,7 +269,7 @@ class BaseLearnerOrigin extends Component {
   }
 
   render() {
-    var disableAll = (this.state.final || Boolean(this.state.asyncStatus));
+    var disableAll = (this.props.data.final || Boolean(this.state.asyncStatus));
 
     var options = {
       lineNumbers: true,
@@ -293,9 +281,9 @@ class BaseLearnerOrigin extends Component {
 
     var header = <b>
       {(!this.state.same ? '* ' : ' ')}
-      {'ID: ' + this.props.id + ' '}
-      {this.state.name + ' '} 
-      {this.state.final && <FaCheck />}
+      {'ID: ' + this.props.data.id + ' '}
+      {this.state.unsavedData.name + ' '} 
+      {this.props.data.final && <FaCheck />}
       {Boolean(this.state.asyncStatus) && (this.state.asyncStatus + ' ')}
       {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
       {showExlamationCircle && <FaExclamationCircle />}
@@ -305,23 +293,23 @@ class BaseLearnerOrigin extends Component {
       <div>
       <Collapse activeKey={this.state.activeKey} onChange={(activeKey) => this.onActiveChange(activeKey)}
         accordion={false}>
-        <Panel key={this.props.id} header={header}>
+        <Panel key={this.props.data.id} header={header}>
 
           <h3>
-            <ContentEditable html={this.state.name} 
+            <ContentEditable html={this.state.unsavedData.name} 
             disabled={disableAll} 
             onChange={(evt) => this.handleDataChange('name', evt.target.value)} />
           </h3>
 
           <h4>
-            {this.state.final && 'This base learner setup has been finalized and can no longer be modified.'}
+            {this.props.data.final && 'This base learner setup has been finalized and can no longer be modified.'}
           </h4>
 
           <h4>
             {this.state.errorMessage}
           </h4>
 
-          <CodeMirror value={this.state.source} 
+          <CodeMirror value={this.state.unsavedData.source} 
           onChange={(src) => this.handleDataChange('source', src)} 
           options={options}/>
 
@@ -329,17 +317,17 @@ class BaseLearnerOrigin extends Component {
             <label>
               Meta-feature generator method: 
               <input type='text' readOnly={disableAll}
-              value={this.state.meta_feature_generator} 
+              value={this.state.unsavedData.meta_feature_generator} 
               onChange={(evt) => this.handleDataChange('meta_feature_generator', evt.target.value)}/>
             </label>
           </div>
 
           <MetricGenerators 
           disabled={disableAll}
-          generators={this.state.metric_generators} 
+          generators={this.state.unsavedData.metric_generators} 
           handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} />
 
-          <ValidationResults validation_results={this.state.validation_results} />
+          <ValidationResults validation_results={this.props.data.validation_results} />
 
           <button disabled={this.state.same || disableAll}
           onClick={() => this.handleOpenClearModal()}> Clear unsaved changes </button>
