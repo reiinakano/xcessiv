@@ -285,7 +285,9 @@ def create_base_learner(id):
 
         # Retrieve full hyperparameters
         est = base_learner_origin.return_estimator()
-        est.set_params(**req_body['hyperparameters'])
+        hyperparameters = functions.import_object_from_string_code(req_body['source'],
+                                                                   'params')
+        est.set_params(**hyperparameters)
         hyperparameters = est.get_params()
 
         base_learners = session.query(models.BaseLearner).\
