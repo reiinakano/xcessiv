@@ -140,6 +140,32 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Random search from a base learner origin
+  randomSearch(id, source, n) {
+    var payload = {source: source, method: 'random', n_iter: n};
+
+    fetch(
+      '/ensemble/base-learner-origins/' + id + '/search/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.refreshBaseLearners();
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+    });
+  }
+
   // Callback to update a base learner in the list
   updateBaseLearner(id, newData) {
     this.setState((prevState) => {
@@ -157,6 +183,7 @@ class ContainerBaseLearner extends Component {
           path={this.props.path} 
           createBaseLearner={(id, source) => this.createBaseLearner(id, source)}
           gridSearch={(id, source) => this.gridSearch(id, source)}
+          randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
         />
         <ListBaseLearner 
           path={this.props.path} 

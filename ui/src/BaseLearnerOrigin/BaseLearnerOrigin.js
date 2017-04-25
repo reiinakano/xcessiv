@@ -196,6 +196,53 @@ class GridSearchModal extends Component {
   }
 }
 
+class RandomSearchModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      source: 'param_distributions = {}',
+      n: 0
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.source, this.state.n);
+    this.props.onRequestClose();
+  }
+
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+
+    return (
+      <ReactModal
+        isOpen={this.props.isOpen}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='Grid Search'
+        style={modalStyle}
+      >
+        <p>{'Designate parameter distribution for random search in variable `param_distributions`'}</p>
+        <CodeMirror value={this.state.source} 
+          onChange={(src) => this.setState({source: src})} 
+          options={options}
+        />
+        <div className='SplitFormLabel'>
+          <label>
+            Number of iterations: 
+            <input type='number' min='0'
+            value={this.state.n} 
+            onChange={(evt) => this.setState({n: parseInt(evt.target.value, 10)})}/>
+          </label>
+        </div>
+        <button onClick={this.props.onRequestClose}>Cancel</button>
+        <button onClick={() => this.handleYesAndClose()}>Create</button>
+      </ReactModal>
+    )
+  }
+}
+
 class BaseLearnerOrigin extends Component {
 
   constructor(props) {
@@ -213,6 +260,7 @@ class BaseLearnerOrigin extends Component {
       showDeleteModal: false,
       showCreateModal: false,
       showGridSearchModal: false,
+      showRandomSearchModal: false,
       activeKey: [],
       asyncStatus: '',
       errorMessage: ''
@@ -423,6 +471,14 @@ class BaseLearnerOrigin extends Component {
           <GridSearchModal isOpen={this.state.showGridSearchModal} 
           onRequestClose={() => this.setState({showGridSearchModal: false})}
           handleYes={(source) => this.props.gridSearch(source)} />
+
+          <button disabled={!this.props.data.final}
+          onClick={() => this.setState({showRandomSearchModal: true})}>
+            Random Search
+          </button>
+          <RandomSearchModal isOpen={this.state.showRandomSearchModal} 
+          onRequestClose={() => this.setState({showRandomSearchModal: false})}
+          handleYes={(source, n) => this.props.randomSearch(source, n)} />
 
         </Panel>
       </Collapse>
