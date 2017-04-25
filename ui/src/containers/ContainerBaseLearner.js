@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import ListBaseLearner from '../BaseLearner/ListBaseLearner';
+import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
 import $ from 'jquery';
 
 class ContainerBaseLearner extends Component {
@@ -15,6 +16,11 @@ class ContainerBaseLearner extends Component {
 
   // Get request from server to populate fields
   componentDidMount() {
+    this.refreshBaseLearners(); 
+  }
+
+  // Refresh base learners from server data
+  refreshBaseLearners() {
     fetch('/ensemble/base-learners/?path=' + this.props.path)
     .then(response => response.json())
     .then(json => {
@@ -77,6 +83,10 @@ class ContainerBaseLearner extends Component {
   render() {
     return (
       <div>
+        <ListBaseLearnerOrigin 
+          path={this.props.path} 
+          refreshBaseLearners={() => this.refreshBaseLearners()}
+        />
         <ListBaseLearner 
           path={this.props.path} 
           baseLearners={this.state.baseLearners}

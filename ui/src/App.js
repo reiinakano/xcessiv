@@ -4,7 +4,6 @@ import MainDataExtraction from './DatasetExtraction/MainDataExtraction';
 import TestDataExtraction from './DatasetExtraction/TestDataExtraction';
 import MetaFeatureExtraction from './DatasetExtraction/MetaFeatureExtraction';
 import DataVerificationResult from './DatasetExtraction/DataVerificationResult';
-import ListBaseLearnerOrigin from './BaseLearnerOrigin/ListBaseLearnerOrigin';
 import ContainerBaseLearner from './containers/ContainerBaseLearner'
 
 
@@ -19,7 +18,6 @@ class App extends Component {
         <TestDataExtraction path='test'/>
         <MetaFeatureExtraction path='test'/>
         <DataVerificationResult path='test'/>
-        <ListBaseLearnerOrigin path='test' />
         <ContainerBaseLearner path='test' />
       </div>
     )

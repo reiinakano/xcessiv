@@ -172,25 +172,9 @@ class BaseLearnerOrigin extends Component {
     });
   }
 
-  handleOpenClearModal() {
-    this.setState({showClearModal: true});
-  }
-
-  handleCloseClearModal() {
-    this.setState({showClearModal: false});
-  }
-
-  handleOpenDeleteModal() {
-    this.setState({showDeleteModal: true});
-  }
-
-  handleCloseDeleteModal() {
-    this.setState({showDeleteModal: false});
-  }
-
   handleDeleteLearner() {
     this.props.deleteLearner();
-    this.handleCloseDeleteModal();
+    this.setState({showDeleteModal: false});
   }
 
   // Save any changes to server
@@ -260,14 +244,6 @@ class BaseLearnerOrigin extends Component {
     });;
   }
 
-  handleOpenFinalizeModal() {
-    this.setState({showFinalizeModal: true});
-  }
-
-  handleCloseFinalizeModal() {
-    this.setState({showFinalizeModal: false});
-  }
-
   render() {
     var disableAll = (this.props.data.final || Boolean(this.state.asyncStatus));
 
@@ -330,9 +306,9 @@ class BaseLearnerOrigin extends Component {
           <ValidationResults validation_results={this.props.data.validation_results} />
 
           <button disabled={this.state.same || disableAll}
-          onClick={() => this.handleOpenClearModal()}> Clear unsaved changes </button>
+          onClick={() => this.setState({showClearModal: true})}> Clear unsaved changes </button>
           <ClearModal isOpen={this.state.showClearModal} 
-          onRequestClose={() => this.handleCloseClearModal()}
+          onRequestClose={() => this.setState({showClearModal: false})}
           handleYes={() => this.clearChanges()} />
 
           <button disabled={this.state.same || disableAll} 
@@ -342,14 +318,14 @@ class BaseLearnerOrigin extends Component {
           onClick={() => this.verifyLearner()}>Verify on toy data</button>
 
           <button disabled={!this.state.same || disableAll}
-          onClick={() => this.handleOpenFinalizeModal()}>Finalize Base Learner Setup</button>
+          onClick={() => this.setState({showFinalizeModal: true})}>Finalize Base Learner Setup</button>
           <FinalizeModal isOpen={this.state.showFinalizeModal} 
-          onRequestClose={() => this.handleCloseFinalizeModal()}
+          onRequestClose={() => this.setState({showFinalizeModal: false})}
           handleYes={() => this.confirmLearner()} />
 
-          <button onClick={() => this.handleOpenDeleteModal()}>Delete Base Learner Setup</button>
+          <button onClick={() => this.setState({showDeleteModal: true})}>Delete Base Learner Setup</button>
           <DeleteModal isOpen={this.state.showDeleteModal}
-          onRequestClose={() => this.handleCloseDeleteModal()}
+          onRequestClose={() => this.setState({showDeleteModal: false})}
           handleYes={() => this.handleDeleteLearner()} />
 
         </Panel>
