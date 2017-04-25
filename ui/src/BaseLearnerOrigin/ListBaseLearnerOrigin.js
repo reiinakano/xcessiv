@@ -31,6 +31,8 @@ class ListBaseLearnerOrigin extends Component {
           data={el} 
           updateBaseLearnerOrigin={(newData) => this.updateBaseLearnerOrigin(el.id, newData)}
           deleteLearner={() => this.deleteBaseLearnerOrigin(el.id)}
+          createBaseLearner={(source) => this.props.createBaseLearner(el.id, source)}
+          gridSearch={(source) => this.props.gridSearch(el.id, source)}
         />
       );
     });

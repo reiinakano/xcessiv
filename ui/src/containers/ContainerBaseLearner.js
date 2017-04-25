@@ -3,6 +3,24 @@ import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
 import $ from 'jquery';
 
+function handleErrors(response) {
+  if (!response.ok) {
+    var error = new Error(response.statusText);
+
+    // Unexpected error
+    if (response.status === 500) {
+      error.errMessage = 'Unexpected error';
+      throw error;
+    }
+    return response.json()
+      .then(errorBody => {
+        error.errMessage = JSON.stringify(errorBody);
+        throw error;
+      });
+  }
+  return response;
+}
+
 class ContainerBaseLearner extends Component {
   constructor(props) {
     super(props);
@@ -70,6 +88,58 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Create a single base learner from a base learner origin
+  createBaseLearner(id, source) {
+    var payload = {source: source};
+
+    fetch(
+      '/ensemble/base-learner-origins/' + id + '/create-base-learner/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.refreshBaseLearners();
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+    });
+  }
+
+  // Grid search from a base learner origin
+  gridSearch(id, source) {
+    var payload = {source: source, method: 'grid'};
+
+    fetch(
+      '/ensemble/base-learner-origins/' + id + '/search/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.refreshBaseLearners();
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+    });
+  }
+
   // Callback to update a base learner in the list
   updateBaseLearner(id, newData) {
     this.setState((prevState) => {
@@ -85,7 +155,8 @@ class ContainerBaseLearner extends Component {
       <div>
         <ListBaseLearnerOrigin 
           path={this.props.path} 
-          refreshBaseLearners={() => this.refreshBaseLearners()}
+          createBaseLearner={(id, source) => this.createBaseLearner(id, source)}
+          gridSearch={(id, source) => this.gridSearch(id, source)}
         />
         <ListBaseLearner 
           path={this.props.path} 

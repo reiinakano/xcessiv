@@ -120,6 +120,82 @@ function DeleteModal(props) {
   )
 }
 
+class CreateBaseLearnerModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      source: 'params = {}'
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.source);
+    this.props.onRequestClose();
+  }
+
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+
+    return (
+      <ReactModal
+        isOpen={this.props.isOpen}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='Create Base Learner'
+        style={modalStyle}
+      >
+        <p>{'Enter parameters to use for base learner in variable `params`'}</p>
+        <CodeMirror value={this.state.source} 
+          onChange={(src) => this.setState({source: src})} 
+          options={options}
+        />
+        <button onClick={this.props.onRequestClose}>Cancel</button>
+        <button onClick={() => this.handleYesAndClose()}>Create</button>
+      </ReactModal>
+    )
+  }
+}
+
+class GridSearchModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      source: 'param_grid = []'
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.source);
+    this.props.onRequestClose();
+  }
+
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+
+    return (
+      <ReactModal
+        isOpen={this.props.isOpen}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='Grid Search'
+        style={modalStyle}
+      >
+        <p>{'Designate parameter grid for grid search in variable `param_grid`'}</p>
+        <CodeMirror value={this.state.source} 
+          onChange={(src) => this.setState({source: src})} 
+          options={options}
+        />
+        <button onClick={this.props.onRequestClose}>Cancel</button>
+        <button onClick={() => this.handleYesAndClose()}>Create</button>
+      </ReactModal>
+    )
+  }
+}
+
 class BaseLearnerOrigin extends Component {
 
   constructor(props) {
@@ -135,6 +211,8 @@ class BaseLearnerOrigin extends Component {
       showClearModal: false,
       showFinalizeModal: false,
       showDeleteModal: false,
+      showCreateModal: false,
+      showGridSearchModal: false,
       activeKey: [],
       asyncStatus: '',
       errorMessage: ''
@@ -327,6 +405,24 @@ class BaseLearnerOrigin extends Component {
           <DeleteModal isOpen={this.state.showDeleteModal}
           onRequestClose={() => this.setState({showDeleteModal: false})}
           handleYes={() => this.handleDeleteLearner()} />
+
+          <br />
+
+          <button disabled={!this.props.data.final}
+          onClick={() => this.setState({showCreateModal: true})}>
+            Create Single Base Learner
+          </button>
+          <CreateBaseLearnerModal isOpen={this.state.showCreateModal} 
+          onRequestClose={() => this.setState({showCreateModal: false})}
+          handleYes={(source) => this.props.createBaseLearner(source)} />
+
+          <button disabled={!this.props.data.final}
+          onClick={() => this.setState({showGridSearchModal: true})}>
+            Grid Search
+          </button>
+          <GridSearchModal isOpen={this.state.showGridSearchModal} 
+          onRequestClose={() => this.setState({showGridSearchModal: false})}
+          handleYes={(source) => this.props.gridSearch(source)} />
 
         </Panel>
       </Collapse>
