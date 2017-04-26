@@ -322,6 +322,11 @@ class BaseLearnerOrigin extends Component {
       console.log(json)
       this.props.updateBaseLearnerOrigin(json);
       this.setState({same: true});
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Successfully updated base learner',
+        level: 'success'
+      });
     });
   }
 
@@ -337,12 +342,22 @@ class BaseLearnerOrigin extends Component {
       console.log(json)
       this.props.updateBaseLearnerOrigin(json);
       this.setState({asyncStatus: '', errorMessage: ''});
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Successfully verified base learner',
+        level: 'success'
+      });
     })
     .catch(error => {
       console.log(error.message);
       console.log(error.errMessage);
       var errorMessage = error.message + ' ' + error.errMessage
       this.setState({asyncStatus: '', errorMessage: errorMessage});
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });
   }
 
@@ -361,12 +376,22 @@ class BaseLearnerOrigin extends Component {
       console.log(json);
       this.props.updateBaseLearnerOrigin(json);
       this.setState({asyncStatus: '', errorMessage: ''});
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Successfully finalized base learner',
+        level: 'success'
+      });
     })
     .catch(error => {
       console.log(error.message);
       console.log(error.errMessage);
       var errorMessage = error.message + ' ' + error.errMessage
       this.setState({asyncStatus: '', errorMessage: errorMessage});
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });;
   }
 

@@ -214,6 +214,7 @@ class ContainerBaseLearner extends Component {
           createBaseLearner={(id, source) => this.createBaseLearner(id, source)}
           gridSearch={(id, source) => this.gridSearch(id, source)}
           randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
+          addNotification={(notif) => this.props.addNotification(notif)}
         />
         <ListBaseLearner 
           path={this.props.path} 

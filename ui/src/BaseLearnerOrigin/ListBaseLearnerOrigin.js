@@ -34,6 +34,7 @@ class ListBaseLearnerOrigin extends Component {
           createBaseLearner={(source) => this.props.createBaseLearner(el.id, source)}
           gridSearch={(source) => this.props.gridSearch(el.id, source)}
           randomSearch={(source, n) => this.props.randomSearch(el.id, source, n)}
+          addNotification={(notif) => this.props.addNotification(notif)}
         />
       );
     });
@@ -61,6 +62,11 @@ class ListBaseLearnerOrigin extends Component {
         var newState = $.extend({}, prevState); // Copy
         newState.baseLearnerOrigins.push(json);
         return newState;
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Created base learner origin',
+        level: 'success'
       });
     });
   }
@@ -95,6 +101,11 @@ class ListBaseLearnerOrigin extends Component {
           newState.baseLearnerOrigins.splice(idx, 1);
         }
         return newState;
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
       });
     });
   }
