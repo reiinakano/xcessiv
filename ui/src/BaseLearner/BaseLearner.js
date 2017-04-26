@@ -1,9 +1,31 @@
 import React, {Component} from 'react';
 import './BaseLearner.css';
 import Collapse from 'react-collapse';
+import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
+
+const modalStyle = {
+  overlay : {
+    zIndex            : 1000
+  },
+  content : {
+    top                        : '50%',
+    left                       : '50%',
+    right                      : 'auto',
+    bottom                     : 'auto',
+    marginRight                : '-50%',
+    transform                  : 'translate(-50%, -50%)',
+    border                     : '1px solid #ccc',
+    background                 : '#fff',
+    overflow                   : 'auto',
+    WebkitOverflowScrolling    : 'touch',
+    borderRadius               : '4px',
+    outline                    : 'none',
+    padding                    : '20px'
+  }
+}
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -56,12 +78,38 @@ function DisplayError(props) {
   </div>
 }
 
+class DeleteModal extends Component {
+
+  handleYesAndClose() {
+    this.props.handleYes();
+    this.props.onRequestClose();
+  }
+
+  render() {
+    return (
+      <ReactModal
+        isOpen={this.props.isOpen}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='Delete base learner'
+        style={modalStyle}
+      >
+      <p>Are you sure you want to delete this base learner?</p>
+      <p>You will also lose all ensembles that have been built using this learner</p>
+      <p><strong>This action is irreversible.</strong></p>
+        <button onClick={this.props.onRequestClose}>Cancel</button>
+        <button onClick={() => this.handleYesAndClose()}>Delete</button>
+      </ReactModal>
+    )
+  }
+}
+
 class BaseLearner extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      open: false
+      open: false,
+      showDeleteModal: false
     };
   }
 
@@ -155,6 +203,12 @@ class BaseLearner extends Component {
                 <DisplayHyperparameters hyperparameters={this.props.data.hyperparameters} />
                 <DisplayScores individual_score={this.props.data.individual_score} />
                 Job ID: {this.props.data.job_id}
+                <button onClick={() => this.setState({showDeleteModal: true})}>
+                  Delete this base learner
+                </button>
+                <DeleteModal isOpen={this.state.showDeleteModal}
+                onRequestClose={() => this.setState({showDeleteModal: false})}
+                handleYes={this.props.deleteBaseLearner} />
               </div>
             </Collapse>
           </td>

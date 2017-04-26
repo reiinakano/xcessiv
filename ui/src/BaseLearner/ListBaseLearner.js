@@ -91,7 +91,8 @@ class ListBaseLearner extends Component {
         data={el} 
         includedMetrics={this.state.includedMetrics}
         includedHyperparameters={this.state.includedHyperparameters} 
-        onUpdate={(newData) => this.props.updateBaseLearner(el.id, newData)} />
+        onUpdate={(newData) => this.props.updateBaseLearner(el.id, newData)}
+        deleteBaseLearner={() => this.props.deleteBaseLearner(el.id)} />
       );
     });
 
