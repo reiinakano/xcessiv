@@ -107,10 +107,20 @@ class ContainerBaseLearner extends Component {
     .then(json => {
       console.log(json);
       this.refreshBaseLearners();
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
     })
     .catch(error => {
       console.log(error.message);
       console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });
   }
 
@@ -133,10 +143,20 @@ class ContainerBaseLearner extends Component {
     .then(json => {
       console.log(json);
       this.refreshBaseLearners();
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
     })
     .catch(error => {
       console.log(error.message);
       console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });
   }
 
@@ -159,10 +179,20 @@ class ContainerBaseLearner extends Component {
     .then(json => {
       console.log(json);
       this.refreshBaseLearners();
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
     })
     .catch(error => {
       console.log(error.message);
       console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });
   }
 
