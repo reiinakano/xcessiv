@@ -188,6 +188,12 @@ class BaseLearner extends Component {
     return (
       <tbody>
         <tr onClick={() => this.onCollapseOpen()}>
+          <td>
+            <input type="checkbox" checked={this.props.checked} 
+            onClick={(e) => e.stopPropagation()}
+            onChange={this.props.toggleCheckBaseLearner}
+            disabled={this.props.data.job_status !== 'finished'} />
+          </td>
           <td>{this.props.data.id}</td>
           <td>{String(this.props.data.base_learner_origin_id)}</td>
           {this.getIncludedMetrics()}
@@ -195,7 +201,7 @@ class BaseLearner extends Component {
           <td>{status_icon}</td>
         </tr>
         <tr>
-          <td colSpan={3 + this.props.includedMetrics.length + this.props.includedHyperparameters.length} 
+          <td colSpan={4 + this.props.includedMetrics.length + this.props.includedHyperparameters.length} 
           style={{padding: 0}}>
             <Collapse isOpened={this.state.open}>
               <div className='collapse'>

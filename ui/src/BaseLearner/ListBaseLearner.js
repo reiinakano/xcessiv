@@ -92,7 +92,9 @@ class ListBaseLearner extends Component {
         includedMetrics={this.state.includedMetrics}
         includedHyperparameters={this.state.includedHyperparameters} 
         onUpdate={(newData) => this.props.updateBaseLearner(el.id, newData)}
-        deleteBaseLearner={() => this.props.deleteBaseLearner(el.id)} />
+        deleteBaseLearner={() => this.props.deleteBaseLearner(el.id)}
+        checked={this.props.checkedBaseLearners.includes(el.id)}
+        toggleCheckBaseLearner={() => this.props.toggleCheckBaseLearner(el.id)} />
       );
     });
 
@@ -155,6 +157,7 @@ class ListBaseLearner extends Component {
         <table className='BaseLearner'>
           <tbody>
             <tr>
+              <th></th>
               <th>
                 <a onClick={() => this.sortFromHeader('id', null)}>
                   ID

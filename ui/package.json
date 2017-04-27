@@ -4,6 +4,7 @@
   "private": true,
   "proxy": "http://localhost:8080",
   "dependencies": {
+    "immutable": "^3.8.1",
     "jquery": "^3.2.1",
     "lodash": "^4.17.4",
     "rc-collapse": "^1.6.12",

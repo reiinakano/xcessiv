@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
+import { Set as ImSet } from 'immutable';
 import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
-import $ from 'jquery';
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -28,7 +28,8 @@ class ContainerBaseLearner extends Component {
       baseLearners: [],
       filterOptions: [],
       metricsOptions: [],
-      hyperparametersOptions: []
+      hyperparametersOptions: [],
+      checkedBaseLearners: ImSet([])
     };
   }
 
@@ -199,10 +200,10 @@ class ContainerBaseLearner extends Component {
   // Callback to update a base learner in the list
   updateBaseLearner(id, newData) {
     this.setState((prevState) => {
-      var newState = $.extend({}, prevState); // Copy
-      var idx = newState.baseLearners.findIndex((x) => x.id === id);
-      newState.baseLearners[idx] = newData;
-      return newState;
+      var idx = prevState.baseLearners.findIndex((x) => x.id === id);
+      var newBaseLearners = prevState.baseLearners.slice();
+      newBaseLearners[idx] = newData;
+      return {baseLearners: newBaseLearners};
     });
   }
 
@@ -237,6 +238,18 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Toggle base learner in checked list
+  toggleCheckBaseLearner(id) {
+    this.setState((prevState) => {
+      if (prevState.checkedBaseLearners.includes(id)) {
+        return {checkedBaseLearners: prevState.checkedBaseLearners.delete(id)};
+      }
+      else {
+        return {checkedBaseLearners: prevState.checkedBaseLearners.add(id)};
+      }
+    });
+  }
+
   render() {
     return (
       <div>
@@ -255,6 +268,8 @@ class ContainerBaseLearner extends Component {
           hyperparametersOptions={this.state.hyperparametersOptions}
           updateBaseLearner={(id, newData) => this.updateBaseLearner(id, newData)}
           deleteBaseLearner={(id) => this.deleteBaseLearner(id)}
+          checkedBaseLearners={this.state.checkedBaseLearners}
+          toggleCheckBaseLearner={(id) => this.toggleCheckBaseLearner(id)}
         />
       </div>
     )
