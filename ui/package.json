@@ -19,7 +19,8 @@
     "react-motion": "^0.4.7",
     "react-notification-system": "^0.2.13",
     "react-select": "^1.0.0-rc.3",
-    "react-syntax-highlighter": "^5.1.2"
+    "react-syntax-highlighter": "^5.1.2",
+    "react-virtualized-select": "^3.0.1"
   },
   "devDependencies": {
     "eslint": "^3.19.0",

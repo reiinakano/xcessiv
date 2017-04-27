@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Set as ImSet } from 'immutable';
 import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
+import EnsembleBuilder from '../Ensemble/EnsembleBuilder'
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -221,6 +222,11 @@ class ContainerBaseLearner extends Component {
     .then(json => {
       console.log(json);
       this.refreshBaseLearners();
+      this.setState((prevState) => {
+        return {
+          checkedBaseLearners: prevState.checkedBaseLearners.delete(id)
+        };
+      })
       this.props.addNotification({
         title: 'Success',
         message: json.message,
@@ -251,6 +257,20 @@ class ContainerBaseLearner extends Component {
   }
 
   render() {
+    const checkedOptions = this.state.checkedBaseLearners.toJS().map((val) => {
+      return {
+        label: val,
+        value: val        
+      }
+    });
+
+    const options = this.state.baseLearners.map((obj) => {
+      return {
+        label: obj.id,
+        value: obj.id        
+      }
+    });
+
     return (
       <div>
         <ListBaseLearnerOrigin 
@@ -270,6 +290,11 @@ class ContainerBaseLearner extends Component {
           deleteBaseLearner={(id) => this.deleteBaseLearner(id)}
           checkedBaseLearners={this.state.checkedBaseLearners}
           toggleCheckBaseLearner={(id) => this.toggleCheckBaseLearner(id)}
+        />
+        <EnsembleBuilder
+          options={options}
+          checkedOptions={checkedOptions}
+          setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
         />
       </div>
     )
