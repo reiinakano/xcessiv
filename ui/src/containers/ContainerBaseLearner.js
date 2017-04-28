@@ -125,35 +125,8 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json)
-      const baseLearners = [];
-      const metricsOptionsSet = new Set([]);
-      const metricsOptions = [];
-      const hyperparametersOptionsSet = new Set([]);
-      const hyperparametersOptions = [];
-      for (var i=0; i < json.length; i++) {
-        baseLearners.push(json[i]);
-        for (let el in json[i].individual_score) metricsOptionsSet.add(el);
-        for (let el in json[i].hyperparameters) hyperparametersOptionsSet.add(el);
-      }
-
-      for (let item of metricsOptionsSet) {
-        metricsOptions.push({
-          label: String(item),
-          value: item
-        });
-      }
-
-      for (let item of hyperparametersOptionsSet) {
-        hyperparametersOptions.push({
-          label: String(item),
-          value: item
-        });
-      }
-
       this.setState({
-        baseLearners: baseLearners, 
-        metricsOptions: metricsOptions,
-        hyperparametersOptions: hyperparametersOptions
+        baseLearners: json
       });
     });
   }
