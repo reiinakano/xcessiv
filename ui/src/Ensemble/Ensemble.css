@@ -4,3 +4,5 @@
   padding-left: 50px;
   padding-right: 50px;
 }
+
+.CodeMirror { z-index: 0 }
