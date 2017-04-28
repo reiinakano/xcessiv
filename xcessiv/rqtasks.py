@@ -195,7 +195,10 @@ def evaluate_stacked_ensemble(path, ensemble_id):
         try:
             meta_features_list = []
             for base_learner in stacked_ensemble.base_learners:
-                meta_features_list.append(np.load(base_learner.meta_features_path(path)))
+                mf = np.load(base_learner.meta_features_path(path))
+                if len(mf.shape) == 1:
+                    mf = mf.reshape(-1, 1)
+                meta_features_list.append(mf)
 
             secondary_features = np.concatenate(meta_features_list, axis=1)
 
