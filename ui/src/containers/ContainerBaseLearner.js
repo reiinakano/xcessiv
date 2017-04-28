@@ -355,6 +355,14 @@ class ContainerBaseLearner extends Component {
       }
     });
 
+    const optionsBaseLearnerOrigins = this.state.baseLearnerOrigins.map((obj) => {
+      return {
+        label: obj.id + ' - ' + obj.name,
+        value: obj.id,
+        disabled: !obj.final
+      }
+    });
+
     return (
       <div>
         <ListBaseLearnerOrigin 
@@ -380,7 +388,8 @@ class ContainerBaseLearner extends Component {
           toggleCheckBaseLearner={(id) => this.toggleCheckBaseLearner(id)}
         />
         <EnsembleBuilder
-          options={optionsBaseLearners}
+          optionsBaseLearners={optionsBaseLearners}
+          optionsBaseLearnerOrigins={optionsBaseLearnerOrigins}
           checkedOptions={checkedOptions}
           setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
         />

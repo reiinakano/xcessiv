@@ -10,7 +10,9 @@ class EnsembleBuilder extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      selectedValue: null 
+    };
   }
 
   render() {
@@ -20,14 +22,17 @@ class EnsembleBuilder extends Component {
         <h2>Stacked Ensemble</h2>
         <VirtualizedSelect
           multi
-          options={this.props.options}
+          options={this.props.optionsBaseLearners}
           value={this.props.checkedOptions}
           onChange={(selectValue) => this.props.setCheckedBaseLearners(
             selectValue.map((val) => val.value))}
           placeholder="Insert/Check base learners to add to the ensemble" 
         />
         <Select
-          
+          options={this.props.optionsBaseLearnerOrigins}
+          value={this.state.selectedValue}
+          onChange={(val) => this.setState({selectedValue: val})}
+          placeholder="Select secondary base learner to use"
         />
       </div>
     )
