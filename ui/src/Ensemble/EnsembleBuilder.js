@@ -63,6 +63,11 @@ class EnsembleBuilder extends Component {
           />
           Append original features to secondary features
         </label>
+        <button 
+          onClick={() => this.props.createStackedEnsemble(
+            this.state.selectedValue.value, this.state.source, this.state.appendOriginal)}>
+          Create ensemble
+        </button>
       </div>
     )
   }

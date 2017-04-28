@@ -432,7 +432,9 @@ def create_new_stacked_ensemble():
 
             # Retrieve full hyperparameters
             est = base_learner_origin.return_estimator()
-            est.set_params(**req_body['secondary_learner_hyperparameters'])
+            params = functions.import_object_from_string_code\
+                (req_body['secondary_learner_hyperparameters_source'], 'params')
+            est.set_params(**params)
             hyperparameters = est.get_params()
 
             stacked_ensemble = models.StackedEnsemble(

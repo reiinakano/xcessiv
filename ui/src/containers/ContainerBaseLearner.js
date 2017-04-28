@@ -297,6 +297,47 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Create new stacked ensemble
+  createStackedEnsemble(base_learner_ids, base_learner_origin_id, 
+    secondary_learner_hyperparameters_source, append_original) {
+    var payload = {
+      base_learner_ids, 
+      base_learner_origin_id, 
+      secondary_learner_hyperparameters_source,
+      append_original
+    };
+
+    fetch(
+      '/ensemble/stacked/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Created ensemble',
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
+    });
+  }
+
   render() {
     const checkedOptions = this.state.checkedBaseLearners.toJS().map((val) => {
       return {
@@ -373,6 +414,8 @@ class ContainerBaseLearner extends Component {
           optionsBaseLearnerOrigins={optionsBaseLearnerOrigins}
           checkedOptions={checkedOptions}
           setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
+          createStackedEnsemble={(bloId, hp, appendOriginal) => 
+            this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp, appendOriginal)}
         />
       </div>
     )
