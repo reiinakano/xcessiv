@@ -30,13 +30,96 @@ class ContainerBaseLearner extends Component {
       filterOptions: [],
       metricsOptions: [],
       hyperparametersOptions: [],
-      checkedBaseLearners: ImSet([])
+      checkedBaseLearners: ImSet([]),
+      baseLearnerOrigins: []
     };
   }
 
   // Get request from server to populate fields
   componentDidMount() {
+    this.refreshBaseLearnerOrigins();
     this.refreshBaseLearners(); 
+  }
+
+  // Refresh base learner origins from server data
+  refreshBaseLearnerOrigins() {
+    fetch('/ensemble/base-learner-origins/?path=' + this.props.path)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        baseLearnerOrigins: json
+      });
+    });
+  }
+
+  // Create a base learner origin
+  createBaseLearnerOrigin() {
+    var payload = {};
+    fetch(
+      '/ensemble/base-learner-origins/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var baseLearnerOrigins = prevState.baseLearnerOrigins.slice();
+        baseLearnerOrigins.push(json);
+        return {baseLearnerOrigins};
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Created base learner origin',
+        level: 'success'
+      });
+    });
+  }
+
+  // Callback to update a base learner in the stored list
+  updateBaseLearnerOrigin(id, newData) {
+    this.setState((prevState) => {
+      var baseLearnerOrigins = prevState.baseLearnerOrigins.slice(); // Copy
+      var idx = baseLearnerOrigins.findIndex((x) => x.id === id);
+      baseLearnerOrigins[idx] = newData;
+      return {baseLearnerOrigins};
+    });
+  }
+
+  // Delete base learner origin
+  deleteBaseLearnerOrigin(id) {
+    fetch(
+      '/ensemble/base-learner-origins/' + id + '/?path=' + this.props.path,
+      {
+        method: "DELETE",
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var baseLearnerOrigins = prevState.baseLearnerOrigins.slice();
+        var idx = baseLearnerOrigins.findIndex((x) => x.id === id);
+        if (idx > -1) {
+          baseLearnerOrigins.splice(idx, 1);
+        }
+        return {baseLearnerOrigins};
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
+    });
   }
 
   // Refresh base learners from server data
@@ -264,10 +347,11 @@ class ContainerBaseLearner extends Component {
       }
     });
 
-    const options = this.state.baseLearners.map((obj) => {
+    const optionsBaseLearners = this.state.baseLearners.map((obj) => {
       return {
         label: obj.id,
-        value: obj.id        
+        value: obj.id,
+        disabled: obj.job_status !== 'finished'        
       }
     });
 
@@ -275,6 +359,10 @@ class ContainerBaseLearner extends Component {
       <div>
         <ListBaseLearnerOrigin 
           path={this.props.path} 
+          baseLearnerOrigins={this.state.baseLearnerOrigins}
+          createBaseLearnerOrigin={() => this.createBaseLearnerOrigin()}
+          updateBaseLearnerOrigin={(id, newData) => this.updateBaseLearnerOrigin(id, newData)}
+          deleteBaseLearnerOrigin={(id) => this.deleteBaseLearnerOrigin(id)}
           createBaseLearner={(id, source) => this.createBaseLearner(id, source)}
           gridSearch={(id, source) => this.gridSearch(id, source)}
           randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
@@ -292,7 +380,7 @@ class ContainerBaseLearner extends Component {
           toggleCheckBaseLearner={(id) => this.toggleCheckBaseLearner(id)}
         />
         <EnsembleBuilder
-          options={options}
+          options={optionsBaseLearners}
           checkedOptions={checkedOptions}
           setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
         />

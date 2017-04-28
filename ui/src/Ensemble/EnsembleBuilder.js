@@ -4,6 +4,7 @@ import 'react-select/dist/react-select.css'
 import 'react-virtualized/styles.css'
 import 'react-virtualized-select/styles.css'
 import VirtualizedSelect from 'react-virtualized-select'
+import Select from 'react-select'
 
 class EnsembleBuilder extends Component {
 
@@ -24,6 +25,9 @@ class EnsembleBuilder extends Component {
           onChange={(selectValue) => this.props.setCheckedBaseLearners(
             selectValue.map((val) => val.value))}
           placeholder="Insert/Check base learners to add to the ensemble" 
+        />
+        <Select
+          
         />
       </div>
     )
