@@ -336,6 +336,7 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json);
+      this.refreshStackedEnsembles();
       this.props.addNotification({
         title: 'Success',
         message: 'Created ensemble',

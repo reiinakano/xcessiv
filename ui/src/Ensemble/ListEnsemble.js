@@ -42,28 +42,6 @@ class ListEnsemble extends Component {
     });
   }
 
-  getHyperparametersColumns() {
-    return this.state.includedHyperparameters.map((metric) => {
-      return (
-        <Column
-          key={metric}
-          header={metric}
-          cell={(props) => {
-            if (this.props.stackedEnsembles[props.rowIndex] === undefined) {
-              return (<Cell {...props}></Cell>);
-            }
-            return (
-              <Cell {...props}>
-                {String(this.props.stackedEnsembles[props.rowIndex].secondary_learner_hyperparameters[metric]).substring(0, 5)}
-              </Cell>
-            )
-          }}
-          width={metric.length*10 + 20}
-        />
-      )
-    });
-  }
-
   getMetricsColumns() {
     return this.state.includedMetrics.map((metric) => {
       return (
@@ -80,7 +58,29 @@ class ListEnsemble extends Component {
               </Cell>
             )
           }}
-          width={metric.length*10 + 20}
+          width={Math.max(metric.length*10, 50)}
+        />
+      )
+    });
+  }
+
+  getHyperparametersColumns() {
+    return this.state.includedHyperparameters.map((metric) => {
+      return (
+        <Column
+          key={metric}
+          header={metric}
+          cell={(props) => {
+            if (this.props.stackedEnsembles[props.rowIndex] === undefined) {
+              return (<Cell {...props}></Cell>);
+            }
+            return (
+              <Cell {...props}>
+                {String(this.props.stackedEnsembles[props.rowIndex].secondary_learner_hyperparameters[metric]).substring(0, 5)}
+              </Cell>
+            )
+          }}
+          width={Math.max(metric.length*10, 50)}
         />
       )
     });
@@ -90,7 +90,7 @@ class ListEnsemble extends Component {
     return(
       <div className='Ensemble'>
         <Table
-          rowsCount={10}
+          rowsCount={this.props.stackedEnsembles.length}
           rowHeight={35}
           headerHeight={50}
           width={1500}
