@@ -16,6 +16,7 @@ class EnsembleBuilder extends Component {
   }
 
   render() {
+    console.log(this.state.selectedValue);
 
     return (
       <div className='Ensemble'>

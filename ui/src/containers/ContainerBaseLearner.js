@@ -27,9 +27,6 @@ class ContainerBaseLearner extends Component {
     super(props);
     this.state = {
       baseLearners: [],
-      filterOptions: [],
-      metricsOptions: [],
-      hyperparametersOptions: [],
       checkedBaseLearners: ImSet([]),
       baseLearnerOrigins: []
     };
@@ -129,25 +126,14 @@ class ContainerBaseLearner extends Component {
     .then(json => {
       console.log(json)
       const baseLearners = [];
-      const filterOptionsSet = new Set([]);
-      const filterOptions = [];
       const metricsOptionsSet = new Set([]);
       const metricsOptions = [];
       const hyperparametersOptionsSet = new Set([]);
       const hyperparametersOptions = [];
       for (var i=0; i < json.length; i++) {
         baseLearners.push(json[i]);
-        filterOptionsSet.add(json[i].base_learner_origin_id);
         for (let el in json[i].individual_score) metricsOptionsSet.add(el);
         for (let el in json[i].hyperparameters) hyperparametersOptionsSet.add(el);
-        
-      }
-      
-      for (let item of filterOptionsSet) {
-        filterOptions.push({
-          label: String(item),
-          value: item
-        });
       }
 
       for (let item of metricsOptionsSet) {
@@ -166,7 +152,6 @@ class ContainerBaseLearner extends Component {
 
       this.setState({
         baseLearners: baseLearners, 
-        filterOptions: filterOptions,
         metricsOptions: metricsOptions,
         hyperparametersOptions: hyperparametersOptions
       });
@@ -357,11 +342,34 @@ class ContainerBaseLearner extends Component {
 
     const optionsBaseLearnerOrigins = this.state.baseLearnerOrigins.map((obj) => {
       return {
-        label: obj.id + ' - ' + obj.name,
+        label: obj.name + ' - ID: ' + obj.id,
         value: obj.id,
         disabled: !obj.final
       }
     });
+
+    const metricsOptionsSet = new Set([]);
+    const metricsOptions = [];
+    const hyperparametersOptionsSet = new Set([]);
+    const hyperparametersOptions = [];
+    for (var i=0; i < this.state.baseLearners.length; i++) {
+      for (let el in this.state.baseLearners[i].individual_score) metricsOptionsSet.add(el);
+      for (let el in this.state.baseLearners[i].hyperparameters) hyperparametersOptionsSet.add(el);
+    }
+
+    for (let item of metricsOptionsSet) {
+      metricsOptions.push({
+        label: String(item),
+        value: item
+      });
+    }
+
+    for (let item of hyperparametersOptionsSet) {
+      hyperparametersOptions.push({
+        label: String(item),
+        value: item
+      });
+    }
 
     return (
       <div>
@@ -379,9 +387,9 @@ class ContainerBaseLearner extends Component {
         <ListBaseLearner 
           path={this.props.path} 
           baseLearners={this.state.baseLearners}
-          filterOptions={this.state.filterOptions}
-          metricsOptions={this.state.metricsOptions}
-          hyperparametersOptions={this.state.hyperparametersOptions}
+          filterOptions={optionsBaseLearnerOrigins}
+          metricsOptions={metricsOptions}
+          hyperparametersOptions={hyperparametersOptions}
           updateBaseLearner={(id, newData) => this.updateBaseLearner(id, newData)}
           deleteBaseLearner={(id) => this.deleteBaseLearner(id)}
           checkedBaseLearners={this.state.checkedBaseLearners}
