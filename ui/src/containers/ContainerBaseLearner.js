@@ -3,6 +3,7 @@ import { Set as ImSet } from 'immutable';
 import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
 import EnsembleBuilder from '../Ensemble/EnsembleBuilder'
+import ListEnsemble from '../Ensemble/ListEnsemble'
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -28,7 +29,8 @@ class ContainerBaseLearner extends Component {
     this.state = {
       baseLearners: [],
       checkedBaseLearners: ImSet([]),
-      baseLearnerOrigins: []
+      baseLearnerOrigins: [],
+      stackedEnsembles: []
     };
   }
 
@@ -36,6 +38,7 @@ class ContainerBaseLearner extends Component {
   componentDidMount() {
     this.refreshBaseLearnerOrigins();
     this.refreshBaseLearners(); 
+    this.refreshStackedEnsembles();
   }
 
   // Refresh base learner origins from server data
@@ -297,6 +300,18 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Refresh stacked ensembles from server data
+  refreshStackedEnsembles() {
+    fetch('/ensemble/stacked/?path=' + this.props.path)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        stackedEnsembles: json
+      });
+    });
+  }
+
   // Create new stacked ensemble
   createStackedEnsemble(base_learner_ids, base_learner_origin_id, 
     secondary_learner_hyperparameters_source, append_original) {
@@ -416,6 +431,9 @@ class ContainerBaseLearner extends Component {
           setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
           createStackedEnsemble={(bloId, hp, appendOriginal) => 
             this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp, appendOriginal)}
+        />
+        <ListEnsemble 
+          stackedEnsembles={this.state.stackedEnsembles}
         />
       </div>
     )
