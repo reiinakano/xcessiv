@@ -5,9 +5,32 @@ import { Table, Column, Cell } from 'fixed-data-table';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
+import FaInfo from 'react-icons/lib/fa/info';
 import Dimensions from 'react-dimensions';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import ReactModal from 'react-modal';
+
+const modalStyle = {
+  overlay : {
+    zIndex            : 1000
+  },
+  content : {
+    top                        : '50%',
+    left                       : '50%',
+    right                      : 'auto',
+    bottom                     : 'auto',
+    marginRight                : '-50%',
+    transform                  : 'translate(-50%, -50%)',
+    border                     : '1px solid #ccc',
+    background                 : '#fff',
+    overflow                   : 'auto',
+    WebkitOverflowScrolling    : 'touch',
+    borderRadius               : '4px',
+    outline                    : 'none',
+    padding                    : '20px'
+  }
+}
 
 function HeaderCell(props) {
   return (
@@ -22,6 +45,38 @@ function HeaderCell(props) {
   )
 }
 
+class DetailsModal extends Component {
+  render() {
+    if (this.props.moreDetailsId === null) {
+      return null;
+    }
+
+    const stackedEnsemble = this.props.stackedEnsembles.find(el => el.id === this.props.moreDetailsId);
+
+    if (stackedEnsemble === undefined) {
+      return null;
+    }
+
+    return (
+      <ReactModal
+        isOpen={this.props.moreDetailsId !== null}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='Ensemble details'
+        style={modalStyle}
+      >
+      Base Learners
+      <ul>
+        {stackedEnsemble.base_learner_ids.map((id) => {
+          return (
+            <li key={id}>{id}</li>
+          )
+        })}
+      </ul>
+      </ReactModal>
+    )
+  }
+}
+
 class ListEnsemble extends Component {
 
   constructor(props) {
@@ -31,7 +86,8 @@ class ListEnsemble extends Component {
       includedHyperparameters: [],
       sortAscending: true,
       sortCol: 'id',
-      sortType: null
+      sortType: null,
+      moreDetailsId: null
     };
     this.sortedStackedEnsembles = this.props.stackedEnsembles;
   }
@@ -247,10 +303,30 @@ class ListEnsemble extends Component {
                 </Cell>
               )
             }}
-            width={60}
+            width={50}
             flexGrow={1}
           />
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
+                  <FaInfo 
+                    style={{cursor: 'pointer'}}
+                    onClick={() => 
+                      this.setState({moreDetailsId: this.sortedStackedEnsembles[props.rowIndex].id})}
+                  />
+                </Cell>
+              )
+            }}
+            width={50}
+          />
         </Table>
+        <DetailsModal 
+          onRequestClose={() => this.setState({moreDetailsId: null})}
+          stackedEnsembles={this.props.stackedEnsembles}
+          moreDetailsId={this.state.moreDetailsId}
+        />
       </div>
     )
   }
