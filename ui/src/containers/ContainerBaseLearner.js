@@ -155,7 +155,7 @@ class ContainerBaseLearner extends Component {
       this.refreshBaseLearners();
       this.props.addNotification({
         title: 'Success',
-        message: json.message,
+        message: 'Created new base learner',
         level: 'success'
       });
     })
@@ -191,7 +191,7 @@ class ContainerBaseLearner extends Component {
       this.refreshBaseLearners();
       this.props.addNotification({
         title: 'Success',
-        message: json.message,
+        message: 'Successfully created ' + json.length + ' new base learners',
         level: 'success'
       });
     })
@@ -227,7 +227,7 @@ class ContainerBaseLearner extends Component {
       this.refreshBaseLearners();
       this.props.addNotification({
         title: 'Success',
-        message: json.message,
+        message: 'Successfully created ' + json.length + ' new base learners',
         level: 'success'
       });
     })
