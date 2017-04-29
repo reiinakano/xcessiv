@@ -131,6 +131,11 @@ class ContainerBaseLearner extends Component {
       this.setState({
         baseLearners: json
       });
+      for (let obj of json) {
+        if (obj.job_status === 'started' || obj.job_status === 'queued') {
+          this.fetchBaseLearnerUntilFinished(obj.id);          
+        }
+      }
     });
   }
 
@@ -152,7 +157,12 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json);
-      this.refreshBaseLearners();
+      this.setState((prevState) => {
+        var baseLearners = prevState.baseLearners.slice();
+        baseLearners.push(json);
+        return {baseLearners};
+      });
+      this.fetchBaseLearnerUntilFinished(json.id);
       this.props.addNotification({
         title: 'Success',
         message: 'Created new base learner',
@@ -188,7 +198,15 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json);
-      this.refreshBaseLearners();
+      this.setState((prevState) => {
+        var baseLearners = prevState.baseLearners.concat(json);
+        return {baseLearners};
+      });
+      for (let obj of json) {
+        if (obj.job_status === 'started' || obj.job_status === 'queued') {
+          this.fetchBaseLearnerUntilFinished(obj.id);          
+        }
+      }
       this.props.addNotification({
         title: 'Success',
         message: 'Successfully created ' + json.length + ' new base learners',
@@ -224,7 +242,15 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json);
-      this.refreshBaseLearners();
+      this.setState((prevState) => {
+        var baseLearners = prevState.baseLearners.concat(json);
+        return {baseLearners};
+      });
+      for (let obj of json) {
+        if (obj.job_status === 'started' || obj.job_status === 'queued') {
+          this.fetchBaseLearnerUntilFinished(obj.id);          
+        }
+      }
       this.props.addNotification({
         title: 'Success',
         message: 'Successfully created ' + json.length + ' new base learners',
@@ -252,6 +278,28 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  fetchBaseLearnerUntilFinished(id) {
+    fetch('/ensemble/base-learners/' + id + '/?path=' + this.props.path)
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      if (json.job_status === 'queued' || json.job_status === 'started') {
+        // Delay 5 seconds
+        setTimeout(() => this.fetchBaseLearnerUntilFinished(id), 5000);
+      }
+      else {
+        // Update base learner
+        this.updateBaseLearner(id, json);
+        console.log('Job is done');
+      }
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+    });
+  }
+
   // Delete a base learner in the list
   deleteBaseLearner(id) {
 
@@ -265,11 +313,11 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json);
-      this.refreshBaseLearners();
       this.setState((prevState) => {
-        return {
-          checkedBaseLearners: prevState.checkedBaseLearners.delete(id)
-        };
+        var baseLearners = prevState.baseLearners.slice();
+        var idx = baseLearners.findIndex((x) => x.id === id);
+        baseLearners.splice(idx, 1);
+        return {baseLearners};
       })
       this.props.addNotification({
         title: 'Success',

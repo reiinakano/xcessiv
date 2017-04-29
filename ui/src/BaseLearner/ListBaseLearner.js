@@ -305,7 +305,7 @@ class ListBaseLearner extends Component {
         <DeleteModal
           isOpen={this.state.idToDelete !== null}
           onRequestClose={() => this.setState({idToDelete: null})}
-          handleYes={() => this.props.deleteStackedEnsemble(this.state.idToDelete)}
+          handleYes={() => this.props.deleteBaseLearner(this.state.idToDelete)}
         />
       </div>
     )
