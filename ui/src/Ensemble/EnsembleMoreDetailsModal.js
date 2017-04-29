@@ -90,4 +90,28 @@ class DetailsModal extends Component {
   }
 }
 
+export class DeleteModal extends Component {
+
+  handleYesAndClose() {
+    this.props.handleYes();
+    this.props.onRequestClose();
+  }
+
+  render() {
+    return (
+      <ReactModal
+        isOpen={this.props.isOpen}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='Delete base learner'
+        style={modalStyle}
+      >
+      <p>Are you sure you want to delete this ensemble?</p>
+      <p><strong>This action is irreversible.</strong></p>
+        <button onClick={this.props.onRequestClose}>Cancel</button>
+        <button onClick={() => this.handleYesAndClose()}>Delete</button>
+      </ReactModal>
+    )
+  }
+}
+
 export default DetailsModal;

@@ -394,7 +394,43 @@ class ContainerBaseLearner extends Component {
       console.log(error.message);
       console.log(error.errMessage);
     });
-}
+  }
+
+  // Delete a stacked ensemble in the list
+  deleteStackedEnsemble(id) {
+
+    fetch(
+      '/ensemble/stacked/' + id + '/?path=' + this.props.path,
+      {
+        method: "DELETE"
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var stackedEnsembles = prevState.stackedEnsembles.slice();
+        var idx = stackedEnsembles.findIndex((x) => x.id === id);
+        stackedEnsembles.splice(idx, 1);
+        return {stackedEnsembles};
+      })
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
+    });
+  }
 
   render() {
     const checkedOptions = this.state.checkedBaseLearners.toJS().map((val) => {
@@ -477,6 +513,7 @@ class ContainerBaseLearner extends Component {
         />
         <ListEnsemble 
           stackedEnsembles={this.state.stackedEnsembles}
+          deleteStackedEnsemble={(id) => this.deleteStackedEnsemble(id)}
         />
       </div>
     )

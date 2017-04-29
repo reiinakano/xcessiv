@@ -3,12 +3,13 @@ import './Ensemble.css';
 import 'fixed-data-table/dist/fixed-data-table.min.css';
 import { Table, Column, Cell } from 'fixed-data-table';
 import FaCheck from 'react-icons/lib/fa/check';
+import FaTrash from 'react-icons/lib/fa/trash';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 import FaInfo from 'react-icons/lib/fa/info';
 import Dimensions from 'react-dimensions';
 import Select from 'react-select';
-import DetailsModal from './EnsembleMoreDetailsModal'
+import DetailsModal, { DeleteModal } from './EnsembleMoreDetailsModal'
 
 function HeaderCell(props) {
   return (
@@ -34,7 +35,8 @@ class ListEnsemble extends Component {
       sortAscending: true,
       sortCol: 'id',
       sortType: null,
-      moreDetailsId: null
+      moreDetailsId: null,
+      idToDelete: null
     };
     this.sortedStackedEnsembles = this.props.stackedEnsembles;
   }
@@ -268,11 +270,30 @@ class ListEnsemble extends Component {
             }}
             width={50}
           />
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
+                  <FaTrash 
+                    style={{cursor: 'pointer'}}
+                    onClick={() => this.setState({idToDelete: this.sortedStackedEnsembles[props.rowIndex].id})}
+                  />
+                </Cell>
+              )
+            }}
+            width={50}
+          />
         </Table>
         <DetailsModal 
           onRequestClose={() => this.setState({moreDetailsId: null})}
           stackedEnsembles={this.props.stackedEnsembles}
           moreDetailsId={this.state.moreDetailsId}
+        />
+        <DeleteModal
+          isOpen={this.state.idToDelete !== null}
+          onRequestClose={() => this.setState({idToDelete: null})}
+          handleYes={() => this.props.deleteStackedEnsemble(this.state.idToDelete)}
         />
       </div>
     )
