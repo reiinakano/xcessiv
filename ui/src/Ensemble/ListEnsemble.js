@@ -5,6 +5,7 @@ import { Table, Column, Cell } from 'fixed-data-table';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
+import Dimensions from 'react-dimensions';
 
 function HeaderCell(props) {
   return (
@@ -174,7 +175,7 @@ class ListEnsemble extends Component {
           rowsCount={this.props.stackedEnsembles.length}
           rowHeight={35}
           headerHeight={50}
-          width={1100}
+          width={this.props.containerWidth}
           height={500}>
           {this.getDataColumns()}
           {this.getMetricsColumns()}
@@ -216,4 +217,13 @@ class ListEnsemble extends Component {
   }
 }
 
+module.exports = Dimensions({
+  getHeight: function(element) {
+    return window.innerHeight - 200;
+  },
+  getWidth: function(element) {
+    var widthOffset = window.innerWidth < 680 ? 0 : 120;
+    return window.innerWidth - widthOffset;
+  }
+})(ListEnsemble);
 export default ListEnsemble;
