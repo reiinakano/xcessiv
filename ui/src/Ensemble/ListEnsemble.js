@@ -102,6 +102,7 @@ class ListEnsemble extends Component {
             )
           }}
           width={obj.width}
+          flexGrow={1}
         />
       )
     });
@@ -130,6 +131,7 @@ class ListEnsemble extends Component {
             )
           }}
           width={Math.max(metric.length*10, 50)}
+          flexGrow={1}
         />
       )
     });
@@ -158,6 +160,7 @@ class ListEnsemble extends Component {
             )
           }}
           width={Math.max(metric.length*10, 50)}
+          flexGrow={1}
         />
       )
     });
@@ -171,7 +174,7 @@ class ListEnsemble extends Component {
           rowsCount={this.props.stackedEnsembles.length}
           rowHeight={35}
           headerHeight={50}
-          width={1500}
+          width={1100}
           height={500}>
           {this.getDataColumns()}
           {this.getMetricsColumns()}
@@ -205,6 +208,7 @@ class ListEnsemble extends Component {
               )
             }}
             width={60}
+            flexGrow={1}
           />
         </Table>
       </div>
