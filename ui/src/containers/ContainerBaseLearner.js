@@ -521,7 +521,6 @@ class ContainerBaseLearner extends Component {
           path={this.props.path} 
           baseLearners={this.state.baseLearners}
           filterOptions={optionsBaseLearnerOrigins}
-          updateBaseLearner={(id, newData) => this.updateBaseLearner(id, newData)}
           deleteBaseLearner={(id) => this.deleteBaseLearner(id)}
           checkedBaseLearners={this.state.checkedBaseLearners}
           toggleCheckBaseLearner={(id) => this.toggleCheckBaseLearner(id)}

@@ -233,6 +233,24 @@ class ListBaseLearner extends Component {
           headerHeight={50}
           width={this.props.containerWidth}
           height={500}>
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
+                  <input 
+                    type='checkbox' 
+                    checked={this.props.checkedBaseLearners.includes(
+                      this.sortedBaseLearners[props.rowIndex].id)}
+                    onChange={() => this.props.toggleCheckBaseLearner(
+                      this.sortedBaseLearners[props.rowIndex].id)}
+                    disabled={this.sortedBaseLearners[props.rowIndex].job_status !== 'finished'}
+                  />
+                </Cell>
+              )
+            }}
+            width={30}
+          />
           {this.getDataColumns()}
           {this.getMetricsColumns()}
           {this.getHyperparametersColumns()}
