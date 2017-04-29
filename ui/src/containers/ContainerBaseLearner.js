@@ -309,6 +309,11 @@ class ContainerBaseLearner extends Component {
       this.setState({
         stackedEnsembles: json
       });
+      for (let obj of json) {
+        if (obj.job_status === 'started' || obj.job_status === 'queued') {
+          this.fetchStackedEnsembleUntilFinished(obj.id);          
+        }
+      }
     });
   }
 
@@ -336,7 +341,12 @@ class ContainerBaseLearner extends Component {
     .then(response => response.json())
     .then(json => {
       console.log(json);
-      this.refreshStackedEnsembles();
+      this.setState((prevState) => {
+        var stackedEnsembles = prevState.stackedEnsembles.slice();
+        stackedEnsembles.push(json);
+        return {stackedEnsembles};
+      });
+      this.fetchStackedEnsembleUntilFinished(json.id);
       this.props.addNotification({
         title: 'Success',
         message: 'Created ensemble',
@@ -353,6 +363,38 @@ class ContainerBaseLearner extends Component {
       });
     });
   }
+
+  // Callback to update a stacked ensemble in the list
+  updateStackedEnsemble(id, newData) {
+    this.setState((prevState) => {
+      var stackedEnsembles = prevState.stackedEnsembles.slice();
+      var idx = stackedEnsembles.findIndex((x) => x.id === id);
+      stackedEnsembles[idx] = newData;
+      return {stackedEnsembles};
+    });
+  }
+
+  fetchStackedEnsembleUntilFinished(id) {
+    fetch('/ensemble/stacked/' + id + '/?path=' + this.props.path)
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      if (json.job_status === 'queued' || json.job_status === 'started') {
+        // Delay 5 seconds
+        setTimeout(() => this.fetchStackedEnsembleUntilFinished(id), 5000);
+      }
+      else {
+        // Update base learner
+        this.updateStackedEnsemble(id, json);
+        console.log('Job is done');
+      }
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+    });
+}
 
   render() {
     const checkedOptions = this.state.checkedBaseLearners.toJS().map((val) => {

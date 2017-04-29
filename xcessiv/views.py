@@ -450,7 +450,7 @@ def create_new_stacked_ensemble():
 
             rqtasks.evaluate_stacked_ensemble.delay(path, stacked_ensemble.id)
 
-            return my_message('Created stacked ensemble')
+            return jsonify(stacked_ensemble.serialize)
 
 
 @app.route('/ensemble/stacked/<int:id>/', methods=['GET', 'DELETE'])
