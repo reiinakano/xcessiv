@@ -1,44 +1,54 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import './BaseLearner.css';
-import BaseLearner from './BaseLearner';
-import { includes } from 'lodash';
+import 'fixed-data-table/dist/fixed-data-table.min.css';
+import { Table, Column, Cell } from 'fixed-data-table';
+import FaCheck from 'react-icons/lib/fa/check';
+import FaTrash from 'react-icons/lib/fa/trash';
+import FaSpinner from 'react-icons/lib/fa/spinner';
+import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
+import FaInfo from 'react-icons/lib/fa/info';
+import Dimensions from 'react-dimensions';
 import Select from 'react-select';
-import 'react-select/dist/react-select.css';
+import { includes } from 'lodash';
+import DetailsModal, { DeleteModal } from './BaseLearnerMoreDetailsModal'
+
+function HeaderCell(props) {
+  return (
+    <Cell>
+      <a 
+        style={{cursor: 'pointer'}} 
+        onClick={props.sortFromHeader}
+      >
+        {props.headerText}
+      </a>
+    </Cell>
+  )
+}
+
 
 class ListBaseLearner extends Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      sortAscending: true,
+      filteredTypes: [],
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
       includedHyperparameters: [],
+      sortAscending: true,
       sortCol: 'id',
-      filterList: [],
-      sortType: null
+      sortType: null,
+      moreDetailsId: null,
+      idToDelete: null
     };
-  }
-
-  // Callback for additional filter
-  handleFilterChange(value) {
-    console.log(value);
-    this.setState({filterList: value.map((x) => x.value)});
-  }
-
-  // Callback for additional metrics
-  handleMetricsChange(value) {
-    console.log(value);
-    this.setState({includedMetrics: value.map((x) => x.value)});
-  }
-
-  // Callback for additional hyperparameters
-  handleHyperparametersChange(value) {
-    console.log(value);
-    this.setState({includedHyperparameters: value.map((x) => x.value)});
+    this.sortedBaseLearners = this.props.baseLearners;
   }
 
   // Sort
   returnSortedList() {
-    var sortedBaseLearners = this.props.baseLearners.slice()
+    var sortedBaseLearners = this.props.baseLearners.slice();
+    sortedBaseLearners = sortedBaseLearners.filter((el) => {
+      return (!this.state.filteredTypes.length || includes(this.state.filteredTypes, el.base_learner_origin_id));
+    });
     sortedBaseLearners.sort((a, b) => {
       if (this.state.sortType === null) {
         a = a[this.state.sortCol];
@@ -64,7 +74,7 @@ class ListBaseLearner extends Component {
         return a < b ? 1 : -1;
       }
     });
-    return sortedBaseLearners;
+    this.sortedBaseLearners = sortedBaseLearners;
   }
 
   // Higher level sort function to be called by headers
@@ -77,110 +87,256 @@ class ListBaseLearner extends Component {
     }
   }
 
-  getItems() {
+  getDataColumns() {
+    const cols = [
+      {label: 'ID', value: 'id', width: 50}, 
+      {label: 'Type ID', value: 'base_learner_origin_id', width: 100}
+    ]
+    return cols.map((obj) => {
+      var headerText = ((this.state.sortType === null && this.state.sortCol === obj.value) ? (this.state.sortAscending ? '↓' : '↑') : '') + obj.label
 
-    var sortedBaseLearners = this.returnSortedList();
-
-    const items = sortedBaseLearners.filter((el) => {
-      return (!this.state.filterList.length || includes(this.state.filterList, el.base_learner_origin_id));
-    }).map((el, index) => {
       return (
-        <BaseLearner 
-        key={el.id} 
-        path={this.props.path} 
-        data={el} 
-        includedMetrics={this.state.includedMetrics}
-        includedHyperparameters={this.state.includedHyperparameters} 
-        onUpdate={(newData) => this.props.updateBaseLearner(el.id, newData)}
-        deleteBaseLearner={() => this.props.deleteBaseLearner(el.id)}
-        checked={this.props.checkedBaseLearners.includes(el.id)}
-        toggleCheckBaseLearner={() => this.props.toggleCheckBaseLearner(el.id)} />
-      );
+        <Column
+          key={obj.value}
+          header={
+            <HeaderCell
+              headerText={headerText}
+              sortFromHeader={() => this.sortFromHeader(obj.value, null)}
+            />}
+          cell={(props) => {
+            if (this.sortedBaseLearners[props.rowIndex] === undefined) {
+              return (<Cell {...props}></Cell>)
+            }
+            return (
+              <Cell {...props}>
+                {String(this.sortedBaseLearners[props.rowIndex][obj.value])}
+              </Cell>
+            )
+          }}
+          width={obj.width}
+          flexGrow={1}
+        />
+      )
     });
-
-    return items;
   }
 
-  // Return headers for included metrics
-  getIncludedMetrics() {
+  getMetricsColumns() {
+    return this.state.includedMetrics.map((metric) => {
+      var headerText = ((this.state.sortType === 'individual_score' && this.state.sortCol === metric) ? (this.state.sortAscending ? '↓' : '↑') : '') + metric
 
-    const items = this.state.includedMetrics.map((el, index) => {
       return (
-        <th key={index}>
-          <a onClick={() => this.sortFromHeader(el, 'individual_score')}>
-            {el}
-            {(this.state.sortType === 'individual_score' && this.state.sortCol === el) ? (this.state.sortAscending ? '↓' : '↑') : ' '}
-          </a>
-        </th>
+        <Column
+          key={metric}
+          header={
+            <HeaderCell
+              headerText={headerText}
+              sortFromHeader={() => this.sortFromHeader(metric, 'individual_score')}
+            />}
+          cell={(props) => {
+            if (this.sortedBaseLearners[props.rowIndex] === undefined) {
+              return (<Cell {...props}></Cell>);
+            }
+            return (
+              <Cell {...props}>
+                {String(this.sortedBaseLearners[props.rowIndex].individual_score[metric]).substring(0, 5)}
+              </Cell>
+            )
+          }}
+          width={Math.max(metric.length*10, 50)}
+          flexGrow={1}
+        />
       )
-    })
-
-    return items;
+    });
   }
 
-  // Return headers for included hyperparameters
-  getIncludedHyperparameters() {
+  getHyperparametersColumns() {
+    return this.state.includedHyperparameters.map((metric) => {
+      var headerText = ((this.state.sortType === 'hyperparameters' && this.state.sortCol === metric) ? (this.state.sortAscending ? '↓' : '↑') : '') + metric
 
-    const items = this.state.includedHyperparameters.map((el, index) => {
       return (
-        <th key={index}>
-          <a onClick={() => this.sortFromHeader(el, 'hyperparameters')}>
-            {el}
-            {(this.state.sortType === 'hyperparameters' && this.state.sortCol === el) ? (this.state.sortAscending ? '↓' : '↑') : ' '}
-          </a>
-        </th>
+        <Column
+          key={metric}
+          header={
+            <HeaderCell
+              headerText={headerText}
+              sortFromHeader={() => this.sortFromHeader(metric, 'hyperparameters')}
+            />}
+          cell={(props) => {
+            if (this.sortedBaseLearners[props.rowIndex] === undefined) {
+              return (<Cell {...props}></Cell>);
+            }
+            return (
+              <Cell {...props}>
+                {String(this.sortedBaseLearners[props.rowIndex].hyperparameters[metric]).substring(0, 5)}
+              </Cell>
+            )
+          }}
+          width={Math.max(metric.length*10, 50)}
+          flexGrow={1}
+        />
       )
-    })
-
-    return items;
+    });
   }
 
   render() {
+    const metricsOptionsSet = new Set([]);
+    for (let obj of this.props.baseLearners) {
+      for (let metric in obj.individual_score) metricsOptionsSet.add(metric);
+    }
+    const metricsOptions = [...metricsOptionsSet].map((metric) => {
+      return {
+        label: metric,
+        value: metric
+      };
+    });
+    const hyperparametersOptionsSet = new Set([]);
+    for (let obj of this.props.baseLearners) {
+      for (let metric in obj.hyperparameters) 
+        hyperparametersOptionsSet.add(metric);
+    }
+    const hyperparametersOptions = [...hyperparametersOptionsSet].map((metric) => {
+      return {
+        label: metric,
+        value: metric
+      };
+    });
+    this.returnSortedList();
     return(
-      <div className='BaseLearnerPadding'>
+      <div className='Ensemble'>
         <h2>Base Learners</h2>
-        <Select multi
-        value={this.state.filterList} 
-        placeholder="Filter for Base Learner Type" 
-        options={this.props.filterOptions} 
-        onChange={(x) => this.handleFilterChange(x)} />
-        <Select multi
-        value={this.state.includedMetrics} 
-        placeholder="Add additional metrics to display" 
-        options={this.props.metricsOptions} 
-        onChange={(x) => this.handleMetricsChange(x)} />
-        <Select multi
-        value={this.state.includedHyperparameters} 
-        placeholder="Add additional hyperparameters to display" 
-        options={this.props.hyperparametersOptions} 
-        onChange={(x) => this.handleHyperparametersChange(x)} />
-        <table className='BaseLearner'>
-          <tbody>
-            <tr>
-              <th></th>
-              <th>
-                <a onClick={() => this.sortFromHeader('id', null)}>
-                  ID
-                  {(this.state.sortType === null && this.state.sortCol === 'id') ? (this.state.sortAscending ? '↓' : '↑') : ' '}
-                </a>
-              </th>
-              <th>
-                <a onClick={() => this.sortFromHeader('base_learner_origin_id', null)}>
-                  Type ID
-                  {(this.state.sortType === null && this.state.sortCol === 'base_learner_origin_id') ? (this.state.sortAscending ? '↓' : '↑') : ' '}
-                </a>
-              </th>
-              {this.getIncludedMetrics()}
-              {this.getIncludedHyperparameters()}
-              <th>Status</th>
-            </tr>
-          </tbody>
-          {this.getItems()}
-        </table>
+        <table><tbody><tr>
+          <td>
+          <Select multi
+            value={this.state.filteredTypes} 
+            placeholder="Filter for base learner type" 
+            options={this.props.filterOptions} 
+            onChange={(x) => this.setState({filteredTypes: x.map(obj => obj.value)})} />
+          </td>
+          <td>
+          <Select multi
+            value={this.state.includedMetrics} 
+            placeholder="Add additional metrics to display" 
+            options={metricsOptions} 
+            onChange={(x) => this.setState({includedMetrics: x.map(obj => obj.value)})} />
+          </td>
+          <td>
+          <Select multi
+            value={this.state.includedHyperparameters} 
+            placeholder="Add additional hyperparameters to display" 
+            options={hyperparametersOptions} 
+            onChange={(x) => this.setState({includedHyperparameters: x.map(obj => obj.value)})} />
+          </td>
+        </tr></tbody></table>
+        <Table
+          rowsCount={this.sortedBaseLearners.length}
+          rowHeight={35}
+          headerHeight={50}
+          width={this.props.containerWidth}
+          height={500}>
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
+                  <input 
+                    type='checkbox' 
+                    checked={this.props.checkedBaseLearners.includes(
+                      this.sortedBaseLearners[props.rowIndex].id)}
+                    onChange={() => this.props.toggleCheckBaseLearner(
+                      this.sortedBaseLearners[props.rowIndex].id)}
+                    disabled={this.sortedBaseLearners[props.rowIndex].job_status !== 'finished'}
+                  />
+                </Cell>
+              )
+            }}
+            width={30}
+          />
+          {this.getDataColumns()}
+          {this.getMetricsColumns()}
+          {this.getHyperparametersColumns()}
+          <Column
+            header={
+            <HeaderCell
+              headerText={((this.state.sortType === null && this.state.sortCol === 'job_status') ? (this.state.sortAscending ? '↓' : '↑') : '') + 'Status'}
+              sortFromHeader={() => this.sortFromHeader('job_status', null)}
+            />}
+            cell={(props) => {
+              if (this.sortedBaseLearners[props.rowIndex] === undefined) {
+                return (<Cell {...props}></Cell>)
+              }
+
+              var status_icon;
+              if (this.sortedBaseLearners[props.rowIndex].job_status === 'errored') {
+                status_icon = <FaExclamationCircle />
+              }
+              else if (this.sortedBaseLearners[props.rowIndex].job_status === 'finished') {
+                status_icon = <FaCheck />
+              }
+              else {
+                status_icon = <FaSpinner className='load-animate'/>
+              }
+
+              return (
+                <Cell {...props}>
+                  {status_icon}
+                </Cell>
+              )
+            }}
+            width={50}
+            flexGrow={1}
+          />
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
+                  <FaInfo 
+                    style={{cursor: 'pointer'}}
+                    onClick={() => 
+                      this.setState({moreDetailsId: this.sortedBaseLearners[props.rowIndex].id})}
+                  />
+                </Cell>
+              )
+            }}
+            width={50}
+          />
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
+                  <FaTrash 
+                    style={{cursor: 'pointer'}}
+                    onClick={() => this.setState({idToDelete: this.sortedBaseLearners[props.rowIndex].id})}
+                  />
+                </Cell>
+              )
+            }}
+            width={50}
+          />
+        </Table>
+        <DetailsModal 
+          onRequestClose={() => this.setState({moreDetailsId: null})}
+          baseLearners={this.props.baseLearners}
+          moreDetailsId={this.state.moreDetailsId}
+        />
+        <DeleteModal
+          isOpen={this.state.idToDelete !== null}
+          onRequestClose={() => this.setState({idToDelete: null})}
+          handleYes={() => this.props.deleteBaseLearner(this.state.idToDelete)}
+        />
       </div>
     )
   }
 }
 
-
+module.exports = Dimensions({
+  getHeight: function(element) {
+    return window.innerHeight - 200;
+  },
+  getWidth: function(element) {
+    var widthOffset = window.innerWidth < 680 ? 0 : 120;
+    return window.innerWidth - widthOffset;
+  }
+})(ListBaseLearner);
 export default ListBaseLearner;
