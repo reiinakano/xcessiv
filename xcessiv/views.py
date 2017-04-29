@@ -339,7 +339,7 @@ def search_base_learner(id):
         if not base_learner_origin.final:
             raise exceptions.UserError('Base learner origin {} is not final'.format(id))
 
-        num_learners_added = 0
+        learners = []
         for params in iterator:
             est = base_learner_origin.return_estimator()
             try:
@@ -364,8 +364,8 @@ def search_base_learner(id):
             session.commit()
 
             rqtasks.generate_meta_features.delay(path, base_learner.id)
-            num_learners_added += 1
-        return my_message('Created and queued {} base learners'.format(num_learners_added))
+            learners.append(base_learner)
+        return jsonify(map(lambda x: x.serialize, learners))
 
 
 @app.route('/ensemble/base-learners/', methods=['GET', 'DELETE'])
