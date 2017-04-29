@@ -305,7 +305,7 @@ def create_base_learner(id):
 
         rqtasks.generate_meta_features.delay(path, base_learner.id)
 
-        return my_message('Created base learner')
+        return jsonify(base_learner.serialize)
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/search/', methods=['POST'])

@@ -5,7 +5,11 @@
   padding-right: 50px;
 }
 
+.Ensemble table { table-layout: fixed; }
+
 .CodeMirror { z-index: 0 }
+
+.Ensemble .Select {z-index: 100}
 
 .load-animate {
     -animation: spin .7s infinite linear;

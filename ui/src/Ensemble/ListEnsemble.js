@@ -6,6 +6,8 @@ import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 import Dimensions from 'react-dimensions';
+import Select from 'react-select';
+import 'react-select/dist/react-select.css';
 
 function HeaderCell(props) {
   return (
@@ -26,7 +28,7 @@ class ListEnsemble extends Component {
     super(props);
     this.state = {
       includedMetrics: ['Accuracy', 'Recall', 'Precision'],
-      includedHyperparameters: ['C'],
+      includedHyperparameters: [],
       sortAscending: true,
       sortCol: 'id',
       sortType: null
@@ -168,9 +170,46 @@ class ListEnsemble extends Component {
   }
 
   render() {
+    const metricsOptionsSet = new Set([]);
+    for (let obj of this.props.stackedEnsembles) {
+      for (let metric in obj.individual_score) metricsOptionsSet.add(metric);
+    }
+    const metricsOptions = [...metricsOptionsSet].map((metric) => {
+      return {
+        label: metric,
+        value: metric
+      };
+    });
+    const hyperparametersOptionsSet = new Set([]);
+    for (let obj of this.props.stackedEnsembles) {
+      for (let metric in obj.secondary_learner_hyperparameters) 
+        hyperparametersOptionsSet.add(metric);
+    }
+    const hyperparametersOptions = [...hyperparametersOptionsSet].map((metric) => {
+      return {
+        label: metric,
+        value: metric
+      };
+    });
     this.returnSortedList();
     return(
       <div className='Ensemble'>
+        <table><tbody><tr>
+          <td>
+          <Select multi
+            value={this.state.includedMetrics} 
+            placeholder="Add additional metrics to display" 
+            options={metricsOptions} 
+            onChange={(x) => this.setState({includedMetrics: x.map(obj => obj.value)})} />
+          </td>
+          <td>
+          <Select multi
+            value={this.state.includedHyperparameters} 
+            placeholder="Add additional secondary learner hyperparameters to display" 
+            options={hyperparametersOptions} 
+            onChange={(x) => this.setState({includedHyperparameters: x.map(obj => obj.value)})} />
+          </td>
+        </tr></tbody></table>
         <Table
           rowsCount={this.props.stackedEnsembles.length}
           rowHeight={35}

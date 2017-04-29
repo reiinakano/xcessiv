@@ -36,20 +36,26 @@ class EnsembleBuilder extends Component {
     return (
       <div className='Ensemble'>
         <h2>Stacked Ensemble</h2>
-        <VirtualizedSelect
-          multi
-          options={this.props.optionsBaseLearners}
-          value={this.props.checkedOptions}
-          onChange={(selectValue) => this.props.setCheckedBaseLearners(
-            selectValue.map((val) => val.value))}
-          placeholder="Insert/Check base learners to add to the ensemble" 
-        />
-        <Select
-          options={this.props.optionsBaseLearnerOrigins}
-          value={this.state.selectedValue}
-          onChange={(val) => this.setState({selectedValue: val})}
-          placeholder="Select secondary base learner to use"
-        />
+        <table><tbody><tr>
+          <td>
+          <VirtualizedSelect
+            multi
+            options={this.props.optionsBaseLearners}
+            value={this.props.checkedOptions}
+            onChange={(selectValue) => this.props.setCheckedBaseLearners(
+              selectValue.map((val) => val.value))}
+            placeholder="Insert/Check base learners to add to the ensemble" 
+          />
+          </td>
+          <td>
+          <Select
+            options={this.props.optionsBaseLearnerOrigins}
+            value={this.state.selectedValue}
+            onChange={(val) => this.setState({selectedValue: val})}
+            placeholder="Select secondary base learner to use"
+          />
+          </td>
+        </tr></tbody></table>
         <CodeMirror 
           value={this.state.source} 
           onChange={(src) => this.setState({source: src})} 
