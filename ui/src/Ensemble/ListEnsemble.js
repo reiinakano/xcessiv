@@ -45,6 +45,17 @@ function HeaderCell(props) {
   )
 }
 
+function DisplayError(props) {
+  const items = [];
+  for (var key in props.description) {
+      items.push(<li key={key}>{key + ': ' + props.description[key]}</li>)
+    }
+  return <div>
+    <h4>Error Messages</h4>
+    <ul>{items}</ul>
+  </div>
+}
+
 class DetailsModal extends Component {
   render() {
     if (this.props.moreDetailsId === null) {
@@ -64,7 +75,7 @@ class DetailsModal extends Component {
         contentLabel='Ensemble details'
         style={modalStyle}
       >
-      Base Learners
+      <h4>Base Learners</h4>
       <ul>
         {stackedEnsemble.base_learner_ids.map((id) => {
           return (
@@ -72,6 +83,28 @@ class DetailsModal extends Component {
           )
         })}
       </ul>
+      <h4>Metrics</h4>
+      <ul>
+        {Object.keys(stackedEnsemble.individual_score).map((key) => {
+          return <li key={key}>{key + ': ' + stackedEnsemble.individual_score[key]}</li>
+        })}
+      </ul>
+      <h4>Secondary Learner Hyperparameters</h4>
+      <ul>
+        {Object.keys(stackedEnsemble.secondary_learner_hyperparameters).map((key) => {
+          return (
+            <li key={key}>
+              {key + ': ' + stackedEnsemble.secondary_learner_hyperparameters[key]}
+            </li>
+          );
+        })}
+      </ul>
+      <h4>Secondary Learner</h4>
+      {stackedEnsemble.base_learner_origin_id}
+      <h4>Job ID</h4>
+      {stackedEnsemble.job_id}
+      {(stackedEnsemble.job_status === 'errored') && 
+      <DisplayError description={stackedEnsemble.description} />}
       </ReactModal>
     )
   }
