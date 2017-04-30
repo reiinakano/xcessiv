@@ -13,8 +13,7 @@ class MainDataExtraction extends Component {
     this.state = {
       unsavedData: {
         source: ''
-      }, 
-      same: true
+      }
     };
   }
 
@@ -46,9 +45,9 @@ class MainDataExtraction extends Component {
 	  	console.log(json);
 	  	this.serverData = json;
 	    this.setState({
-	      unsavedData: json,
-	      same: true
+	      unsavedData: json
 	    });
+      this.props.setSame(true);
       this.props.addNotification({
         title: 'Success',
         message: 'Saved main dataset extraction method',
@@ -63,9 +62,9 @@ class MainDataExtraction extends Component {
   	this.setState((prevState) => {
       var unsavedData = $.extend({}, prevState.unsavedData); // Make copy
       unsavedData.source = newCode;
+      this.props.setSame(isEqual(unsavedData, this.serverData));
       return {
-        unsavedData,
-        same: isEqual(unsavedData, this.serverData)
+        unsavedData
       };
     })
   }
@@ -77,12 +76,11 @@ class MainDataExtraction extends Component {
     };
   	return (
       <div className='MainDataExtraction'>
-    	  <h2> Main Dataset Extraction Setup{!this.state.same && '*'}</h2>
     	  <h3> Main Dataset Extraction Source Code</h3>
     	  <CodeMirror value={this.state.unsavedData.source} 
         onChange={(src) => this.newSource(src)} options={options}/>
     	  <button 
-        disabled={this.state.same} 
+        disabled={this.props.same} 
         onClick={() => this.saveSetup()}>
           Save Main Dataset Extraction Setup
         </button>
