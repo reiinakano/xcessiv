@@ -25,13 +25,22 @@ class DataExtractionTabs extends Component {
             <Tab>Meta-feature generation method</Tab>
           </TabList>
           <TabPanel>
-            <MainDataExtraction path={this.props.path}/>
+            <MainDataExtraction 
+              path={this.props.path}
+              addNotification={(notif) => this.props.addNotification(notif)}
+            />
           </TabPanel>
           <TabPanel>
-            <TestDataExtraction path={this.props.path}/>
+            <TestDataExtraction 
+              path={this.props.path}
+              addNotification={(notif) => this.props.addNotification(notif)}
+            />
           </TabPanel>
           <TabPanel>
-            <MetaFeatureExtraction path={this.props.path}/>
+            <MetaFeatureExtraction 
+              path={this.props.path}
+              addNotification={(notif) => this.props.addNotification(notif)}
+            />
           </TabPanel>
         </Tabs>
       </div>

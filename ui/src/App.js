@@ -23,9 +23,13 @@ class App extends Component {
         <div className="App-header">
           <h2>Xcessiv</h2>
         </div>
-        <DataExtractionTabs path='test'/>
+        <DataExtractionTabs 
+          path='test'
+          addNotification={(notif) => this._notificationSystem.addNotification(notif)}
+        />
         <DataVerificationResult path='test'/>
-        <ContainerBaseLearner path='test' 
+        <ContainerBaseLearner 
+          path='test' 
           addNotification={(notif) => this._notificationSystem.addNotification(notif)} 
         />
         <NotificationSystem ref='notificationSystem' />

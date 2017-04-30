@@ -3,33 +3,33 @@ import './MainDataExtraction.css';
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
+import { isEqual } from 'lodash';
+import $ from 'jquery';
 
 class MainDataExtraction extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {newCode: '', same: true};
-    this.newSource = this.newSource.bind(this);
-    this.saveSetup = this.saveSetup.bind(this);
+    this.state = {
+      unsavedData: {
+        source: ''
+      }, 
+      same: true
+    };
   }
 
   componentDidMount() {
   	fetch('/ensemble/extraction/main-dataset/?path=' + this.props.path)
 	  .then(response => response.json())
 	  .then(json => {
-	  	console.log(json)
-	  	this.oldCode = json.source
-	    this.setState({
-	      newCode: this.oldCode,
-	      same: true
-	    })
+	  	console.log(json);
+	    this.setState({unsavedData: json});
+      this.serverData = json;
 	  });
   }
 
   saveSetup() {
-    var payload = {
-    	"source": this.state.newCode
-    };
+    var payload = this.state.unsavedData;
 
     fetch(
       '/ensemble/extraction/main-dataset/?path=' + this.props.path,
@@ -39,25 +39,35 @@ class MainDataExtraction extends Component {
       	headers: new Headers({
       	  'Content-Type': 'application/json'
       	})
-      })
-      .then(response => response.json())
-      .then(json => {
-	  	console.log(json)
-	  	this.oldCode = json.source
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+	  	console.log(json);
+	  	this.serverData = json;
 	    this.setState({
-	      newCode: this.oldCode,
+	      unsavedData: json,
 	      same: true
-	    })
+	    });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Saved main dataset extraction method',
+        level: 'success'
+      });
 	  });
   }
 
   newSource(newCode) {
   	console.log('change newCode to ' + newCode);
   	console.log(newCode === this.oldCode);
-  	this.setState({
-  		newCode: newCode,
-  	  	same: newCode === this.oldCode
-  	  })
+  	this.setState((prevState) => {
+      var unsavedData = $.extend({}, prevState.unsavedData); // Make copy
+      unsavedData.source = newCode;
+      return {
+        unsavedData,
+        same: isEqual(unsavedData, this.serverData)
+      };
+    })
   }
 
   render() {
@@ -65,12 +75,19 @@ class MainDataExtraction extends Component {
       lineNumbers: true,
       indentUnit: 4
     };
-  	return <div className='MainDataExtraction'>
-  	  <h2> Main Dataset Extraction Setup {!this.state.same && '*'}</h2>
-  	  <h3> Main Dataset Extraction Source </h3>
-  	  <CodeMirror value={this.state.newCode} onChange={this.newSource} options={options}/>
-  	  <button disabled={this.state.same} onClick={this.saveSetup}> Save Main Dataset Extraction Setup </button>
-  	</div>
+  	return (
+      <div className='MainDataExtraction'>
+    	  <h2> Main Dataset Extraction Setup{!this.state.same && '*'}</h2>
+    	  <h3> Main Dataset Extraction Source Code</h3>
+    	  <CodeMirror value={this.state.unsavedData.source} 
+        onChange={(src) => this.newSource(src)} options={options}/>
+    	  <button 
+        disabled={this.state.same} 
+        onClick={() => this.saveSetup()}>
+          Save Main Dataset Extraction Setup
+        </button>
+    	</div>
+    );
   }
 }
 
