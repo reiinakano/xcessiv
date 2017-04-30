@@ -249,7 +249,7 @@ class ListBaseLearner extends Component {
                 </Cell>
               )
             }}
-            width={30}
+            width={40}
           />
           {this.getDataColumns()}
           {this.getMetricsColumns()}

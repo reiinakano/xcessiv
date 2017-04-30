@@ -97,7 +97,8 @@ export class DeleteModal extends Component {
         contentLabel='Delete base learner'
         style={modalStyle}
       >
-      <p>Are you sure you want to delete this ensemble?</p>
+      <p>Are you sure you want to delete this base learner?</p>
+      <p>All ensembles containing this base learner will be lost as well.</p>
       <p><strong>This action is irreversible.</strong></p>
         <button onClick={this.props.onRequestClose}>Cancel</button>
         <button onClick={() => this.handleYesAndClose()}>Delete</button>
