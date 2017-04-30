@@ -11,7 +11,7 @@ class MainDataExtraction extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      unsavedData: {
+      config: {
         source: ''
       }
     };
@@ -22,13 +22,13 @@ class MainDataExtraction extends Component {
 	  .then(response => response.json())
 	  .then(json => {
 	  	console.log(json);
-	    this.setState({unsavedData: json});
-      this.serverData = json;
+	    this.setState({config: json});
+      this.savedConfig = json;
 	  });
   }
 
   saveSetup() {
-    var payload = this.state.unsavedData;
+    var payload = this.state.config;
 
     fetch(
       '/ensemble/extraction/main-dataset/?path=' + this.props.path,
@@ -43,9 +43,9 @@ class MainDataExtraction extends Component {
     .then(response => response.json())
     .then(json => {
 	  	console.log(json);
-	  	this.serverData = json;
+	  	this.savedConfig = json;
 	    this.setState({
-	      unsavedData: json
+	      config: json
 	    });
       this.props.setSame(true);
       this.props.addNotification({
@@ -60,11 +60,11 @@ class MainDataExtraction extends Component {
   	console.log('change newCode to ' + newCode);
   	console.log(newCode === this.oldCode);
   	this.setState((prevState) => {
-      var unsavedData = $.extend({}, prevState.unsavedData); // Make copy
-      unsavedData.source = newCode;
-      this.props.setSame(isEqual(unsavedData, this.serverData));
+      var config = $.extend({}, prevState.config); // Make copy
+      config.source = newCode;
+      this.props.setSame(isEqual(config, this.savedConfig));
       return {
-        unsavedData
+        config
       };
     })
   }
@@ -77,7 +77,7 @@ class MainDataExtraction extends Component {
   	return (
       <div className='MainDataExtraction'>
     	  <h3> Main Dataset Extraction Source Code</h3>
-    	  <CodeMirror value={this.state.unsavedData.source} 
+    	  <CodeMirror value={this.state.config.source} 
         onChange={(src) => this.newSource(src)} options={options}/>
     	  <button 
         disabled={this.props.same} 

@@ -19,13 +19,24 @@ class SplitForm extends Component {
         <div className='SplitFormLabel'>
           <label>
             Test Dataset Ratio:
-            <input name='ratioValue' type='number' step='0.001' min='0' max='1' value={this.props.split_ratio} onChange={this.props.onSplitFormChange}/>
+            <input 
+              name='ratioValue' 
+              type='number' 
+              step='0.001' 
+              min='0' 
+              max='1' 
+              value={this.props.split_ratio} 
+              onChange={(evt) => this.props.handleConfigChange('split_ratio', parseFloat(evt.target.value))}/>
           </label>
         </div>
         <div className='SplitFormLabel'>
           <label>
             Random Seed:
-            <input name='seedValue' type='number' value={this.props.split_seed} onChange={this.props.onSplitFormChange}/>
+            <input 
+              name='seedValue' 
+              type='number' 
+              value={this.props.split_seed} 
+              onChange={(evt) => this.props.handleConfigChange('split_seed', parseInt(evt.target.value, 10))}/>
           </label>
         </div>
       </div>
@@ -52,18 +63,14 @@ class SourceForm extends Component {
 class TestDataExtraction extends Component {
   constructor(props) {
     super(props);
-    this.state = {config: {
-    	"method": null,
-      "split_ratio": 0.1,
-      "split_seed": 8,
-      "source": ''
-      },
-      same: true
-	};
-    this.handleOptionChange = this.handleOptionChange.bind(this);
-    this.saveSetup = this.saveSetup.bind(this);
-    this.onSplitFormChange = this.onSplitFormChange.bind(this);
-    this.onSourceFormChange = this.onSourceFormChange.bind(this);
+    this.state = {
+      config: {
+      	"method": null,
+        "split_ratio": 0.1,
+        "split_seed": 8,
+        "source": ''
+      }
+  	};
   }
 
   // Get request from server to populate fields
@@ -71,61 +78,21 @@ class TestDataExtraction extends Component {
     fetch('/ensemble/extraction/test-dataset/?path=' + this.props.path)
     .then(response => response.json())
     .then(json => {
-      console.log(json)
-      this.savedConfig = $.extend({}, this.state.config, json)
+      console.log(json);
+      this.savedConfig = $.extend({}, this.state.config, json);
       this.setState({
-        config: this.savedConfig,
-        same: true
-      })
+        config: this.savedConfig
+      });
     });
   }
 
-  // Handle change in extraction method
-  handleOptionChange(event) {
-    var new_option = event.target.value;
-
-    // special case since radiobutton value can't be null
-    if (new_option === 'NONE') {
-      new_option = null;
-    }
-
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    newConfig.method = new_option;
-    console.log(event.target.value);
-    console.log(isEqual(newConfig, this.savedConfig))
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    })
-  }
-
-  // Handle change in split form
-  onSplitFormChange(event) {
-    const target = event.target;
-    const name = target.name;
-
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    if (name === 'ratioValue') {
-      newConfig.split_ratio = parseFloat(target.value);
-    }
-    else {
-      newConfig.split_seed = parseInt(target.value, 10);
-    }
-
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    })
-  }
-
-  //Handle change in source code form
-  onSourceFormChange(value) {
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    newConfig.source = value;
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    });
+  handleConfigChange(option, val) {
+    console.log(option);
+    console.log(val);
+    var config = JSON.parse(JSON.stringify(this.state.config));
+    config[option] = val;
+    this.props.setSame(isEqual(config, this.savedConfig));
+    this.setState({config});
   }
 
   // Save all changes to server
@@ -140,48 +107,56 @@ class TestDataExtraction extends Component {
       	headers: new Headers({
       	  'Content-Type': 'application/json'
       	})
-      })
-      .then(response => response.json())
-      .then(json => {
-	  	console.log(json)
-	  	this.savedConfig = json
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+	  	console.log(json);
+	  	this.savedConfig = json;
+      this.props.setSame(true);
 	    this.setState({
-	      config: json,
-	      same: true
-	    })
+	      config: json
+	    });
 	  });
   }
 
   render() {
 
   	return <div className='MainDataExtraction'>
-  	  <h2> Test Dataset Extraction Setup {!this.state.same && '*'}</h2>
   	  <h3> Test Dataset Extraction Method </h3>
       <div>
         <input type='radio' value="NONE" 
         name="test_extraction_method"
         checked={this.state.config.method === null}
-        onChange={this.handleOptionChange}/> No test dataset
+        onChange={() => this.handleConfigChange('method', null)}/> 
+        No test dataset
         <input type='radio' value="split_from_main" 
         name="test_extraction_method" 
         checked={this.state.config.method === 'split_from_main'}
-        onChange={this.handleOptionChange}/> Split from main dataset
+        onChange={() => this.handleConfigChange('method', 'split_from_main')}/> 
+        Split from main dataset
         <input type='radio' value="source" 
         name="test_extraction_method"
         checked={this.state.config.method === 'source'}
-        onChange={this.handleOptionChange}/> Extract with source code
+        onChange={() => this.handleConfigChange('method', 'source')}/> 
+        Extract with source code
       </div>
       {this.state.config.method === 'split_from_main' && 
         <SplitForm split_ratio={this.state.config.split_ratio} 
         split_seed={this.state.config.split_seed} 
-        onSplitFormChange={this.onSplitFormChange}/>
+        handleConfigChange={(option, val) => this.handleConfigChange(option, val)}/>
       }
       {this.state.config.method === null && <NoTestMessage />}
       {this.state.config.method === 'source' &&
         <SourceForm value={this.state.config.source} 
-        onChange={this.onSourceFormChange} />
+        onChange={(x) => this.handleConfigChange('source', x)} />
       }
-      <button disabled={this.state.same} onClick={this.saveSetup}> Save Test Dataset Extraction Setup </button>
+      <button 
+        disabled={this.state.same} 
+        onClick={() => this.saveSetup()}
+      > 
+        Save Test Dataset Extraction Setup 
+      </button>
   	</div>
   }
 }
