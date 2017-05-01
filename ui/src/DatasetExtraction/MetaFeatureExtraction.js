@@ -6,14 +6,13 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar } from 'react-bootstrap';
+import { Button, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
 
 class CVForm extends Component {
   render() {
 
     return (
       <div>
-        <p>You have chosen to use cross-validation to generate meta-features</p>
         <div className='SplitFormLabel'>
           <label>
             Number of folds:
@@ -48,7 +47,6 @@ class SplitForm extends Component {
 
     return (
       <div>
-        <p>You have chosen to split a holdout set from the main dataset.</p>
         <div className='SplitFormLabel'>
           <label>
             Holdout Dataset Ratio:
@@ -88,7 +86,6 @@ class SourceForm extends Component {
     };
     return (
       <div>
-        <p>You have chosen to write your own code to retrieve a holdout dataset for meta-feature generation</p>
         <CodeMirror value={this.props.value} 
         onChange={this.props.onChange} options={options}/>
       </div>
@@ -174,25 +171,22 @@ class MetaFeatureExtraction extends Component {
   }
 
   render() {
+    const options = {
+      cv: 'Stratified Cross-validation',
+      holdout_split: 'Split holdout set from main dataset',
+      holdout_source: 'Extract holdout set with source code'
+    }
+
     return <div className='MainDataExtraction'>
-      <h3> MetaFeature Generation Method </h3>
-      <div>
-        <input type='radio' value="cv" 
-        name="meta_feature_method"
-        checked={this.state.config.method === 'cv'}
-        onChange={() => this.handleConfigChange('method', 'cv')}/> 
-        Cross-Validation
-        <input type='radio' value="holdout_split" 
-        name="meta_feature_method" 
-        checked={this.state.config.method === 'holdout_split'}
-        onChange={() => this.handleConfigChange('method', 'holdout_split')}/> 
-        Split holdout set from main dataset
-        <input type='radio' value="holdout_source" 
-        name="meta_feature_method"
-        checked={this.state.config.method === 'holdout_source'}
-        onChange={() => this.handleConfigChange('method', 'holdout_source')}/> 
-        Extract holdout set with source code
-      </div>
+      <h5> Choose your method of extracting meta-features </h5>
+      <DropdownButton 
+        title={options[this.state.config.method]} 
+        id={'metafeaturedropdown'}
+        onSelect={(x) => this.handleConfigChange('method', x)}>
+        <MenuItem eventKey={'cv'}>{options['cv']}</MenuItem>
+        <MenuItem eventKey={'holdout_split'}>{options['holdout_split']}</MenuItem>
+        <MenuItem eventKey={'holdout_source'}>{options['holdout_source']}</MenuItem>
+      </DropdownButton>
       {this.state.config.method === 'cv' && 
         <CVForm folds={this.state.config.folds} 
         seed={this.state.config.seed} 

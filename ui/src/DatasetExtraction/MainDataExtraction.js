@@ -88,7 +88,7 @@ class MainDataExtraction extends Component {
     };
   	return (
       <div className='MainDataExtraction'>
-    	  <h3> Main Dataset Extraction Source Code</h3>
+    	  <h5> Main Dataset Extraction Source Code</h5>
     	  <CodeMirror value={this.state.config.source} 
         onChange={(src) => this.newSource(src)} options={options}/>
         <ButtonToolbar>

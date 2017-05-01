@@ -9,7 +9,7 @@ import { ClearModal } from './Modals';
 import { Button, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
 
 function NoTestMessage(props) {
-  return <p>You have chosen not to use a test dataset.</p>
+  return <p></p>
 }
 
 class SplitForm extends Component {
@@ -17,7 +17,6 @@ class SplitForm extends Component {
 
     return (
       <div>
-        <p>You have chosen to split off a test dataset from the main dataset</p>
         <div className='SplitFormLabel'>
           <label>
             Test Dataset Ratio:
@@ -54,7 +53,6 @@ class SourceForm extends Component {
     };
     return (
       <div>
-        <p>You have chosen to write your own code to retrieve a test dataset</p>
         <CodeMirror value={this.props.value} 
         onChange={this.props.onChange} options={options}/>
       </div>
