@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import FaSpinner from 'react-icons/lib/fa/spinner';
-
+import { Button } from 'react-bootstrap';
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -124,8 +124,13 @@ class DataVerificationResult extends Component {
       <h4>
         {this.state.errorMessage}
       </h4>
-      <button disabled={Boolean(this.state.asyncStatus) || !this.props.same}
-      onClick={this.calculateStatistics}>Calculate Extracted Datasets Statistics</button>
+      <Button 
+        bsStyle="primary"
+        disabled={Boolean(this.state.asyncStatus) || !this.props.same}
+        onClick={this.calculateStatistics}
+      >
+        Calculate Extracted Datasets Statistics
+      </Button>
       {Boolean(this.state.asyncStatus) && (' ' + this.state.asyncStatus + ' ')}
       {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
     </div>

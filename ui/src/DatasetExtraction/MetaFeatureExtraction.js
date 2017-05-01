@@ -6,6 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
+import { Button, ButtonToolbar } from 'react-bootstrap';
 
 class CVForm extends Component {
   render() {
@@ -207,17 +208,20 @@ class MetaFeatureExtraction extends Component {
         <SourceForm value={this.state.config.source} 
         onChange={(src) => this.handleConfigChange('source', src)} />
       }
-      <button 
-        disabled={this.props.same} 
-        onClick={() => this.saveSetup()}
-      > 
-        Save Meta-Feature Generation Setup 
-      </button>
-      <button 
-        disabled={this.props.same} 
-        onClick={() => this.setState({showClearModal: true})}>
-          Clear unsaved changes
-      </button>
+      <ButtonToolbar>
+        <Button 
+          bsStyle="primary"
+          disabled={this.props.same} 
+          onClick={() => this.saveSetup()}
+        > 
+          Save Meta-Feature Generation Setup 
+        </Button>
+        <Button 
+          disabled={this.props.same} 
+          onClick={() => this.setState({showClearModal: true})}>
+            Clear unsaved changes
+        </Button>
+      </ButtonToolbar>
       <ClearModal
         isOpen={this.state.showClearModal}
         onRequestClose={() => this.setState({showClearModal: false})}

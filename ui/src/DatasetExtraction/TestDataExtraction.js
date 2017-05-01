@@ -6,6 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
+import { Button, ButtonToolbar } from 'react-bootstrap';
 
 function NoTestMessage(props) {
   return <p>You have chosen not to use a test dataset.</p>
@@ -168,17 +169,20 @@ class TestDataExtraction extends Component {
         <SourceForm value={this.state.config.source} 
         onChange={(x) => this.handleConfigChange('source', x)} />
       }
-      <button 
-        disabled={this.props.same} 
-        onClick={() => this.saveSetup()}
-      > 
-        Save Test Dataset Extraction Setup 
-      </button>
-      <button 
-        disabled={this.props.same} 
-        onClick={() => this.setState({showClearModal: true})}>
-          Clear unsaved changes
-      </button>
+      <ButtonToolbar>
+        <Button 
+          bsStyle="primary"
+          disabled={this.props.same} 
+          onClick={() => this.saveSetup()}
+        > 
+          Save Test Dataset Extraction Setup 
+        </Button>
+        <Button 
+          disabled={this.props.same} 
+          onClick={() => this.setState({showClearModal: true})}>
+            Clear unsaved changes
+        </Button>
+      </ButtonToolbar>
       <ClearModal
         isOpen={this.state.showClearModal}
         onRequestClose={() => this.setState({showClearModal: false})}

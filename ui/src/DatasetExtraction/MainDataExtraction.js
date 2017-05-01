@@ -6,6 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
+import { Button, ButtonToolbar } from 'react-bootstrap';
 
 class MainDataExtraction extends Component {
 
@@ -90,16 +91,19 @@ class MainDataExtraction extends Component {
     	  <h3> Main Dataset Extraction Source Code</h3>
     	  <CodeMirror value={this.state.config.source} 
         onChange={(src) => this.newSource(src)} options={options}/>
-    	  <button 
-        disabled={this.props.same} 
-        onClick={() => this.saveSetup()}>
-          Save Main Dataset Extraction Setup
-        </button>
-        <button 
-        disabled={this.props.same} 
-        onClick={() => this.setState({showClearModal: true})}>
-          Clear unsaved changes
-        </button>
+        <ButtonToolbar>
+      	  <Button 
+          bsStyle="primary"
+          disabled={this.props.same} 
+          onClick={() => this.saveSetup()}>
+            Save Main Dataset Extraction Setup
+          </Button>
+          <Button 
+          disabled={this.props.same} 
+          onClick={() => this.setState({showClearModal: true})}>
+            Clear unsaved changes
+          </Button>
+        </ButtonToolbar>
         <ClearModal
           isOpen={this.state.showClearModal}
           onRequestClose={() => this.setState({showClearModal: false})}
