@@ -5,9 +5,9 @@
   padding-right: 50px;
 }
 
-.SplitFormLabel {
-  padding-top: 10px;
-  padding-bottom: 10px;
+.TabPanel {
+  display:block;
+  height:420px;
 }
 
 .load-animate {
