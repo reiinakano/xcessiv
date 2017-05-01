@@ -99,7 +99,7 @@ class DataVerificationResult extends Component {
   }
   
   render() {
-
+    console.log(this.props.same)
     return(
     <div className='MainDataExtraction'>
       <h2>Extracted datasets basic statistics</h2>
@@ -124,7 +124,7 @@ class DataVerificationResult extends Component {
       <h4>
         {this.state.errorMessage}
       </h4>
-      <button disabled={Boolean(this.state.asyncStatus)}
+      <button disabled={Boolean(this.state.asyncStatus) || !this.props.same}
       onClick={this.calculateStatistics}>Calculate Extracted Datasets Statistics</button>
       {Boolean(this.state.asyncStatus) && (' ' + this.state.asyncStatus + ' ')}
       {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}

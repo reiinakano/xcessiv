@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import DataVerificationResult from './DatasetExtraction/DataVerificationResult';
 import DataExtractionTabs from './DatasetExtraction/DataExtractionTabs';
 import ContainerBaseLearner from './containers/ContainerBaseLearner';
 import NotificationSystem from 'react-notification-system';
@@ -27,7 +26,6 @@ class App extends Component {
           path='test'
           addNotification={(notif) => this._notificationSystem.addNotification(notif)}
         />
-        <DataVerificationResult path='test'/>
         <ContainerBaseLearner 
           path='test' 
           addNotification={(notif) => this._notificationSystem.addNotification(notif)} 

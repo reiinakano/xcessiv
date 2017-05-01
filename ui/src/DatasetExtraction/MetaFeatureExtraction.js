@@ -5,6 +5,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
+import { ClearModal } from './Modals';
 
 class CVForm extends Component {
   render() {
@@ -104,7 +105,8 @@ class MetaFeatureExtraction extends Component {
         "seed": 8,
         "source": '',
         "folds": 5
-      }
+      },
+      showClearModal: false
     };
   }
 
@@ -128,6 +130,16 @@ class MetaFeatureExtraction extends Component {
     config[option] = val;
     this.props.setSame(isEqual(config, this.savedConfig));
     this.setState({config});
+  }
+
+  clearChanges() {
+    this.setState({config: this.savedConfig});
+    this.props.setSame(true);
+    this.props.addNotification({
+      title: 'Success',
+      message: 'Cleared all unsaved changes',
+      level: 'success'
+    });
   }
 
   // Save all changes to server
@@ -201,6 +213,16 @@ class MetaFeatureExtraction extends Component {
       > 
         Save Meta-Feature Generation Setup 
       </button>
+      <button 
+        disabled={this.props.same} 
+        onClick={() => this.setState({showClearModal: true})}>
+          Clear unsaved changes
+      </button>
+      <ClearModal
+        isOpen={this.state.showClearModal}
+        onRequestClose={() => this.setState({showClearModal: false})}
+        handleYes={() => this.clearChanges()}
+      />
     </div>
   }
 }

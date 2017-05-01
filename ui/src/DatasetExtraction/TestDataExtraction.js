@@ -5,6 +5,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
+import { ClearModal } from './Modals';
 
 function NoTestMessage(props) {
   return <p>You have chosen not to use a test dataset.</p>
@@ -69,7 +70,8 @@ class TestDataExtraction extends Component {
         "split_ratio": 0.1,
         "split_seed": 8,
         "source": ''
-      }
+      },
+      showClearModal: false
   	};
   }
 
@@ -93,6 +95,16 @@ class TestDataExtraction extends Component {
     config[option] = val;
     this.props.setSame(isEqual(config, this.savedConfig));
     this.setState({config});
+  }
+
+  clearChanges() {
+    this.setState({config: this.savedConfig});
+    this.props.setSame(true);
+    this.props.addNotification({
+      title: 'Success',
+      message: 'Cleared all unsaved changes',
+      level: 'success'
+    });
   }
 
   // Save all changes to server
@@ -162,6 +174,16 @@ class TestDataExtraction extends Component {
       > 
         Save Test Dataset Extraction Setup 
       </button>
+      <button 
+        disabled={this.props.same} 
+        onClick={() => this.setState({showClearModal: true})}>
+          Clear unsaved changes
+      </button>
+      <ClearModal
+        isOpen={this.state.showClearModal}
+        onRequestClose={() => this.setState({showClearModal: false})}
+        handleYes={() => this.clearChanges()}
+      />
   	</div>
   }
 }

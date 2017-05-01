@@ -4,6 +4,7 @@ import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import MainDataExtraction from './MainDataExtraction';
 import TestDataExtraction from './TestDataExtraction';
 import MetaFeatureExtraction from './MetaFeatureExtraction';
+import DataVerificationResult from './DataVerificationResult';
 
 class DataExtractionTabs extends Component {
   constructor(props) {
@@ -28,7 +29,7 @@ class DataExtractionTabs extends Component {
           <TabList>
             <Tab>Main Dataset Extraction{!this.state.sameMde && '*'}</Tab>
             <Tab>Test Dataset Extraction{!this.state.sameTde && '*'}</Tab>
-            <Tab>Meta-feature generation method{!this.state.sameMfe && '*'}</Tab>
+            <Tab>Meta-feature Generation{!this.state.sameMfe && '*'}</Tab>
           </TabList>
           <TabPanel>
             <MainDataExtraction 
@@ -55,6 +56,10 @@ class DataExtractionTabs extends Component {
             />
           </TabPanel>
         </Tabs>
+        <DataVerificationResult 
+          path={this.props.path}
+          same={this.state.sameMde && this.state.sameTde && this.state.sameMfe}
+        />
       </div>
     )
   }

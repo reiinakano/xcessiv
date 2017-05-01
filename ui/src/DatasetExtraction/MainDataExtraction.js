@@ -5,6 +5,7 @@ import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
+import { ClearModal } from './Modals';
 
 class MainDataExtraction extends Component {
 
@@ -13,7 +14,8 @@ class MainDataExtraction extends Component {
     this.state = {
       config: {
         source: ''
-      }
+      },
+      showClearModal: false
     };
   }
 
@@ -58,7 +60,6 @@ class MainDataExtraction extends Component {
 
   newSource(newCode) {
   	console.log('change newCode to ' + newCode);
-  	console.log(newCode === this.oldCode);
   	this.setState((prevState) => {
       var config = $.extend({}, prevState.config); // Make copy
       config.source = newCode;
@@ -67,6 +68,16 @@ class MainDataExtraction extends Component {
         config
       };
     })
+  }
+
+  clearChanges() {
+    this.setState({config: this.savedConfig});
+    this.props.setSame(true);
+    this.props.addNotification({
+      title: 'Success',
+      message: 'Cleared all unsaved changes',
+      level: 'success'
+    });
   }
 
   render() {
@@ -84,6 +95,16 @@ class MainDataExtraction extends Component {
         onClick={() => this.saveSetup()}>
           Save Main Dataset Extraction Setup
         </button>
+        <button 
+        disabled={this.props.same} 
+        onClick={() => this.setState({showClearModal: true})}>
+          Clear unsaved changes
+        </button>
+        <ClearModal
+          isOpen={this.state.showClearModal}
+          onRequestClose={() => this.setState({showClearModal: false})}
+          handleYes={() => this.clearChanges()}
+        />
     	</div>
     );
   }
