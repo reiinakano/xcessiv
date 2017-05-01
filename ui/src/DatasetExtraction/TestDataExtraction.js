@@ -6,7 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar } from 'react-bootstrap';
+import { Button, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
 
 function NoTestMessage(props) {
   return <p>You have chosen not to use a test dataset.</p>
@@ -139,26 +139,22 @@ class TestDataExtraction extends Component {
   }
 
   render() {
+    const options = {
+      null: 'No test dataset',
+      split_from_main: 'Split from main dataset',
+      source: 'Extract with source code'
+    }
 
   	return <div className='MainDataExtraction'>
-  	  <h3> Test Dataset Extraction Method </h3>
-      <div>
-        <input type='radio' value="NONE" 
-        name="test_extraction_method"
-        checked={this.state.config.method === null}
-        onChange={() => this.handleConfigChange('method', null)}/> 
-        No test dataset
-        <input type='radio' value="split_from_main" 
-        name="test_extraction_method" 
-        checked={this.state.config.method === 'split_from_main'}
-        onChange={() => this.handleConfigChange('method', 'split_from_main')}/> 
-        Split from main dataset
-        <input type='radio' value="source" 
-        name="test_extraction_method"
-        checked={this.state.config.method === 'source'}
-        onChange={() => this.handleConfigChange('method', 'source')}/> 
-        Extract with source code
-      </div>
+  	  <h5> Choose how to extract your test dataset </h5>
+      <DropdownButton 
+        title={options[this.state.config.method]} 
+        id={'testdropdown'}
+        onSelect={(x) => this.handleConfigChange('method', x)}>
+        <MenuItem eventKey={null}>{options[null]}</MenuItem>
+        <MenuItem eventKey={'split_from_main'}>{options['split_from_main']}</MenuItem>
+        <MenuItem eventKey={'source'}>{options['source']}</MenuItem>
+      </DropdownButton>
       {this.state.config.method === 'split_from_main' && 
         <SplitForm split_ratio={this.state.config.split_ratio} 
         split_seed={this.state.config.split_seed} 
