@@ -6,7 +6,8 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonToolbar, DropdownButton, MenuItem, 
+  Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 function NoTestMessage(props) {
   return <p></p>
@@ -17,29 +18,31 @@ class SplitForm extends Component {
 
     return (
       <div>
-        <div className='SplitFormLabel'>
-          <label>
-            Test Dataset Ratio:
-            <input 
-              name='ratioValue' 
-              type='number' 
+        <Form>
+          <FormGroup
+            controlId='formRatio'
+          >
+            <ControlLabel>Test Dataset Ratio</ControlLabel>
+            <FormControl
+              type='number'
+              value={this.props.split_ratio}
               step='0.001' 
               min='0' 
               max='1' 
-              value={this.props.split_ratio} 
-              onChange={(evt) => this.props.handleConfigChange('split_ratio', parseFloat(evt.target.value))}/>
-          </label>
-        </div>
-        <div className='SplitFormLabel'>
-          <label>
-            Random Seed:
-            <input 
-              name='seedValue' 
-              type='number' 
-              value={this.props.split_seed} 
-              onChange={(evt) => this.props.handleConfigChange('split_seed', parseInt(evt.target.value, 10))}/>
-          </label>
-        </div>
+              onChange={(evt) => this.props.handleConfigChange('split_ratio', parseFloat(evt.target.value))}
+            />
+          </FormGroup>
+          <FormGroup
+            controlId='formRatio'
+          >
+            <ControlLabel>Random Seed</ControlLabel>
+            <FormControl
+              type='number'
+              value={this.props.split_seed}
+              onChange={(evt) => this.props.handleConfigChange('split_seed', parseInt(evt.target.value, 10))}
+            />
+          </FormGroup>
+        </Form>
       </div>
     )
   }

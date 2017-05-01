@@ -6,37 +6,39 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar, DropdownButton, MenuItem } from 'react-bootstrap';
+import { Button, ButtonToolbar, DropdownButton, MenuItem, 
+  Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 class CVForm extends Component {
   render() {
 
     return (
       <div>
-        <div className='SplitFormLabel'>
-          <label>
-            Number of folds:
-            <input 
-              name='foldsValue' 
-              type='number' 
+        <Form>
+          <FormGroup
+            controlId='foldsValue'
+          >
+            <ControlLabel>Number of folds</ControlLabel>
+            <FormControl
+              type='number'
+              value={this.props.folds}
               min='2' 
-              value={this.props.folds} 
               onChange={(evt) => this.props.handleConfigChange('folds', parseInt(
-                evt.target.value, 10))}
+                evt.target.value, 10))}            
             />
-          </label>
-        </div>
-        <div className='SplitFormLabel'>
-          <label>
-            Random Seed:
-            <input 
-              name='seedValue' 
-              type='number' 
-              value={this.props.seed} 
+          </FormGroup>
+          <FormGroup
+            controlId='seedValue'
+          >
+            <ControlLabel>Random Seed</ControlLabel>
+            <FormControl
+              type='number'
+              value={this.props.seed}
               onChange={(evt) => this.props.handleConfigChange('seed', parseInt(
-                evt.target.value, 10))}/>
-          </label>
-        </div>
+                evt.target.value, 10))}          
+            />
+          </FormGroup>
+        </Form>
       </div>
     )
   }
@@ -47,31 +49,33 @@ class SplitForm extends Component {
 
     return (
       <div>
-        <div className='SplitFormLabel'>
-          <label>
-            Holdout Dataset Ratio:
-            <input 
-              name='ratioValue' 
+        <Form>
+          <FormGroup
+            controlId='ratioValue'
+          >
+            <ControlLabel>Holdout Dataset Ratio</ControlLabel>
+            <FormControl
               type='number' 
               step='0.001' 
               min='0' 
               max='1' 
               value={this.props.split_ratio} 
               onChange={(evt) => this.props.handleConfigChange('split_ratio',
-                parseFloat(evt.target.value))}/>
-          </label>
-        </div>
-        <div className='SplitFormLabel'>
-          <label>
-            Random Seed:
-            <input 
-              name='seedValue' 
+                parseFloat(evt.target.value))}            
+            />
+          </FormGroup>
+          <FormGroup
+            controlId='ratioValue'
+          >
+            <ControlLabel>Random Seed</ControlLabel>
+            <FormControl
               type='number' 
               value={this.props.split_seed} 
               onChange={(evt) => this.props.handleConfigChange('seed',
-                parseInt(evt.target.value, 10))}/>
-          </label>
-        </div>
+                parseInt(evt.target.value, 10))}            
+            />
+          </FormGroup>
+        </Form>
       </div>
     )
   }
