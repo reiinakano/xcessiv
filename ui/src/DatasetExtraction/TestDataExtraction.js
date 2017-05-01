@@ -6,7 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar, DropdownButton, MenuItem, 
+import { Button, ButtonToolbar, DropdownButton, MenuItem, Glyphicon,
   Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 function NoTestMessage(props) {
@@ -172,6 +172,7 @@ class TestDataExtraction extends Component {
           disabled={this.props.same} 
           onClick={() => this.saveSetup()}
         > 
+          <Glyphicon glyph="save" />
           Save Test Dataset Extraction Setup 
         </Button>
         <Button 

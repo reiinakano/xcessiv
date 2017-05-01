@@ -102,7 +102,7 @@ class DataVerificationResult extends Component {
     console.log(this.props.same)
     return(
     <div className='MainDataExtraction'>
-      <h2>Extracted datasets basic statistics</h2>
+      <h3>Extracted datasets basic statistics</h3>
       <table>
         <tbody>
           <tr>
@@ -129,10 +129,9 @@ class DataVerificationResult extends Component {
         disabled={Boolean(this.state.asyncStatus) || !this.props.same}
         onClick={this.calculateStatistics}
       >
-        Calculate Extracted Datasets Statistics
+        {(this.state.asyncStatus) ? 'Calculating... ': 'Calculate Extracted Datasets Statistics'}
+        {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
       </Button>
-      {Boolean(this.state.asyncStatus) && (' ' + this.state.asyncStatus + ' ')}
-      {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
     </div>
     )
 

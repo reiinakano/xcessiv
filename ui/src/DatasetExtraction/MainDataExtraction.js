@@ -6,7 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar } from 'react-bootstrap';
+import { Button, ButtonToolbar, Glyphicon } from 'react-bootstrap';
 
 class MainDataExtraction extends Component {
 
@@ -96,6 +96,7 @@ class MainDataExtraction extends Component {
           bsStyle="primary"
           disabled={this.props.same} 
           onClick={() => this.saveSetup()}>
+            <Glyphicon glyph="save" />
             Save Main Dataset Extraction Setup
           </Button>
           <Button 

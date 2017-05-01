@@ -6,7 +6,7 @@ import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
 import $ from 'jquery';
 import { ClearModal } from './Modals';
-import { Button, ButtonToolbar, DropdownButton, MenuItem, 
+import { Button, ButtonToolbar, DropdownButton, MenuItem, Glyphicon,
   Form, FormGroup, FormControl, ControlLabel } from 'react-bootstrap';
 
 class CVForm extends Component {
@@ -212,6 +212,7 @@ class MetaFeatureExtraction extends Component {
           disabled={this.props.same} 
           onClick={() => this.saveSetup()}
         > 
+          <Glyphicon glyph="save" />
           Save Meta-Feature Generation Setup 
         </Button>
         <Button 
