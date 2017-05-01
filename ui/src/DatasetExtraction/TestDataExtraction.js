@@ -117,6 +117,11 @@ class TestDataExtraction extends Component {
 	    this.setState({
 	      config: json
 	    });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Saved test dataset extraction method',
+        level: 'success'
+      });
 	  });
   }
 
@@ -152,7 +157,7 @@ class TestDataExtraction extends Component {
         onChange={(x) => this.handleConfigChange('source', x)} />
       }
       <button 
-        disabled={this.state.same} 
+        disabled={this.props.same} 
         onClick={() => this.saveSetup()}
       > 
         Save Test Dataset Extraction Setup 

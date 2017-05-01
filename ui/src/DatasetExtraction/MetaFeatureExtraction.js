@@ -15,13 +15,25 @@ class CVForm extends Component {
         <div className='SplitFormLabel'>
           <label>
             Number of folds:
-            <input name='foldsValue' type='number' min='2' value={this.props.folds} onChange={this.props.onCVFormChange}/>
+            <input 
+              name='foldsValue' 
+              type='number' 
+              min='2' 
+              value={this.props.folds} 
+              onChange={(evt) => this.props.handleConfigChange('folds', parseInt(
+                evt.target.value, 10))}
+            />
           </label>
         </div>
         <div className='SplitFormLabel'>
           <label>
             Random Seed:
-            <input name='seedValue' type='number' value={this.props.seed} onChange={this.props.onCVFormChange}/>
+            <input 
+              name='seedValue' 
+              type='number' 
+              value={this.props.seed} 
+              onChange={(evt) => this.props.handleConfigChange('seed', parseInt(
+                evt.target.value, 10))}/>
           </label>
         </div>
       </div>
@@ -38,13 +50,26 @@ class SplitForm extends Component {
         <div className='SplitFormLabel'>
           <label>
             Holdout Dataset Ratio:
-            <input name='ratioValue' type='number' step='0.001' min='0' max='1' value={this.props.split_ratio} onChange={this.props.onSplitFormChange}/>
+            <input 
+              name='ratioValue' 
+              type='number' 
+              step='0.001' 
+              min='0' 
+              max='1' 
+              value={this.props.split_ratio} 
+              onChange={(evt) => this.props.handleConfigChange('split_ratio',
+                parseFloat(evt.target.value))}/>
           </label>
         </div>
         <div className='SplitFormLabel'>
           <label>
             Random Seed:
-            <input name='seedValue' type='number' value={this.props.split_seed} onChange={this.props.onSplitFormChange}/>
+            <input 
+              name='seedValue' 
+              type='number' 
+              value={this.props.split_seed} 
+              onChange={(evt) => this.props.handleConfigChange('seed',
+                parseInt(evt.target.value, 10))}/>
           </label>
         </div>
       </div>
@@ -72,20 +97,15 @@ class SourceForm extends Component {
 class MetaFeatureExtraction extends Component {
   constructor(props) {
     super(props);
-    this.state = {config: {
-      "method": 'cv',
-      "split_ratio": 0.1,
-      "seed": 8,
-      "source": '',
-      "folds": 5
-      },
-      same: true
-  };
-    this.handleOptionChange = this.handleOptionChange.bind(this);
-    this.saveSetup = this.saveSetup.bind(this);
-    this.onCVFormChange = this.onCVFormChange.bind(this);
-    this.onSplitFormChange = this.onSplitFormChange.bind(this);
-    this.onSourceFormChange = this.onSourceFormChange.bind(this);
+    this.state = {
+      config: {
+        "method": 'cv',
+        "split_ratio": 0.1,
+        "seed": 8,
+        "source": '',
+        "folds": 5
+      }
+    };
   }
 
   // Get request from server to populate fields
@@ -93,75 +113,21 @@ class MetaFeatureExtraction extends Component {
     fetch('/ensemble/extraction/meta-feature-generation/?path=' + this.props.path)
     .then(response => response.json())
     .then(json => {
-      console.log(json)
-      this.savedConfig = $.extend({}, this.state.config, json)
+      console.log(json);
+      this.savedConfig = $.extend({}, this.state.config, json);
       this.setState({
-        config: this.savedConfig,
-        same: true
+        config: this.savedConfig
       })
     });
   }
 
-  // Handle change in extraction method
-  handleOptionChange(event) {
-    var new_option = event.target.value;
-
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    newConfig.method = new_option;
-    console.log(event.target.value);
-    console.log(isEqual(newConfig, this.savedConfig))
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    })
-  }
-
-  // Handle change in CV form
-  onCVFormChange(event) {
-    const target = event.target;
-    const name = target.name;
-
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    if (name === 'foldsValue') {
-      newConfig.folds = parseInt(target.value, 10);
-    }
-    else {
-      newConfig.seed = parseInt(target.value, 10);
-    }
-
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    })
-  }
-
-  // Handle change in split form
-  onSplitFormChange(event) {
-    const target = event.target;
-    const name = target.name;
-
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    if (name === 'ratioValue') {
-      newConfig.split_ratio = parseFloat(target.value);
-    }
-    else {
-      newConfig.seed = parseInt(target.value, 10);
-    }
-
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    })
-  }
-
-  //Handle change in source code form
-  onSourceFormChange(value) {
-    var newConfig = JSON.parse(JSON.stringify(this.state.config));
-    newConfig.source = value;
-    this.setState({
-      config: newConfig,
-      same: isEqual(newConfig, this.savedConfig)
-    });
+  handleConfigChange(option, val) {
+    console.log(option);
+    console.log(val);
+    var config = JSON.parse(JSON.stringify(this.state.config));
+    config[option] = val;
+    this.props.setSame(isEqual(config, this.savedConfig));
+    this.setState({config});
   }
 
   // Save all changes to server
@@ -176,51 +142,65 @@ class MetaFeatureExtraction extends Component {
         headers: new Headers({
           'Content-Type': 'application/json'
         })
-      })
-      .then(response => response.json())
-      .then(json => {
-      console.log(json)
-      this.savedConfig = json
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.savedConfig = json;
+      this.props.setSame(true);
       this.setState({
-        config: json,
-        same: true
-      })
+        config: json
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Saved meta-feature extraction method',
+        level: 'success'
+      });
     });
   }
 
   render() {
     return <div className='MainDataExtraction'>
-      <h2> MetaFeature Generation Setup {!this.state.same && '*'}</h2>
       <h3> MetaFeature Generation Method </h3>
       <div>
         <input type='radio' value="cv" 
         name="meta_feature_method"
         checked={this.state.config.method === 'cv'}
-        onChange={this.handleOptionChange}/> Cross-Validation
+        onChange={() => this.handleConfigChange('method', 'cv')}/> 
+        Cross-Validation
         <input type='radio' value="holdout_split" 
         name="meta_feature_method" 
         checked={this.state.config.method === 'holdout_split'}
-        onChange={this.handleOptionChange}/> Split holdout set from main dataset
+        onChange={() => this.handleConfigChange('method', 'holdout_split')}/> 
+        Split holdout set from main dataset
         <input type='radio' value="holdout_source" 
         name="meta_feature_method"
         checked={this.state.config.method === 'holdout_source'}
-        onChange={this.handleOptionChange}/> Extract holdout set with source code
+        onChange={() => this.handleConfigChange('method', 'holdout_source')}/> 
+        Extract holdout set with source code
       </div>
       {this.state.config.method === 'cv' && 
         <CVForm folds={this.state.config.folds} 
         seed={this.state.config.seed} 
-        onCVFormChange={this.onCVFormChange}/>
+        onCVFormChange={this.onCVFormChange}
+        handleConfigChange={(option, val) => this.handleConfigChange(option, val)}/>
       }
       {this.state.config.method === 'holdout_split' &&
         <SplitForm split_ratio={this.state.config.split_ratio} 
         split_seed={this.state.config.seed} 
-        onSplitFormChange={this.onSplitFormChange} />
+        handleConfigChange={(option, val) => this.handleConfigChange(option, val)}/>
       }
       {this.state.config.method === 'holdout_source' &&
         <SourceForm value={this.state.config.source} 
-        onChange={this.onSourceFormChange} />
+        onChange={(src) => this.handleConfigChange('source', src)} />
       }
-      <button disabled={this.state.same} onClick={this.saveSetup}> Save Meta-Feature Generation Setup </button>
+      <button 
+        disabled={this.props.same} 
+        onClick={() => this.saveSetup()}
+      > 
+        Save Meta-Feature Generation Setup 
+      </button>
     </div>
   }
 }

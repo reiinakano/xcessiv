@@ -28,7 +28,7 @@ class DataExtractionTabs extends Component {
           <TabList>
             <Tab>Main Dataset Extraction{!this.state.sameMde && '*'}</Tab>
             <Tab>Test Dataset Extraction{!this.state.sameTde && '*'}</Tab>
-            <Tab>Meta-feature generation method</Tab>
+            <Tab>Meta-feature generation method{!this.state.sameMfe && '*'}</Tab>
           </TabList>
           <TabPanel>
             <MainDataExtraction 
