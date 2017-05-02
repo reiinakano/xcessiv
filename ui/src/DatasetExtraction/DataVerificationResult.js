@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import FaSpinner from 'react-icons/lib/fa/spinner';
-import { Button } from 'react-bootstrap';
+import { Button, Alert } from 'react-bootstrap';
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -33,6 +33,14 @@ function BasicDataStatistics(props) {
   )
 }
 
+function ErrorAlert(props) {
+  return (
+    <Alert bsStyle='danger'>
+      {props.errorMessage}
+    </Alert>
+  )
+}
+ 
 class DataVerificationResult extends Component {
   constructor(props) {
     super(props);
@@ -89,12 +97,22 @@ class DataVerificationResult extends Component {
         asyncStatus: '',
         errorMessage: ''
       });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Successfully executed dataset extraction',
+        level: 'success'
+      });
     })
     .catch(error => {
       console.log(error.message);
       console.log(error.errMessage);
-      var errorMessage = error.message + ' ' + error.errMessage
+      var errorMessage = error.errMessage;
       this.setState({asyncStatus: '', errorMessage: errorMessage});
+      this.props.addNotification({
+        title: 'Error',
+        message: 'Something went wrong in dataset extraction',
+        level: 'error'
+      });
     });
   }
   
@@ -122,7 +140,8 @@ class DataVerificationResult extends Component {
         </tbody>
       </table>
       <h4>
-        {this.state.errorMessage}
+        {this.state.errorMessage 
+          && <ErrorAlert errorMessage={this.state.errorMessage} />}
       </h4>
       <Button 
         bsStyle="primary"

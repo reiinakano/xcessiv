@@ -59,6 +59,7 @@ class DataExtractionTabs extends Component {
         <DataVerificationResult 
           path={this.props.path}
           same={this.state.sameMde && this.state.sameTde && this.state.sameMfe}
+          addNotification={(notif) => this.props.addNotification(notif)}
         />
       </div>
     )
