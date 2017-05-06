@@ -10,6 +10,16 @@
   padding-bottom: 10px;
 }
 
+.DeleteButton {
+  padding-right: 5px;
+  float: right;
+  color: gray;
+}
+
+.DeleteButton:onhover {
+  color: black;
+}
+
 .load-animate {
     -animation: spin .7s infinite linear;
     -webkit-animation: spin2 .7s infinite linear;

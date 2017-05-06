@@ -12,7 +12,8 @@ import $ from 'jquery';
 import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
-import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
+import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
+import { Button, ButtonToolbar, Glyphicon } from 'react-bootstrap';
 
 const changeableProps = [
   'name', 
@@ -414,6 +415,14 @@ class BaseLearnerOrigin extends Component {
       {Boolean(this.state.asyncStatus) && (this.state.asyncStatus + ' ')}
       {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
       {showExlamationCircle && <FaExclamationCircle />}
+      <a
+        className='DeleteButton'
+        onClick={(evt) => {
+          evt.stopPropagation();
+          this.setState({showDeleteModal: true});
+        }}>
+        <Glyphicon glyph="remove" />
+      </a>
     </b>
 
     return (
@@ -456,57 +465,80 @@ class BaseLearnerOrigin extends Component {
 
           <ValidationResults validation_results={this.props.data.validation_results} />
 
-          <button disabled={this.state.same || disableAll}
-          onClick={() => this.setState({showClearModal: true})}> Clear unsaved changes </button>
-          <ClearModal isOpen={this.state.showClearModal} 
-          onRequestClose={() => this.setState({showClearModal: false})}
-          handleYes={() => this.clearChanges()} />
+          <ButtonToolbar>
 
-          <button disabled={this.state.same || disableAll} 
-          onClick={() => this.saveSetup()}> Save Base Learner Setup</button>
+            <Button 
+              disabled={this.state.same || disableAll}
+              onClick={() => this.setState({showClearModal: true})}> 
+              Clear unsaved changes 
+            </Button>
+            <ClearModal isOpen={this.state.showClearModal} 
+            onRequestClose={() => this.setState({showClearModal: false})}
+            handleYes={() => this.clearChanges()} />
 
-          <button disabled={!this.state.same || disableAll} 
-          onClick={() => this.verifyLearner()}>Verify on toy data</button>
+            <Button 
+              disabled={this.state.same || disableAll} 
+              onClick={() => this.saveSetup()}> 
+              Save Base Learner Setup
+            </Button>
 
-          <button disabled={!this.state.same || disableAll}
-          onClick={() => this.setState({showFinalizeModal: true})}>Finalize Base Learner Setup</button>
-          <FinalizeModal isOpen={this.state.showFinalizeModal} 
-          onRequestClose={() => this.setState({showFinalizeModal: false})}
-          handleYes={() => this.confirmLearner()} />
+            <Button 
+              bsStyle="info"
+              disabled={!this.state.same || disableAll} 
+              onClick={() => this.verifyLearner()}>
+              Verify on toy data
+            </Button>
 
-          <button onClick={() => this.setState({showDeleteModal: true})}>Delete Base Learner Setup</button>
-          <DeleteModal isOpen={this.state.showDeleteModal}
-          onRequestClose={() => this.setState({showDeleteModal: false})}
-          handleYes={() => this.handleDeleteLearner()} />
+            <Button 
+              bsStyle="primary"
+              disabled={!this.state.same || disableAll}
+              onClick={() => this.setState({showFinalizeModal: true})}>
+              Finalize Base Learner Setup
+            </Button>
+            <FinalizeModal isOpen={this.state.showFinalizeModal} 
+            onRequestClose={() => this.setState({showFinalizeModal: false})}
+            handleYes={() => this.confirmLearner()} />
 
-          <br />
+          </ButtonToolbar>
 
-          <button disabled={!this.props.data.final}
-          onClick={() => this.setState({showCreateModal: true})}>
-            Create Single Base Learner
-          </button>
-          <CreateBaseLearnerModal isOpen={this.state.showCreateModal} 
-          onRequestClose={() => this.setState({showCreateModal: false})}
-          handleYes={(source) => this.props.createBaseLearner(source)} />
+          <ButtonToolbar>
 
-          <button disabled={!this.props.data.final}
-          onClick={() => this.setState({showGridSearchModal: true})}>
-            Grid Search
-          </button>
-          <GridSearchModal isOpen={this.state.showGridSearchModal} 
-          onRequestClose={() => this.setState({showGridSearchModal: false})}
-          handleYes={(source) => this.props.gridSearch(source)} />
+            <Button 
+              disabled={!this.props.data.final}
+              onClick={() => this.setState({showCreateModal: true})}>
+              Create Single Base Learner
+            </Button>
+            <CreateBaseLearnerModal isOpen={this.state.showCreateModal} 
+            onRequestClose={() => this.setState({showCreateModal: false})}
+            handleYes={(source) => this.props.createBaseLearner(source)} />
 
-          <button disabled={!this.props.data.final}
-          onClick={() => this.setState({showRandomSearchModal: true})}>
-            Random Search
-          </button>
-          <RandomSearchModal isOpen={this.state.showRandomSearchModal} 
-          onRequestClose={() => this.setState({showRandomSearchModal: false})}
-          handleYes={(source, n) => this.props.randomSearch(source, n)} />
+            <Button 
+              disabled={!this.props.data.final}
+              onClick={() => this.setState({showGridSearchModal: true})}>
+              Grid Search
+            </Button>
+            <GridSearchModal isOpen={this.state.showGridSearchModal} 
+            onRequestClose={() => this.setState({showGridSearchModal: false})}
+            handleYes={(source) => this.props.gridSearch(source)} />
 
+            <Button 
+              disabled={!this.props.data.final}
+              onClick={() => this.setState({showRandomSearchModal: true})}>
+              Random Search
+            </Button>
+            <RandomSearchModal 
+              isOpen={this.state.showRandomSearchModal} 
+              onRequestClose={() => this.setState({showRandomSearchModal: false})}
+              handleYes={(source, n) => this.props.randomSearch(source, n)} />
+
+          </ButtonToolbar>
         </Panel>
       </Collapse>
+
+      <DeleteModal 
+        isOpen={this.state.showDeleteModal}
+        onRequestClose={() => this.setState({showDeleteModal: false})}
+        handleYes={() => this.handleDeleteLearner()} />
       </div>
     )
   }
