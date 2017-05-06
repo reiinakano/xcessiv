@@ -7,6 +7,7 @@ import 'rc-collapse/assets/index.css';
 import {omit} from 'lodash';
 import Collapse, { Panel } from 'rc-collapse';
 import ReactModal from 'react-modal';
+import { Button, Glyphicon } from 'react-bootstrap';
 
 const default_metric_generator_code = `def metric_generator(y_true, y_probas):
     """This function must return a numerical value given two numpy arrays 
@@ -186,12 +187,17 @@ class MetricGenerators extends Component {
         accordion={false}>
           {this.getItems()}
         </Collapse>
-        <button disabled={this.props.disabled}
-        onClick={() => this.handleOpenAddNewModal()}>Add new metric generator</button>
+        <Button block 
+          disabled={this.props.disabled}
+          onClick={() => this.handleOpenAddNewModal()}>
+          <Glyphicon glyph="plus" />
+          {' Add new metric generator'}
+        </Button>
         <AddNewModal isOpen={this.state.showAddNewModal} 
         onRequestClose={() => this.handleCloseAddNewModal()}
         onAdd={(metric_name) => this.handleAddMetricGenerator(metric_name)} />
-      </div>);
+      </div>
+    );
   }
 }
 
