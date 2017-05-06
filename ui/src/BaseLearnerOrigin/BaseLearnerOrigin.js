@@ -13,7 +13,7 @@ import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
-import { Button, ButtonToolbar, Glyphicon } from 'react-bootstrap';
+import { Button, ButtonToolbar, Glyphicon, Alert } from 'react-bootstrap';
 
 const changeableProps = [
   'name', 
@@ -59,6 +59,14 @@ function handleErrors(response) {
       });
   }
   return response;
+}
+
+function FinalizedAlert(props) {
+  return(
+    <Alert bsStyle='success'>
+      {'This base learner setup has been finalized and can no longer be modified.'}
+    </Alert>
+  )
 }
 
 function ValidationResults(props) {
@@ -411,7 +419,7 @@ class BaseLearnerOrigin extends Component {
       {(!this.state.same ? '* ' : ' ')}
       {'ID: ' + this.props.data.id + ' '}
       {this.state.unsavedData.name + ' '} 
-      {this.props.data.final && <FaCheck />}
+      {this.props.data.final && <FaCheck style={{color: 'green'}} />}
       {Boolean(this.state.asyncStatus) && (this.state.asyncStatus + ' ')}
       {Boolean(this.state.asyncStatus) && <FaSpinner className='load-animate'/>}
       {showExlamationCircle && <FaExclamationCircle />}
@@ -497,9 +505,7 @@ class BaseLearnerOrigin extends Component {
             onChange={(evt) => this.handleDataChange('name', evt.target.value)} />
           </h3>
 
-          <h4>
-            {this.props.data.final && 'This base learner setup has been finalized and can no longer be modified.'}
-          </h4>
+          {this.props.data.final && <FinalizedAlert/>}
 
           <h4>
             {this.state.errorMessage}
