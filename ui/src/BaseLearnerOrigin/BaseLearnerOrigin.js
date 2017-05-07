@@ -9,11 +9,10 @@ import 'rc-collapse/assets/index.css';
 import Collapse, { Panel } from 'rc-collapse';
 import { isEqual, pick } from 'lodash';
 import $ from 'jquery';
-import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
-import { Button, ButtonToolbar, Glyphicon, Alert, 
+import { Button, ButtonToolbar, Glyphicon, Alert, Modal,
   Form, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 const changeableProps = [
@@ -22,27 +21,6 @@ const changeableProps = [
   'metric_generators', 
   'source'
 ];
-
-const modalStyle = {
-  overlay : {
-    zIndex            : 1000
-  },
-  content : {
-    top                        : '50%',
-    left                       : '50%',
-    right                      : 'auto',
-    bottom                     : 'auto',
-    marginRight                : '-50%',
-    transform                  : 'translate(-50%, -50%)',
-    border                     : '1px solid #ccc',
-    background                 : '#fff',
-    overflow                   : 'auto',
-    WebkitOverflowScrolling    : 'touch',
-    borderRadius               : '4px',
-    outline                    : 'none',
-    padding                    : '20px'
-  }
-}
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -83,50 +61,69 @@ function ValidationResults(props) {
 
 function ClearModal(props) {
   return (
-    <ReactModal 
-      isOpen={props.isOpen} 
-      onRequestClose={props.onRequestClose}
-      contentLabel='Clear Changes'
-      style={modalStyle}
+    <Modal 
+      show={props.isOpen} 
+      onHide={props.onRequestClose}
     >
-      <p>Are you sure you want to clear all unsaved changes?</p>
-      <button onClick={props.onRequestClose}>Cancel</button>
-      <button onClick={props.handleYes}>Yes</button>
-    </ReactModal>
+      <Modal.Header closeButton>
+        <Modal.Title>Clear all changes</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>Are you sure you want to clear all unsaved changes?</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button bsStyle='primary' onClick={() => {
+          props.handleYes();
+          props.onRequestClose();
+        }}>Yes</Button>
+        <Button onClick={props.onRequestClose}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
   )
 }
 
 function FinalizeModal(props) {
   return (
-    <ReactModal 
-      isOpen={props.isOpen} 
-      onRequestClose={props.onRequestClose}
-      contentLabel='Finalize Base learner'
-      style={modalStyle}
+    <Modal 
+      show={props.isOpen} 
+      onHide={props.onRequestClose}
     >
-      <p>Are you sure you want to finalize this base learner setup?</p>
-      <p>You will no longer be allowed to make changes to this base 
-      learner after this</p>
-      <button onClick={props.onRequestClose}>Cancel</button>
-      <button onClick={props.handleYes}>Yes</button>
-    </ReactModal>
+      <Modal.Header closeButton>
+        <Modal.Title>Finalize base learner</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>Are you sure you want to finalize this base learner setup?</p>
+        <p>You will no longer be allowed to make changes to this base 
+        learner after this</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button bsStyle='primary' onClick={props.handleYes}>Yes</Button>
+        <Button onClick={props.onRequestClose}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
   )
 }
 
 function DeleteModal(props) {
   return (
-    <ReactModal 
-      isOpen={props.isOpen} 
-      onRequestClose={props.onRequestClose}
-      contentLabel='Delete Base learner'
-      style={modalStyle}
+    <Modal 
+      bsStyle='danger'
+      show={props.isOpen} 
+      onHide={props.onRequestClose}
     >
-      <p>Are you sure you want to delete this base learner setup?</p>
-      <p>You will also lose all base learners that have been scored using this setup</p>
-      <p><strong>This action is irreversible.</strong></p>
-      <button onClick={props.onRequestClose}>Cancel</button>
-      <button onClick={props.handleYes}>Yes</button>
-    </ReactModal>
+      <Modal.Header closeButton>
+        <Modal.Title>Delete base learner</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>Are you sure you want to delete this base learner setup?</p>
+        <p>You will also lose all base learners that have been scored using this setup</p>
+        <p><strong>This action is irreversible.</strong></p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button bsStyle='danger' onClick={props.handleYes}>Yes</Button>
+        <Button onClick={props.onRequestClose}>Cancel</Button>
+      </Modal.Footer>
+    </Modal>
   )
 }
 
@@ -150,20 +147,27 @@ class CreateBaseLearnerModal extends Component {
     };
 
     return (
-      <ReactModal
-        isOpen={this.props.isOpen}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Create Base Learner'
-        style={modalStyle}
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
       >
-        <p>{'Enter parameters to use for base learner in variable `params`'}</p>
-        <CodeMirror value={this.state.source} 
-          onChange={(src) => this.setState({source: src})} 
-          options={options}
-        />
-        <button onClick={this.props.onRequestClose}>Cancel</button>
-        <button onClick={() => this.handleYesAndClose()}>Create</button>
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>Create base learner</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{'Enter parameters to use for base learner in variable `params`'}</p>
+          <CodeMirror value={this.state.source} 
+            onChange={(src) => this.setState({source: src})} 
+            options={options}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
+            Create single base learner
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
     )
   }
 }
@@ -188,20 +192,27 @@ class GridSearchModal extends Component {
     };
 
     return (
-      <ReactModal
-        isOpen={this.props.isOpen}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Grid Search'
-        style={modalStyle}
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
       >
-        <p>{'Designate parameter grid for grid search in variable `param_grid`'}</p>
-        <CodeMirror value={this.state.source} 
-          onChange={(src) => this.setState({source: src})} 
-          options={options}
-        />
-        <button onClick={this.props.onRequestClose}>Cancel</button>
-        <button onClick={() => this.handleYesAndClose()}>Create</button>
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>Grid Search</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{'Designate parameter grid for grid search in variable `param_grid`'}</p>
+          <CodeMirror value={this.state.source} 
+            onChange={(src) => this.setState({source: src})} 
+            options={options}
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
+            Go
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
     )
   }
 }
@@ -227,28 +238,39 @@ class RandomSearchModal extends Component {
     };
 
     return (
-      <ReactModal
-        isOpen={this.props.isOpen}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Grid Search'
-        style={modalStyle}
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
       >
-        <p>{'Designate parameter distribution for random search in variable `param_distributions`'}</p>
-        <CodeMirror value={this.state.source} 
-          onChange={(src) => this.setState({source: src})} 
-          options={options}
-        />
-        <div className='SplitFormLabel'>
-          <label>
-            Number of iterations: 
-            <input type='number' min='0'
-            value={this.state.n} 
-            onChange={(evt) => this.setState({n: parseInt(evt.target.value, 10)})}/>
-          </label>
-        </div>
-        <button onClick={this.props.onRequestClose}>Cancel</button>
-        <button onClick={() => this.handleYesAndClose()}>Create</button>
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>Random Search</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{'Designate parameter distribution for random search in variable `param_distributions`'}</p>
+          <CodeMirror value={this.state.source} 
+            onChange={(src) => this.setState({source: src})} 
+            options={options}
+          />
+          <Form>
+            <FormGroup
+              controlId='numIter'
+            >
+              <ControlLabel>Number of base learners to create</ControlLabel>
+              <FormControl
+                type='number' min='0'
+                value={this.state.n} 
+                onChange={(evt) => this.setState({n: parseInt(evt.target.value, 10)})}            
+              />
+            </FormGroup>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
+            Go
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
     )
   }
 }

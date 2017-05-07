@@ -143,12 +143,14 @@ class MetricGenerators extends Component {
         accordion={false}>
           {this.getItems()}
         </Collapse>
-        <Button block 
-          disabled={this.props.disabled}
-          onClick={() => this.setState({showAddNewModal: true})}>
-          <Glyphicon glyph="plus" />
-          {' Add new metric generator'}
-        </Button>
+        {!this.props.disabled && 
+          <Button block 
+            disabled={this.props.disabled}
+            onClick={() => this.setState({showAddNewModal: true})}>
+            <Glyphicon glyph="plus" />
+            {' Add new metric generator'}
+          </Button>
+        }
         <AddNewModal isOpen={this.state.showAddNewModal} 
         onRequestClose={() => this.setState({showAddNewModal: false})}
         onAdd={(metric_name) => this.handleAddMetricGenerator(metric_name)} />

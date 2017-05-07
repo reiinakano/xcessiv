@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './BaseLearnerOrigin.css';
-import BaseLearnerOrigin from './BaseLearnerOrigin'
+import BaseLearnerOrigin from './BaseLearnerOrigin';
+import { Button, Glyphicon } from 'react-bootstrap';
 
 class ListBaseLearnerOrigin extends Component {
 
@@ -29,9 +30,10 @@ class ListBaseLearnerOrigin extends Component {
     return <div className='BaseLearnerOrigin'>
       <h2>Base Learner Types</h2>
       {this.getItems()}
-      <button onClick={this.props.createBaseLearnerOrigin}>
-        Add new base learner origin
-      </button>
+      <Button block onClick={this.props.createBaseLearnerOrigin}>
+        <Glyphicon glyph="plus" />
+        {' Add new base learner origin'}
+      </Button>
     </div>;
   }
 }
