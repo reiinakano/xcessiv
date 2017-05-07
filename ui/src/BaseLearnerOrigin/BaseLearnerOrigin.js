@@ -12,7 +12,7 @@ import $ from 'jquery';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
-import { Button, ButtonToolbar, Glyphicon, Alert, Modal,
+import { Button, ButtonToolbar, Glyphicon, Alert, Modal, Panel as BsPanel,
   Form, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 const changeableProps = [
@@ -53,9 +53,10 @@ function ValidationResults(props) {
   for (var key in props.validation_results) {
       items.push(<li key={key}>{key + ': ' + props.validation_results[key]}</li>)
     }
-  return <div>
-    <h4>Base learner metrics on toy data</h4>
-    <ul>{items}</ul>
+  return <div className='BsPanel' style={{paddingTop: '15px'}}>
+    <BsPanel header={<h4>Base learner metrics on toy data</h4>}>
+      <ul>{items}</ul>
+    </BsPanel>
   </div>
 }
 
