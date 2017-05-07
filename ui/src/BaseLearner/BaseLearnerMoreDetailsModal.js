@@ -1,17 +1,14 @@
 import React, {Component} from 'react';
 import './BaseLearner.css';
 import 'react-select/dist/react-select.css';
-import { Modal, Panel, Button } from 'react-bootstrap';
+import { Modal, Panel, Button, Alert } from 'react-bootstrap';
 
 function DisplayError(props) {
-  const items = [];
-  for (var key in props.description) {
-      items.push(<li key={key}>{key + ': ' + props.description[key]}</li>)
-    }
-  return <div>
-    <h4>Error Messages</h4>
-    <ul>{items}</ul>
-  </div>
+  return <Alert bsStyle='danger'>
+    {props.description['error_traceback'].join('').split("\n").map((i, index) => {
+      return <div key={index}>{i}</div>;
+    })}
+  </Alert>
 }
 
 class DetailsModal extends Component {
