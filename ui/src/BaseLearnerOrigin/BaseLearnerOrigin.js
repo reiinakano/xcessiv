@@ -13,7 +13,8 @@ import ReactModal from 'react-modal';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
-import { Button, ButtonToolbar, Glyphicon, Alert } from 'react-bootstrap';
+import { Button, ButtonToolbar, Glyphicon, Alert, 
+  Form, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 const changeableProps = [
   'name', 
@@ -515,14 +516,18 @@ class BaseLearnerOrigin extends Component {
           onChange={(src) => this.handleDataChange('source', src)} 
           options={options}/>
 
-          <div className='SplitFormLabel'>
-            <label>
-              Meta-feature generator method: 
-              <input type='text' readOnly={disableAll}
-              value={this.state.unsavedData.meta_feature_generator} 
-              onChange={(evt) => this.handleDataChange('meta_feature_generator', evt.target.value)}/>
-            </label>
-          </div>
+          <Form>
+            <FormGroup
+              controlId='mfgMethod'
+            >
+              <ControlLabel>Meta-feature generator method</ControlLabel>
+              <FormControl
+                value={this.state.unsavedData.meta_feature_generator}
+                readOnly={disableAll} 
+                onChange={(evt) => this.handleDataChange('meta_feature_generator', evt.target.value)}            
+              />
+            </FormGroup>
+          </Form>
 
           <MetricGenerators 
           disabled={disableAll}
