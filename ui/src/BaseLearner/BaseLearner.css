@@ -26,6 +26,12 @@
   background-color: #f5f5f5
 }
 
+.DualList ul {
+  columns: 2;
+  -webkit-columns: 2;
+  -moz-columns: 2;
+}
+
 .collapse {
   background-color: #f5f5f5;
 }

@@ -1,29 +1,7 @@
 import React, {Component} from 'react';
 import './BaseLearner.css';
 import 'react-select/dist/react-select.css';
-import ReactModal from 'react-modal';
-
-
-const modalStyle = {
-  overlay : {
-    zIndex            : 1000
-  },
-  content : {
-    top                        : '50%',
-    left                       : '50%',
-    right                      : 'auto',
-    bottom                     : 'auto',
-    marginRight                : '-50%',
-    transform                  : 'translate(-50%, -50%)',
-    border                     : '1px solid #ccc',
-    background                 : '#fff',
-    overflow                   : 'auto',
-    WebkitOverflowScrolling    : 'touch',
-    borderRadius               : '4px',
-    outline                    : 'none',
-    padding                    : '20px'
-  }
-}
+import { Modal, Panel, Button } from 'react-bootstrap';
 
 function DisplayError(props) {
   const items = [];
@@ -49,35 +27,41 @@ class DetailsModal extends Component {
     }
 
     return (
-      <ReactModal
-        isOpen={this.props.moreDetailsId !== null}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Ensemble details'
-        style={modalStyle}
+      <Modal 
+        show={this.props.moreDetailsId !== null} 
+        onHide={this.props.onRequestClose}
       >
-      <h4>Metrics</h4>
-      <ul>
-        {Object.keys(baseLearner.individual_score).map((key) => {
-          return <li key={key}>{key + ': ' + baseLearner.individual_score[key]}</li>
-        })}
-      </ul>
-      <h4>Secondary Learner Hyperparameters</h4>
-      <ul>
-        {Object.keys(baseLearner.hyperparameters).map((key) => {
-          return (
-            <li key={key}>
-              {key + ': ' + baseLearner.hyperparameters[key]}
-            </li>
-          );
-        })}
-      </ul>
-      <h4>Type ID</h4>
-      {baseLearner.base_learner_origin_id}
-      <h4>Job ID</h4>
-      {baseLearner.job_id}
-      {(baseLearner.job_status === 'errored') && 
-      <DisplayError description={baseLearner.description} />}
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>{'Details of base learner ID ' + baseLearner.id}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='DualList'>
+          <Panel header={<h4>Metrics</h4>}>
+            <ul>
+              {Object.keys(baseLearner.individual_score).map((key) => {
+                return <li key={key}>{key + ': ' + baseLearner.individual_score[key]}</li>
+              })}
+            </ul>
+          </Panel>
+          <Panel header={<h4>Base Learner Hyperparameters</h4>}>
+            <ul>
+              {Object.keys(baseLearner.hyperparameters).map((key) => {
+              return (
+                <li key={key}>
+                  {key + ': ' + baseLearner.hyperparameters[key]}
+                </li>
+              );
+            })}
+            </ul>
+          </Panel>
+          <b>{'Base Learner Type ID: '}</b>
+          {baseLearner.base_learner_origin_id}
+          <br/>
+          <b>{'Job ID: '}</b>
+          {baseLearner.job_id}
+          {(baseLearner.job_status === 'errored') && 
+          <DisplayError description={baseLearner.description} />}
+        </Modal.Body>
+      </Modal>
     )
   }
 }
@@ -91,18 +75,25 @@ export class DeleteModal extends Component {
 
   render() {
     return (
-      <ReactModal
-        isOpen={this.props.isOpen}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Delete base learner'
-        style={modalStyle}
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
       >
-      <p>Are you sure you want to delete this base learner?</p>
-      <p>All ensembles containing this base learner will be lost as well.</p>
-      <p><strong>This action is irreversible.</strong></p>
-        <button onClick={this.props.onRequestClose}>Cancel</button>
-        <button onClick={() => this.handleYesAndClose()}>Delete</button>
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete base learner</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this base learner?</p>
+          <p>All ensembles containing this base learner will be lost as well.</p>
+          <p><strong>This action is irreversible.</strong></p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='danger' onClick={() => this.handleYesAndClose()}>
+            Delete
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
     )
   }
 }

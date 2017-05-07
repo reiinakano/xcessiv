@@ -53,7 +53,7 @@ function ValidationResults(props) {
   for (var key in props.validation_results) {
       items.push(<li key={key}>{key + ': ' + props.validation_results[key]}</li>)
     }
-  return <div className='BsPanel' style={{paddingTop: '15px'}}>
+  return <div className='DualList' style={{paddingTop: '15px'}}>
     <BsPanel header={<h4>Base learner metrics on toy data</h4>}>
       <ul>{items}</ul>
     </BsPanel>
