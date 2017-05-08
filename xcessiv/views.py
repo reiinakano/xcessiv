@@ -231,12 +231,13 @@ def verify_base_learner_origin(id):
                 raise exceptions.UserError('Base learner origin {} '
                                            'is already final'.format(id))
             base_learner = base_learner_origin.return_estimator()
-            validation_results = functions.verify_estimator_class(
+            validation_results, hyperparameters = functions.verify_estimator_class(
                 base_learner,
                 base_learner_origin.meta_feature_generator,
                 base_learner_origin.metric_generators
             )
             base_learner_origin.validation_results = validation_results
+            base_learner_origin.hyperparameters = hyperparameters
             session.add(base_learner_origin)
             session.commit()
             return jsonify(base_learner_origin.serialize)

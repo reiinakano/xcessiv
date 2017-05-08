@@ -61,8 +61,20 @@ function ValidationResults(props) {
   for (var key in props.validation_results) {
       items.push(<li key={key}>{key + ': ' + props.validation_results[key]}</li>)
     }
-  return <div className='DualList' style={{paddingTop: '15px'}}>
+  return <div className='DualList'>
     <BsPanel header={<h4>Base learner metrics on toy data</h4>}>
+      <ul>{items}</ul>
+    </BsPanel>
+  </div>
+}
+
+function DefaultHyperparameters(props) {
+  const items = [];
+  for (var key in props.hyperparameters) {
+      items.push(<li key={key}>{key + ': ' + props.hyperparameters[key]}</li>)
+    }
+  return <div className='DualList' style={{paddingTop: '15px'}}>
+    <BsPanel header={<h4>Base learner default hyperparameters</h4>}>
       <ul>{items}</ul>
     </BsPanel>
   </div>
@@ -560,6 +572,8 @@ class BaseLearnerOrigin extends Component {
           disabled={disableAll}
           generators={this.state.unsavedData.metric_generators} 
           handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} />
+
+          <DefaultHyperparameters hyperparameters={this.props.data.hyperparameters} />
 
           <ValidationResults validation_results={this.props.data.validation_results} />
 

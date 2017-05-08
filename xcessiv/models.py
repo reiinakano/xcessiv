@@ -186,6 +186,7 @@ class BaseLearnerOrigin(Base):
     id = Column(Integer, primary_key=True)
     source = Column(Text)
     validation_results = Column(JsonEncodedDict)
+    hyperparameters = Column(JsonEncodedDict)
     name = Column(Text)
     final = Column(Boolean)
     meta_feature_generator = Column(Text)
@@ -198,6 +199,7 @@ class BaseLearnerOrigin(Base):
         self.source = source
         self.name = name
         self.validation_results = dict()
+        self.hyperparameters = dict()
         self.final = False
         self.meta_feature_generator = meta_feature_generator
         self.metric_generators = dict() if metric_generators is None else metric_generators
@@ -211,7 +213,8 @@ class BaseLearnerOrigin(Base):
             validation_results=self.validation_results,
             final=self.final,
             meta_feature_generator=self.meta_feature_generator,
-            metric_generators=self.metric_generators
+            metric_generators=self.metric_generators,
+            hyperparameters=self.hyperparameters
         )
 
     def return_estimator(self):

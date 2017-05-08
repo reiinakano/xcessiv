@@ -130,6 +130,9 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators):
     Returns:
         performance_dict (mapping): Mapping from performance metric
             name to performance metric value e.g. "Accuracy": 0.963
+
+        hyperparameters (mapping): Mapping from the estimator's hyperparameters to
+            their default values e.g. "n_estimators": 10
     """
     X, y = load_breast_cancer(return_X_y=True)
 
@@ -167,7 +170,7 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators):
         except Exception as e:
             raise exceptions.UserError(repr(e))
 
-    return performance_dict
+    return performance_dict, est.get_params()
 
 
 def get_path_from_query_string(req):

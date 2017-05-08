@@ -78,10 +78,30 @@ class TestVerifyEstimatorClass(unittest.TestCase):
 
     def test_verify_estimator_class(self):
         np.random.seed(8)
-        performance_dict = functions.verify_estimator_class(RandomForestClassifier(),
-                                                            'predict_proba',
-                                                            dict(Accuracy=self.source))
+        performance_dict, hyperparameters = functions.verify_estimator_class(
+            RandomForestClassifier(),
+            'predict_proba',
+            dict(Accuracy=self.source)
+        )
         assert round(performance_dict['Accuracy'], 3) == 0.954
+        assert hyperparameters == {
+            'warm_start': False,
+            'oob_score': False,
+            'n_jobs': 1,
+            'verbose': 0,
+            'max_leaf_nodes': None,
+            'bootstrap': True,
+            'min_samples_leaf': 1,
+            'n_estimators': 10,
+            'min_samples_split': 2,
+            'min_weight_fraction_leaf': 0.0,
+            'criterion': 'gini',
+            'random_state': None,
+            'min_impurity_split': 1e-07,
+            'max_features': 'auto',
+            'max_depth': None,
+            'class_weight': None
+        }
 
     def test_assertion_of_invalid_metric_generator(self):
         np.random.seed(8)
