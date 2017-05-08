@@ -35,7 +35,10 @@ class AddNewModal extends Component {
           <Modal.Title>Add new metric generator</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={(e) => {
+            e.preventDefault();
+            this.props.onAdd(this.state.name);
+          }}>
             <FormGroup
               controlId='metricName'
             >

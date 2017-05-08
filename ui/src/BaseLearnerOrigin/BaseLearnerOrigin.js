@@ -555,7 +555,7 @@ class BaseLearnerOrigin extends Component {
           onChange={(src) => this.handleDataChange('source', src)} 
           options={options}/>
 
-          <Form>
+          <Form onSubmit={(e) => e.preventDefault()}>
             <FormGroup
               controlId='mfgMethod'
             >
