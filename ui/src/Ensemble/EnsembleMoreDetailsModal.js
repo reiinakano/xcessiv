@@ -1,39 +1,15 @@
 import React, {Component} from 'react';
 import './Ensemble.css';
 import 'react-select/dist/react-select.css';
-import ReactModal from 'react-modal';
+import { Modal, Panel, Button, Alert } from 'react-bootstrap';
 
-
-const modalStyle = {
-  overlay : {
-    zIndex            : 1000
-  },
-  content : {
-    top                        : '50%',
-    left                       : '50%',
-    right                      : 'auto',
-    bottom                     : 'auto',
-    marginRight                : '-50%',
-    transform                  : 'translate(-50%, -50%)',
-    border                     : '1px solid #ccc',
-    background                 : '#fff',
-    overflow                   : 'auto',
-    WebkitOverflowScrolling    : 'touch',
-    borderRadius               : '4px',
-    outline                    : 'none',
-    padding                    : '20px'
-  }
-}
 
 function DisplayError(props) {
-  const items = [];
-  for (var key in props.description) {
-      items.push(<li key={key}>{key + ': ' + props.description[key]}</li>)
-    }
-  return <div>
-    <h4>Error Messages</h4>
-    <ul>{items}</ul>
-  </div>
+  return <Alert bsStyle='danger'>
+    {props.description['error_traceback'].join('').split("\n").map((i, index) => {
+      return <div key={index}>{i}</div>;
+    })}
+  </Alert>
 }
 
 class DetailsModal extends Component {
@@ -49,43 +25,50 @@ class DetailsModal extends Component {
     }
 
     return (
-      <ReactModal
-        isOpen={this.props.moreDetailsId !== null}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Ensemble details'
-        style={modalStyle}
+      <Modal 
+        show={this.props.moreDetailsId !== null} 
+        onHide={this.props.onRequestClose}
       >
-      <h4>Base Learners</h4>
-      <ul>
-        {stackedEnsemble.base_learner_ids.map((id) => {
-          return (
-            <li key={id}>{id}</li>
-          )
-        })}
-      </ul>
-      <h4>Metrics</h4>
-      <ul>
-        {Object.keys(stackedEnsemble.individual_score).map((key) => {
-          return <li key={key}>{key + ': ' + stackedEnsemble.individual_score[key]}</li>
-        })}
-      </ul>
-      <h4>Secondary Learner Hyperparameters</h4>
-      <ul>
-        {Object.keys(stackedEnsemble.secondary_learner_hyperparameters).map((key) => {
-          return (
-            <li key={key}>
-              {key + ': ' + stackedEnsemble.secondary_learner_hyperparameters[key]}
-            </li>
-          );
-        })}
-      </ul>
-      <h4>Secondary Learner</h4>
-      {stackedEnsemble.base_learner_origin_id}
-      <h4>Job ID</h4>
-      {stackedEnsemble.job_id}
-      {(stackedEnsemble.job_status === 'errored') && 
-      <DisplayError description={stackedEnsemble.description} />}
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>{'Details of ensemble ID ' + stackedEnsemble.id}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className='DualList'>
+          <Panel header={<h4>Base Learners</h4>}>
+            <ul>
+              {stackedEnsemble.base_learner_ids.map((id) => {
+                return (
+                  <li key={id}>{id}</li>
+                )
+              })}
+            </ul>
+          </Panel>
+          <Panel header={<h4>Metrics</h4>}>
+            <ul>
+              {Object.keys(stackedEnsemble.individual_score).map((key) => {
+                return <li key={key}>{key + ': ' + stackedEnsemble.individual_score[key]}</li>
+              })}
+            </ul>
+          </Panel>
+          <Panel header={<h4>Secondary Learner Hyperparameters</h4>}>
+            <ul>
+              {Object.keys(stackedEnsemble.secondary_learner_hyperparameters).map((key) => {
+                return (
+                  <li key={key}>
+                    {key + ': ' + stackedEnsemble.secondary_learner_hyperparameters[key]}
+                  </li>
+                );
+              })}
+            </ul>
+          </Panel>
+          <b>{'Base Learner Type ID: '}</b>
+          {stackedEnsemble.base_learner_origin_id}
+          <br/>
+          <b>{'Job ID: '}</b>
+          {stackedEnsemble.job_id}
+          {(stackedEnsemble.job_status === 'errored') && 
+          <DisplayError description={stackedEnsemble.description} />}
+        </Modal.Body>
+      </Modal>
     )
   }
 }
@@ -99,17 +82,24 @@ export class DeleteModal extends Component {
 
   render() {
     return (
-      <ReactModal
-        isOpen={this.props.isOpen}
-        onRequestClose={this.props.onRequestClose}
-        contentLabel='Delete base learner'
-        style={modalStyle}
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
       >
-      <p>Are you sure you want to delete this ensemble?</p>
-      <p><strong>This action is irreversible.</strong></p>
-        <button onClick={this.props.onRequestClose}>Cancel</button>
-        <button onClick={() => this.handleYesAndClose()}>Delete</button>
-      </ReactModal>
+        <Modal.Header closeButton>
+          <Modal.Title>Delete ensemble</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this ensemble?</p>
+          <p><strong>This action is irreversible.</strong></p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='danger' onClick={() => this.handleYesAndClose()}>
+            Delete
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
     )
   }
 }

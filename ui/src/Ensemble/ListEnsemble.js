@@ -199,6 +199,7 @@ class ListEnsemble extends Component {
     this.returnSortedList();
     return(
       <div className='Ensemble'>
+        <h2>Stacked Ensembles</h2>
         <table><tbody><tr>
           <td>
           <Select multi
