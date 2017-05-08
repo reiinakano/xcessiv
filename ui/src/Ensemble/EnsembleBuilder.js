@@ -8,6 +8,8 @@ import Select from 'react-select'
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
+import { Checkbox, Button, Glyphicon } from 'react-bootstrap';
+
 
 const defaultSourceParams = [
   '"""This code block should ',
@@ -33,9 +35,12 @@ class EnsembleBuilder extends Component {
       indentUnit: 4
     };
 
+    const buttonDisabled = (!this.state.selectedValue || 
+      !(this.props.checkedOptions.length > 1));
+
     return (
       <div className='Ensemble'>
-        <h2>Stacked Ensemble</h2>
+        <h2>Create a stacked ensemble</h2>
         <table><tbody><tr>
           <td>
           <VirtualizedSelect
@@ -61,19 +66,22 @@ class EnsembleBuilder extends Component {
           onChange={(src) => this.setState({source: src})} 
           options={options}
         />
-        <label>
-          <input type="checkbox" 
-            checked={this.state.appendOriginal} 
-            onChange={() => this.setState((prevState) => 
-              ({appendOriginal: !prevState.appendOriginal}))}
-          />
+        <Checkbox
+          checked={this.state.appendOriginal} 
+          onChange={() => this.setState((prevState) => 
+            ({appendOriginal: !prevState.appendOriginal}))}
+        >
           Append original features to secondary features
-        </label>
-        <button 
+        </Checkbox>
+        <Button 
+          block
+          disabled={buttonDisabled}
+          bsStyle='primary'
           onClick={() => this.props.createStackedEnsemble(
             this.state.selectedValue.value, this.state.source, this.state.appendOriginal)}>
-          Create ensemble
-        </button>
+          <Glyphicon glyph="plus" />
+          {' Create new ensemble'}
+        </Button>
       </div>
     )
   }
