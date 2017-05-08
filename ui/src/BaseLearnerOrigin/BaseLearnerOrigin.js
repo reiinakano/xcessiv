@@ -40,6 +40,14 @@ function handleErrors(response) {
   return response;
 }
 
+function ErrorAlert(props) {
+  return (
+    <Alert bsStyle='danger'>
+      {props.errorMessage}
+    </Alert>
+  )
+}
+
 function FinalizedAlert(props) {
   return(
     <Alert bsStyle='success'>
@@ -531,10 +539,6 @@ class BaseLearnerOrigin extends Component {
 
           {this.props.data.final && <FinalizedAlert/>}
 
-          <h4>
-            {this.state.errorMessage}
-          </h4>
-
           <CodeMirror value={this.state.unsavedData.source} 
           onChange={(src) => this.handleDataChange('source', src)} 
           options={options}/>
@@ -560,6 +564,11 @@ class BaseLearnerOrigin extends Component {
           <ValidationResults validation_results={this.props.data.validation_results} />
 
           {buttonToolbar}
+
+          <h4>
+            {this.state.errorMessage 
+              && <ErrorAlert errorMessage={this.state.errorMessage} />}
+          </h4>
 
           <FinalizeModal isOpen={this.state.showFinalizeModal} 
           onRequestClose={() => this.setState({showFinalizeModal: false})}
