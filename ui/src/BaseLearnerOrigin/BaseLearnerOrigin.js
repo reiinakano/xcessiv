@@ -627,7 +627,8 @@ class BaseLearnerOrigin extends Component {
           <MetricGenerators 
           disabled={disableAll}
           generators={this.state.unsavedData.metric_generators} 
-          handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)} />
+          handleGeneratorChange={(gen) => this.handleDataChange('metric_generators', gen)}
+          presetMetricGenerators={this.props.presetMetricGenerators} />
 
           <DefaultHyperparameters hyperparameters={this.props.data.hyperparameters} />
 

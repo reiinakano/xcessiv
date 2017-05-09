@@ -8,6 +8,7 @@ import {omit} from 'lodash';
 import Collapse, { Panel } from 'rc-collapse';
 import { Button, Glyphicon, Modal, Form, FormGroup, 
   FormControl, ControlLabel } from 'react-bootstrap';
+import Select from 'react-select';
 
 const default_metric_generator_code = `def metric_generator(y_true, y_probas):
     """This function must return a numerical value given two numpy arrays 
@@ -38,6 +39,7 @@ class AddNewModal extends Component {
           <Form onSubmit={(e) => {
             e.preventDefault();
             this.props.onAdd(this.state.name);
+            this.props.onRequestClose();
           }}>
             <FormGroup
               controlId='metricName'
@@ -54,10 +56,61 @@ class AddNewModal extends Component {
           <Button onClick={this.props.onRequestClose}>Cancel</Button>
           <Button 
             bsStyle='primary' 
-            onClick={() => this.props.onAdd(this.state.name)}
+            onClick={() => {
+              this.props.onAdd(this.state.name);
+              this.props.onRequestClose();
+            }}
           >
             Yes
           </Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+}
+
+class PresetMetricGeneratorsModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedValue: null
+    };
+  }
+
+  render() {
+    const options = this.props.presetMetricGenerators.map((obj) => {
+      return {
+        label: obj.selection_name,
+        value: obj
+      }
+    });
+    return (
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Select a preset metric generator</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Select
+            options={options}
+            value={this.state.selectedValue}
+            onChange={(selectedValue) => this.setState({selectedValue})}
+            placeholder="Select preset metric generator"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            disabled={!this.state.selectedValue}
+            bsStyle='primary' 
+            onClick={() => {
+            this.props.apply(this.state.selectedValue);
+            this.props.onRequestClose();
+          }}>
+            Add
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
         </Modal.Footer>
       </Modal>
     )
@@ -70,6 +123,7 @@ class MetricGenerators extends Component {
     this.state = {
       activeKey: [],
       showAddNewModal: false,
+      showPresetMetricGeneratorsModal: false,
       showDeleteModal: false
     };
   }
@@ -126,7 +180,6 @@ class MetricGenerators extends Component {
       newGenerators[metric_name] = default_metric_generator_code;
       this.props.handleGeneratorChange(newGenerators);
     }
-    this.setState({showAddNewModal: false});
   }
 
   handleDeleteMetricGenerator(metric_name) {
@@ -147,16 +200,35 @@ class MetricGenerators extends Component {
           {this.getItems()}
         </Collapse>
         {!this.props.disabled && 
-          <Button block 
-            disabled={this.props.disabled}
-            onClick={() => this.setState({showAddNewModal: true})}>
-            <Glyphicon glyph="plus" />
-            {' Add new metric generator'}
-          </Button>
+          <div>
+            <Button block 
+              disabled={this.props.disabled}
+              onClick={() => this.setState({showAddNewModal: true})}>
+              <Glyphicon glyph="plus" />
+              {' Add new metric generator'}
+            </Button>
+            <Button block 
+              disabled={this.props.disabled}
+              onClick={() => this.setState({showPresetMetricGeneratorsModal: true})}>
+              <Glyphicon glyph="plus" />
+              {' Add preset metric generator'}
+            </Button>
+          </div>
         }
-        <AddNewModal isOpen={this.state.showAddNewModal} 
-        onRequestClose={() => this.setState({showAddNewModal: false})}
-        onAdd={(metric_name) => this.handleAddMetricGenerator(metric_name)} />
+        <AddNewModal 
+          isOpen={this.state.showAddNewModal} 
+          onRequestClose={() => this.setState({showAddNewModal: false})}
+          onAdd={(metric_name) => this.handleAddMetricGenerator(metric_name)} 
+        />
+        <PresetMetricGeneratorsModal
+          isOpen={this.state.showPresetMetricGeneratorsModal}
+          onRequestClose={() => this.setState({showPresetMetricGeneratorsModal: false})}
+          presetMetricGenerators={this.props.presetMetricGenerators}
+          apply={(obj) => {
+            console.log(obj);
+            this.handleChangeMetricGenerator(obj.value.name, obj.value.source)
+          }}
+        />
       </div>
     );
   }
