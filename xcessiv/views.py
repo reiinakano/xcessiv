@@ -168,7 +168,7 @@ def base_learner_origins_settings():
     return jsonify([getattr(learnersetting, x) for x in learnersetting.__all__])
 
 
-@app.route('/ensemble/metric-generators-settings', methods=['GET'])
+@app.route('/ensemble/metric-generators-settings/', methods=['GET'])
 def metric_generators_settings():
     return jsonify([getattr(metricsetting, x) for x in metricsetting.__all__])
 

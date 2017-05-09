@@ -30,7 +30,9 @@ class ContainerBaseLearner extends Component {
       baseLearners: [],
       checkedBaseLearners: ImSet([]),
       baseLearnerOrigins: [],
-      stackedEnsembles: []
+      stackedEnsembles: [],
+      presetBaseLearnerOrigins: [],
+      presetMetricGenerators: []
     };
   }
 
@@ -39,6 +41,32 @@ class ContainerBaseLearner extends Component {
     this.refreshBaseLearnerOrigins();
     this.refreshBaseLearners(); 
     this.refreshStackedEnsembles();
+    this.refreshPresetBaseLearnerOrigins();
+    this.refreshPresetMetricGenerators();
+  }
+
+  // Refresh base learner origin preset settings from server data
+  refreshPresetBaseLearnerOrigins() {
+    fetch('/ensemble/base-learner-origins-settings/')
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        presetBaseLearnerOrigins: json
+      });
+    });
+  }
+
+  // Refresh base learner origin preset settings from server data
+  refreshPresetMetricGenerators() {
+    fetch('/ensemble/metric-generators-settings/')
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        presetMetricGenerators: json
+      });
+    });
   }
 
   // Refresh base learner origins from server data
@@ -516,6 +544,8 @@ class ContainerBaseLearner extends Component {
           gridSearch={(id, source) => this.gridSearch(id, source)}
           randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
           addNotification={(notif) => this.props.addNotification(notif)}
+          presetBaseLearnerOrigins={this.state.presetBaseLearnerOrigins}
+          presetMetricGenerators={this.state.presetMetricGenerators}
         />
         <ListBaseLearner 
           path={this.props.path} 
