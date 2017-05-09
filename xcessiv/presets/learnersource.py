@@ -15,3 +15,9 @@ sklearn_extra_trees_source = \
 
 base_learner = ExtraTreesClassifier(random_state=8)
 """
+
+sklearn_logistic_regression_source = \
+    """from sklearn.linear_model import LogisticRegression
+
+base_learner = LogisticRegression()
+"""

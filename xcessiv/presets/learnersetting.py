@@ -5,7 +5,8 @@ from xcessiv.presets import learnersource
 
 __all__ = [
     'sklearn_random_forest',
-    'sklearn_extra_trees'
+    'sklearn_extra_trees',
+    'sklearn_logistic_regression'
 ]
 
 
@@ -18,5 +19,11 @@ sklearn_random_forest = {
 sklearn_extra_trees = {
     'name': 'scikit-learn Extra Trees Classifier',
     'source': learnersource.sklearn_extra_trees_source,
+    'meta_feature_generator': 'predict_proba'
+}
+
+sklearn_logistic_regression = {
+    'name': 'scikit-learn Logistic Regression',
+    'source': learnersource.sklearn_logistic_regression_source,
     'meta_feature_generator': 'predict_proba'
 }
