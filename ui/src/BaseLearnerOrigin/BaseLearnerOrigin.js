@@ -14,6 +14,7 @@ import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
 import { Button, ButtonToolbar, Glyphicon, Alert, Modal, Panel as BsPanel,
   Form, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import Select from 'react-select';
 
 const changeableProps = [
   'name', 
@@ -101,6 +102,54 @@ function ClearModal(props) {
       </Modal.Footer>
     </Modal>
   )
+}
+
+class PresetLearnerSettingsModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedValue: null
+    };
+  }
+
+  render() {
+    const options = this.props.presetBaseLearnerOrigins.map((obj) => {
+      return {
+        label: obj.name,
+        value: obj
+      }
+    });
+    return (
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Select a preset base learner origin</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Select
+            options={options}
+            value={this.state.selectedValue}
+            onChange={(selectedValue) => this.setState({selectedValue})}
+            placeholder="Select base learner origin"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            disabled={!this.state.selectedValue}
+            bsStyle='primary' 
+            onClick={() => {
+            this.props.apply(this.state.selectedValue);
+            this.props.onRequestClose();
+          }}>
+            Apply
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
 }
 
 function FinalizeModal(props) {
@@ -309,6 +358,7 @@ class BaseLearnerOrigin extends Component {
       },
       same: true,
       showClearModal: false,
+      showPresetLearnerSettingsModal: false,
       showFinalizeModal: false,
       showDeleteModal: false,
       showCreateModal: false,
@@ -489,6 +539,12 @@ class BaseLearnerOrigin extends Component {
           </Button>
 
           <Button 
+            disabled={disableAll}
+            onClick={() => this.setState({showPresetLearnerSettingsModal: true})}> 
+            Choose preset learner setting
+          </Button>
+
+          <Button 
             disabled={this.state.same || disableAll} 
             onClick={() => this.saveSetup()}> 
             Save Changes
@@ -591,6 +647,17 @@ class BaseLearnerOrigin extends Component {
           <ClearModal isOpen={this.state.showClearModal} 
           onRequestClose={() => this.setState({showClearModal: false})}
           handleYes={() => this.clearChanges()} />
+
+          <PresetLearnerSettingsModal 
+          isOpen={this.state.showPresetLearnerSettingsModal} 
+          onRequestClose={() => this.setState({showPresetLearnerSettingsModal: false})}
+          presetBaseLearnerOrigins={this.props.presetBaseLearnerOrigins}
+          apply={(obj) => {
+            this.handleDataChange('name', obj.value.name);
+            this.handleDataChange('meta_feature_generator', 
+              obj.value.meta_feature_generator);
+            this.handleDataChange('source', obj.value.source);
+          }} />
 
           <CreateBaseLearnerModal isOpen={this.state.showCreateModal} 
           onRequestClose={() => this.setState({showCreateModal: false})}
