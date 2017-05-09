@@ -7,7 +7,9 @@ __all__ = [
     'sklearn_random_forest',
     'sklearn_extra_trees',
     'sklearn_logistic_regression',
-    'sklearn_knn_classifier'
+    'sklearn_knn_classifier',
+    'sklearn_svm_classifier',
+    'sklearn_gaussian_nb'
 ]
 
 
@@ -32,5 +34,17 @@ sklearn_logistic_regression = {
 sklearn_knn_classifier = {
     'name': 'scikit-learn KNN Classifier',
     'source': learnersource.sklearn_knn_classifier_source,
+    'meta_feature_generator': 'predict_proba'
+}
+
+sklearn_svm_classifier = {
+    'name': 'scikit-learn SVM Classifier',
+    'source': learnersource.sklearn_svm_classifier_source,
+    'meta_feature_generator': 'decision_function'
+}
+
+sklearn_gaussian_nb = {
+    'name': 'scikit-learn Gaussian Naive Bayes',
+    'source': learnersource.sklearn_gaussian_nb_source,
     'meta_feature_generator': 'predict_proba'
 }

@@ -27,3 +27,15 @@ sklearn_knn_classifier_source = \
 
 base_learner = KNeighborsClassifier()
 """
+
+sklearn_svm_classifier_source = \
+    """from sklearn.svm import SVC
+
+base_learner = SVC(random_state=8)
+"""
+
+sklearn_gaussian_nb_source = \
+    """from sklearn.naive_bayes import GaussianNB
+
+base_learner = GaussianNB()
+"""
