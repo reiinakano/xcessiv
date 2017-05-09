@@ -2,6 +2,18 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 
 
+__all__ = [
+    'accuracy_from_scores',
+    'accuracy_from_preds',
+    'recall_from_scores',
+    'recall_from_preds',
+    'precision_from_scores',
+    'precision_from_preds',
+    'f1_score_from_scores',
+    'f1_score_from_preds'
+]
+
+
 accuracy_from_scores = {
     'name': 'Accuracy',
     'source':
@@ -20,7 +32,8 @@ def metric_generator(y_true, y_probas):
     argmax = np.argmax(y_probas, axis=1)
     y_preds = classes_[argmax]
     return accuracy_score(y_true, y_preds)
-"""
+""",
+    'selection_name': 'accuracy_from_scores'
 }
 
 accuracy_from_preds = {
@@ -33,7 +46,8 @@ def metric_generator(y_true, y_preds):
     and the predicted labels array (y_preds).
     \"\"\"
     return accuracy_score(y_true, y_preds)
-"""
+""",
+    'selection_name': 'accuracy_from_preds'
 }
 
 recall_from_scores = {
@@ -59,7 +73,8 @@ def metric_generator(y_true, y_probas):
     else:
         score = recall_score(y_true, y_preds)
     return score
-"""
+""",
+    'selection_name': 'recall_from_scores'
 }
 
 
@@ -79,7 +94,8 @@ def metric_generator(y_true, y_preds):
     else:
         score = recall_score(y_true, y_preds)
     return score
-"""
+""",
+    'selection_name': 'recall_from_preds'
 }
 
 precision_from_scores = {
@@ -105,7 +121,8 @@ def metric_generator(y_true, y_probas):
     else:
         score = precision_score(y_true, y_preds)
     return score
-"""
+""",
+    'selection_name': 'precision_from_scores'
 }
 
 
@@ -125,7 +142,8 @@ def metric_generator(y_true, y_preds):
     else:
         score = precision_score(y_true, y_preds)
     return score
-"""
+""",
+    'selection_name': 'precision_from_preds'
 }
 
 f1_score_from_scores = {
@@ -151,7 +169,8 @@ def metric_generator(y_true, y_probas):
     else:
         score = f1_score(y_true, y_preds)
     return score
-"""
+""",
+    'selection_name': 'f1_score_from_scores'
 }
 
 
@@ -171,5 +190,6 @@ def metric_generator(y_true, y_preds):
     else:
         score = f1_score(y_true, y_preds)
     return score
-"""
+""",
+    'selection_name': 'f1_score_from_preds'
 }

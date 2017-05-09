@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 from sklearn.model_selection import ParameterGrid
 from sklearn.model_selection import ParameterSampler
 from xcessiv import app, functions, exceptions, models, rqtasks
+from xcessiv.presets import learnersetting, metricsetting
 import six
 
 
@@ -160,6 +161,16 @@ def verify_full_extraction():
     with functions.DBContextManager(path) as session:
         extraction = session.query(models.Extraction).first()
         return jsonify(extraction.data_statistics)
+
+
+@app.route('/ensemble/base-learner-origins-settings/', methods=['GET'])
+def base_learner_origins_settings():
+    return jsonify([getattr(learnersetting, x) for x in learnersetting.__all__])
+
+
+@app.route('/ensemble/metric-generators-settings', methods=['GET'])
+def metric_generators_settings():
+    return jsonify([getattr(metricsetting, x) for x in metricsetting.__all__])
 
 
 @app.route('/ensemble/base-learner-origins/', methods=['GET', 'POST'])

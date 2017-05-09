@@ -3,6 +3,11 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 from xcessiv.presets import learnersource
 
 
+__all__ = [
+    'sklearn_random_forest'
+]
+
+
 sklearn_random_forest = {
     'name': 'scikit-learn Random Forest',
     'source': learnersource.sklearn_random_forest_source,
