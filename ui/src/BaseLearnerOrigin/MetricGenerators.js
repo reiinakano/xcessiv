@@ -6,7 +6,7 @@ import 'codemirror/mode/python/python';
 import 'rc-collapse/assets/index.css';
 import {omit} from 'lodash';
 import Collapse, { Panel } from 'rc-collapse';
-import { Button, Glyphicon, Modal, Form, FormGroup, 
+import { Button, ButtonGroup, Glyphicon, Modal, Form, FormGroup, 
   FormControl, ControlLabel } from 'react-bootstrap';
 import Select from 'react-select';
 
@@ -200,20 +200,24 @@ class MetricGenerators extends Component {
           {this.getItems()}
         </Collapse>
         {!this.props.disabled && 
-          <div>
+          <table><tbody><tr>
+          <td>
             <Button block 
               disabled={this.props.disabled}
               onClick={() => this.setState({showAddNewModal: true})}>
               <Glyphicon glyph="plus" />
               {' Add new metric generator'}
             </Button>
+          </td>
+          <td>
             <Button block 
               disabled={this.props.disabled}
               onClick={() => this.setState({showPresetMetricGeneratorsModal: true})}>
               <Glyphicon glyph="plus" />
               {' Add preset metric generator'}
             </Button>
-          </div>
+          </td>
+          </tr></tbody></table>
         }
         <AddNewModal 
           isOpen={this.state.showAddNewModal} 
