@@ -33,7 +33,7 @@ def metric_generator(y_true, y_probas):
     y_preds = classes_[argmax]
     return accuracy_score(y_true, y_preds)
 """,
-    'selection_name': 'accuracy_from_scores'
+    'selection_name': 'Accuracy from Scores'
 }
 
 accuracy_from_preds = {
@@ -47,7 +47,7 @@ def metric_generator(y_true, y_preds):
     \"\"\"
     return accuracy_score(y_true, y_preds)
 """,
-    'selection_name': 'accuracy_from_preds'
+    'selection_name': 'Accuracy from Predictions'
 }
 
 recall_from_scores = {
@@ -74,7 +74,7 @@ def metric_generator(y_true, y_probas):
         score = recall_score(y_true, y_preds)
     return score
 """,
-    'selection_name': 'recall_from_scores'
+    'selection_name': 'Recall from Scores'
 }
 
 
@@ -95,7 +95,7 @@ def metric_generator(y_true, y_preds):
         score = recall_score(y_true, y_preds)
     return score
 """,
-    'selection_name': 'recall_from_preds'
+    'selection_name': 'Recall from Predictions'
 }
 
 precision_from_scores = {
@@ -122,7 +122,7 @@ def metric_generator(y_true, y_probas):
         score = precision_score(y_true, y_preds)
     return score
 """,
-    'selection_name': 'precision_from_scores'
+    'selection_name': 'Precision from Scores'
 }
 
 
@@ -143,7 +143,7 @@ def metric_generator(y_true, y_preds):
         score = precision_score(y_true, y_preds)
     return score
 """,
-    'selection_name': 'precision_from_preds'
+    'selection_name': 'Precision from Predictions'
 }
 
 f1_score_from_scores = {
@@ -170,7 +170,7 @@ def metric_generator(y_true, y_probas):
         score = f1_score(y_true, y_preds)
     return score
 """,
-    'selection_name': 'f1_score_from_scores'
+    'selection_name': 'F1 Score from Scores'
 }
 
 
@@ -191,5 +191,5 @@ def metric_generator(y_true, y_preds):
         score = f1_score(y_true, y_preds)
     return score
 """,
-    'selection_name': 'f1_score_from_preds'
+    'selection_name': 'F1 Score from Predictions'
 }

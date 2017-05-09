@@ -9,3 +9,9 @@ sklearn_random_forest_source = \
 
 base_learner = RandomForestClassifier(random_state=8)
 """
+
+sklearn_extra_trees_source = \
+    """from sklearn.ensemble import ExtraTreesClassifier
+
+base_learner = ExtraTreesClassifier(random_state=8)
+"""

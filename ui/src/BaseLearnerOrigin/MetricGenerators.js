@@ -6,7 +6,7 @@ import 'codemirror/mode/python/python';
 import 'rc-collapse/assets/index.css';
 import {omit} from 'lodash';
 import Collapse, { Panel } from 'rc-collapse';
-import { Button, ButtonGroup, Glyphicon, Modal, Form, FormGroup, 
+import { Button, Glyphicon, Modal, Form, FormGroup, 
   FormControl, ControlLabel } from 'react-bootstrap';
 import Select from 'react-select';
 
