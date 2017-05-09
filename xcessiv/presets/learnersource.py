@@ -21,3 +21,9 @@ sklearn_logistic_regression_source = \
 
 base_learner = LogisticRegression()
 """
+
+sklearn_knn_classifier_source = \
+    """from sklearn.neighbors import KNeighborsClassifier
+
+base_learner = KNeighborsClassifier()
+"""
