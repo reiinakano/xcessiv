@@ -13,7 +13,8 @@ import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
 import { Button, ButtonToolbar, Glyphicon, Alert, Modal, Panel as BsPanel,
-  Form, FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+  Form, FormGroup, ControlLabel, FormControl, DropdownButton,
+  MenuItem } from 'react-bootstrap';
 import Select from 'react-select';
 
 const changeableProps = [
@@ -448,10 +449,20 @@ class BaseLearnerOrigin extends Component {
   }
 
   // Verify Base Learner Origin + Metric Generators
-  verifyLearner() {
+  verifyLearner(dataset) {
+    var payload = {dataset};
+
+
     this.setState({asyncStatus: 'Verifying...'});
     fetch(
       '/ensemble/base-learner-origins/' + this.props.data.id + '/verify/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
     )
     .then(handleErrors)
     .then(response => response.json())
@@ -564,12 +575,19 @@ class BaseLearnerOrigin extends Component {
             Save Changes
           </Button>
 
-          <Button 
-            bsStyle="info"
-            disabled={!this.state.same || disableAll} 
-            onClick={() => this.verifyLearner()}>
-            Verify on toy data
-          </Button>
+          <DropdownButton
+            dropup
+            title='Verify on toy data'
+            bsStyle={"info"}
+            disabled={!this.state.same || disableAll}
+            id='verifyLearner'
+            onSelect={(key) => {
+              this.verifyLearner(key)
+            }}
+          >
+            <MenuItem eventKey='binary'>Binary data</MenuItem>
+            <MenuItem eventKey='multiclass'>Multiclass data</MenuItem>
+          </DropdownButton>
 
           <Button 
             bsStyle="primary"
