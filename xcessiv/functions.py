@@ -7,7 +7,7 @@ import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from six import exec_
-from sklearn.datasets import load_breast_cancer
+from sklearn import datasets
 from sklearn.model_selection import StratifiedKFold
 from xcessiv import app, exceptions
 
@@ -107,7 +107,7 @@ def verify_dataset(X, y):
     )
 
 
-def verify_estimator_class(est, meta_feature_generator, metric_generators):
+def verify_estimator_class(est, meta_feature_generator, metric_generators, dataset='binary'):
     """Verify if estimator object is valid for use i.e. scikit-learn format
 
     Verifies if an estimator is fit for use by testing for existence of methods
@@ -127,6 +127,10 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators):
             function used to calculate the metric from true values and the
             meta-features generated.
 
+        dataset (str, unicode): String corresponding to the dataset used to verify the estimator
+            and metric generators. Can be 'binary' (breast cancer data) or 'multiclass'
+            (digits data).
+
     Returns:
         performance_dict (mapping): Mapping from performance metric
             name to performance metric value e.g. "Accuracy": 0.963
@@ -134,7 +138,12 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators):
         hyperparameters (mapping): Mapping from the estimator's hyperparameters to
             their default values e.g. "n_estimators": 10
     """
-    X, y = load_breast_cancer(return_X_y=True)
+    if dataset == 'binary':
+        X, y = datasets.load_breast_cancer(return_X_y=True)
+    elif dataset == 'multiclass':
+        X, y = datasets.load_digits(return_X_y=True)
+    else:
+        raise ValueError('{} not recognized'.format(dataset))
 
     if not hasattr(est, "get_params"):
         raise exceptions.UserError('Estimator does not have get_params method')

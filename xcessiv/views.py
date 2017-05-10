@@ -228,7 +228,7 @@ def specific_base_learner_origin(id):
             return my_message('Deleted base learner origin')
 
 
-@app.route('/ensemble/base-learner-origins/<int:id>/verify/', methods=['GET'])
+@app.route('/ensemble/base-learner-origins/<int:id>/verify/', methods=['POST'])
 def verify_base_learner_origin(id):
     path = functions.get_path_from_query_string(request)
 
@@ -237,7 +237,8 @@ def verify_base_learner_origin(id):
         if base_learner_origin is None:
             raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
 
-        if request.method == 'GET':
+        if request.method == 'POST':
+            req_body = request.get_json()
             if base_learner_origin.final:
                 raise exceptions.UserError('Base learner origin {} '
                                            'is already final'.format(id))
@@ -245,9 +246,10 @@ def verify_base_learner_origin(id):
             validation_results, hyperparameters = functions.verify_estimator_class(
                 base_learner,
                 base_learner_origin.meta_feature_generator,
-                base_learner_origin.metric_generators
+                base_learner_origin.metric_generators,
+                req_body['dataset']
             )
-            base_learner_origin.validation_results = validation_results
+            base_learner_origin.validation_results = {req_body['dataset']: validation_results}
             base_learner_origin.hyperparameters = hyperparameters
             session.add(base_learner_origin)
             session.commit()
@@ -267,13 +269,19 @@ def confirm_base_learner_origin(id):
             if base_learner_origin.final:
                 raise exceptions.UserError('Base learner origin {} '
                                            'is already final'.format(id))
+            if not base_learner_origin.validation_results:
+                raise exceptions.UserError('Base learner origin {} has not yet been '
+                                           'verified on a dataset'.format(id))
             base_learner = base_learner_origin.return_estimator()
             validation_results, hyperparameters = functions.verify_estimator_class(
                 base_learner,
                 base_learner_origin.meta_feature_generator,
-                base_learner_origin.metric_generators
+                base_learner_origin.metric_generators,
+                base_learner_origin.validation_results.keys()[0]
             )
-            base_learner_origin.validation_results = validation_results
+            base_learner_origin.validation_results = {
+                base_learner_origin.validation_results.keys()[0]: validation_results
+            }
             base_learner_origin.hyperparameters = hyperparameters
             base_learner_origin.final = True
             session.add(base_learner_origin)

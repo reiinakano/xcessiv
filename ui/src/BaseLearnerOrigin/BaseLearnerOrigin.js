@@ -58,13 +58,27 @@ function FinalizedAlert(props) {
 }
 
 function ValidationResults(props) {
-  const items = [];
-  for (var key in props.validation_results) {
-      items.push(<li key={key}>{key + ': ' + props.validation_results[key]}</li>)
-    }
+
+  const items = Object.keys(props.validation_results).map((key) => {
+    return (
+      <div key={key}>
+        {"Data type: "} <b>{key}</b>
+        <ul>
+          {Object.keys(props.validation_results[key]).map((metric) => {
+            return(
+              <li key={metric}>
+                {metric + ': ' + props.validation_results[key][metric]}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  })
+
   return <div className='DualList'>
     <BsPanel header={<h4>Base learner metrics on toy data</h4>}>
-      <ul>{items}</ul>
+      {items}
     </BsPanel>
   </div>
 }
