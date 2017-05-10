@@ -73,7 +73,7 @@ class PresetMetricGeneratorsModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedValue: null
+      selectedValue: []
     };
   }
 
@@ -94,6 +94,7 @@ class PresetMetricGeneratorsModal extends Component {
         </Modal.Header>
         <Modal.Body>
           <Select
+            multi
             options={options}
             value={this.state.selectedValue}
             onChange={(selectedValue) => this.setState({selectedValue})}
@@ -105,9 +106,16 @@ class PresetMetricGeneratorsModal extends Component {
             disabled={!this.state.selectedValue}
             bsStyle='primary' 
             onClick={() => {
-            this.props.apply(this.state.selectedValue);
-            this.props.onRequestClose();
-          }}>
+              const generators = {};
+
+              for (let i=0; i<this.state.selectedValue.length; i++) {
+                generators[this.state.selectedValue[i].value.name] = this.state.selectedValue[i].value.source;
+              }
+
+              this.props.apply(generators);
+
+              this.props.onRequestClose();
+            }}>
             Add
           </Button>
           <Button onClick={this.props.onRequestClose}>Cancel</Button>
@@ -173,6 +181,12 @@ class MetricGenerators extends Component {
     this.props.handleGeneratorChange(newGenerators);
   }
 
+  handleExtendMetricGenerator(metric_generators) {
+    var newGenerators = JSON.parse(JSON.stringify(this.props.generators));
+    newGenerators = Object.assign(newGenerators, metric_generators);
+    this.props.handleGeneratorChange(newGenerators);
+  }
+
   handleAddMetricGenerator(metric_name) {
 
     if (!(metric_name in this.props.generators)) {
@@ -230,7 +244,7 @@ class MetricGenerators extends Component {
           presetMetricGenerators={this.props.presetMetricGenerators}
           apply={(obj) => {
             console.log(obj);
-            this.handleChangeMetricGenerator(obj.value.name, obj.value.source)
+            this.handleExtendMetricGenerator(obj);
           }}
         />
       </div>
