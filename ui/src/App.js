@@ -4,7 +4,7 @@ import DataExtractionTabs from './DatasetExtraction/DataExtractionTabs';
 import ContainerBaseLearner from './containers/ContainerBaseLearner';
 import NotificationSystem from 'react-notification-system';
 import { Button, Modal, Form, FormGroup, FormControl, 
-  ControlLabel } from 'react-bootstrap';
+  ControlLabel, Radio } from 'react-bootstrap';
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -28,7 +28,8 @@ class CreateProjectModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: ''
+      name: '',
+      selected: null
     };
   }
 
@@ -43,11 +44,19 @@ class CreateProjectModal extends Component {
         </Modal.Header>
         <Modal.Body>
           <h4>Existing folders</h4>
-          <ul>
+          <Form><FormGroup>
             {this.props.folders.map((x) => {
-              return <li key={x}>{x}</li>
+              return (
+                <Radio 
+                  name='directories' 
+                  key={x}
+                  checked={this.state.selected === x}
+                  onChange={() => this.setState({selected: x})}>
+                  {x}
+                </Radio>
+              )
             })}
-          </ul>
+          </FormGroup></Form>
           <Form inline onSubmit={(e) => e.preventDefault()}>
             <FormGroup
               controlId='newProjectName'
@@ -73,9 +82,18 @@ class CreateProjectModal extends Component {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          
           <Button
-           bsStyle='primary'
+            disabled={!this.state.selected}
+            bsStyle='primary'
+            onClick={() => {
+              this.props.changePath(this.state.selected);
+              this.props.onRequestClose();
+              this.props.addNotification({
+                title: 'Success',
+                message: 'Opened project ' + this.state.selected,
+                level: 'success'
+              })
+            }}
           >
             Open project folder
           </Button>
@@ -154,7 +172,7 @@ class NotebookWithToolbar extends Component {
         <Button
           onClick={() => this.setState({showCreateProjectModal: true})}
         >
-          Create new project
+          Create/Open Project
         </Button>
         <Notebook
           path={this.state.path}
@@ -165,6 +183,8 @@ class NotebookWithToolbar extends Component {
           folders={this.state.folders}
           isOpen={this.state.showCreateProjectModal}
           onRequestClose={() => this.setState({showCreateProjectModal: false})}
+          changePath={(path) => this.setState({path})}
+          addNotification={(notif) => this.props.addNotification(notif)}
         />
       </div>
     );

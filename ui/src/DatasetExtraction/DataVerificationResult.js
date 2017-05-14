@@ -40,25 +40,27 @@ function ErrorAlert(props) {
     </Alert>
   )
 }
+
+const defaultVerification = {
+  'holdout_data_stats': {
+    'features_shape': [0, 0],
+    'labels_shape': [0]
+  },
+  'test_data_stats': {
+    'features_shape': [0, 0],
+    'labels_shape': [0]
+  },
+  'train_data_stats': {
+    'features_shape': [0, 0],
+    'labels_shape': [0]
+  }
+}
  
 class DataVerificationResult extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      verification: {
-        'holdout_data_stats': {
-          'features_shape': [0, 0],
-          'labels_shape': [0]
-        },
-        'test_data_stats': {
-          'features_shape': [0, 0],
-          'labels_shape': [0]
-        },
-        'train_data_stats': {
-          'features_shape': [0, 0],
-          'labels_shape': [0]
-        }
-      },
+      verification: defaultVerification,
       asyncStatus: '',
       errorMessage: ''
     };
@@ -66,18 +68,32 @@ class DataVerificationResult extends Component {
   } 
 
   // Get request from server to populate fields
-  componentDidMount() {
-    fetch('/ensemble/extraction/verification/?path=' + this.props.path)
+  fetchVerification(path) {
+    fetch('/ensemble/extraction/verification/?path=' + path)
     .then(response => response.json())
     .then(json => {
       console.log(json)
       if (json !== null) {
-
-      this.setState({
-        verification: json
-      });
-    }
+        this.setState({
+          verification: json
+        });
+      }
+      else {
+        this.setState({
+          verification: defaultVerification
+        });
+      }
     });
+  }
+
+  componentDidMount() {
+    this.fetchVerification(this.props.path);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.path !== nextProps.path) {
+      this.fetchVerification(nextProps.path);
+    }
   }
 
   // Calculate statistics for extracted datasets

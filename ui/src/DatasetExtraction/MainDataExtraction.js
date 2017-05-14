@@ -21,13 +21,23 @@ class MainDataExtraction extends Component {
   }
 
   componentDidMount() {
-  	fetch('/ensemble/extraction/main-dataset/?path=' + this.props.path)
-	  .then(response => response.json())
-	  .then(json => {
-	  	console.log(json);
-	    this.setState({config: json});
+  	this.fetchMainDataset(this.props.path);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.path !== nextProps.path) {
+      this.fetchMainDataset(nextProps.path);
+    }
+  }
+
+  fetchMainDataset(path) {
+    fetch('/ensemble/extraction/main-dataset/?path=' + path)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({config: json});
       this.savedConfig = json;
-	  });
+    });
   }
 
   saveSetup() {

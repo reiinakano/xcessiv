@@ -112,9 +112,18 @@ class MetaFeatureExtraction extends Component {
     };
   }
 
-  // Get request from server to populate fields
   componentDidMount() {
-    fetch('/ensemble/extraction/meta-feature-generation/?path=' + this.props.path)
+    this.fetchMfe(this.props.path);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.path !== nextProps.path) {
+      this.fetchMfe(nextProps.path);
+    }
+  }
+
+  fetchMfe(path) {
+    fetch('/ensemble/extraction/meta-feature-generation/?path=' + path)
     .then(response => response.json())
     .then(json => {
       console.log(json);

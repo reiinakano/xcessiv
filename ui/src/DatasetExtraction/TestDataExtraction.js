@@ -77,9 +77,8 @@ class TestDataExtraction extends Component {
   	};
   }
 
-  // Get request from server to populate fields
-  componentDidMount() {
-    fetch('/ensemble/extraction/test-dataset/?path=' + this.props.path)
+  fetchTde(path) {
+    fetch('/ensemble/extraction/test-dataset/?path=' + path)
     .then(response => response.json())
     .then(json => {
       console.log(json);
@@ -88,6 +87,16 @@ class TestDataExtraction extends Component {
         config: this.savedConfig
       });
     });
+  }
+
+  componentDidMount() {
+    this.fetchTde(this.props.path);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.path !== nextProps.path) {
+      this.fetchTde(nextProps.path);
+    }
   }
 
   handleConfigChange(option, val) {

@@ -38,11 +38,19 @@ class ContainerBaseLearner extends Component {
 
   // Get request from server to populate fields
   componentDidMount() {
-    this.refreshBaseLearnerOrigins();
-    this.refreshBaseLearners(); 
-    this.refreshStackedEnsembles();
+    this.refreshBaseLearnerOrigins(this.props.path);
+    this.refreshBaseLearners(this.props.path); 
+    this.refreshStackedEnsembles(this.props.path);
     this.refreshPresetBaseLearnerOrigins();
     this.refreshPresetMetricGenerators();
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.path !== nextProps.path) {
+      this.refreshBaseLearnerOrigins(nextProps.path);
+      this.refreshBaseLearners(nextProps.path); 
+      this.refreshStackedEnsembles(nextProps.path);
+    }
   }
 
   // Refresh base learner origin preset settings from server data
@@ -70,8 +78,8 @@ class ContainerBaseLearner extends Component {
   }
 
   // Refresh base learner origins from server data
-  refreshBaseLearnerOrigins() {
-    fetch('/ensemble/base-learner-origins/?path=' + this.props.path)
+  refreshBaseLearnerOrigins(path) {
+    fetch('/ensemble/base-learner-origins/?path=' + path)
     .then(response => response.json())
     .then(json => {
       console.log(json);
@@ -151,8 +159,8 @@ class ContainerBaseLearner extends Component {
   }
 
   // Refresh base learners from server data
-  refreshBaseLearners() {
-    fetch('/ensemble/base-learners/?path=' + this.props.path)
+  refreshBaseLearners(path) {
+    fetch('/ensemble/base-learners/?path=' + path)
     .then(response => response.json())
     .then(json => {
       console.log(json)
@@ -377,8 +385,8 @@ class ContainerBaseLearner extends Component {
   }
 
   // Refresh stacked ensembles from server data
-  refreshStackedEnsembles() {
-    fetch('/ensemble/stacked/?path=' + this.props.path)
+  refreshStackedEnsembles(path) {
+    fetch('/ensemble/stacked/?path=' + path)
     .then(response => response.json())
     .then(json => {
       console.log(json);
