@@ -108,7 +108,7 @@ class NotebookWithToolbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      path: 'test',
+      path: '',
       folders: [],
       showCreateProjectModal: false
     };
@@ -174,10 +174,13 @@ class NotebookWithToolbar extends Component {
         >
           Create/Open Project
         </Button>
-        <Notebook
-          path={this.state.path}
-          addNotification={(notif) => this.props.addNotification(notif)}
-        />
+        <p>{'Current open project folder: ' + this.state.path}</p>
+        {Boolean(this.state.path) && 
+          <Notebook
+            path={this.state.path}
+            addNotification={(notif) => this.props.addNotification(notif)}
+          />
+        }
         <CreateProjectModal
           createProject={(name) => this.createProject(name)}
           folders={this.state.folders}
