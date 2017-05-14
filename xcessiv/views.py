@@ -22,6 +22,13 @@ def handle_user_error(error):
     return response
 
 
+@app.route('/folders/', methods=['GET'])
+def get_current_files():
+    cwd = os.getcwd()
+    return jsonify([os.path.join(cwd, d) for d in os.listdir(cwd)
+                    if os.path.isdir(os.path.join(cwd, d))])
+
+
 @app.route('/ensemble/', methods=['POST'])
 def create_new_ensemble():
     req_body = request.get_json()
