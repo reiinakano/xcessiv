@@ -39,3 +39,9 @@ sklearn_gaussian_nb_source = \
 
 base_learner = GaussianNB()
 """
+
+xgboost_classifier_source = \
+    """from xgboost import XGBClassifier
+
+base_learner = XGBClassifier(seed=8)
+"""

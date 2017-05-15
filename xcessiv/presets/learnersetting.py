@@ -9,7 +9,8 @@ __all__ = [
     'sklearn_logistic_regression',
     'sklearn_knn_classifier',
     'sklearn_svm_classifier',
-    'sklearn_gaussian_nb'
+    'sklearn_gaussian_nb',
+    'xgboost_classifier'
 ]
 
 
@@ -46,5 +47,11 @@ sklearn_svm_classifier = {
 sklearn_gaussian_nb = {
     'name': 'scikit-learn Gaussian Naive Bayes',
     'source': learnersource.sklearn_gaussian_nb_source,
+    'meta_feature_generator': 'predict_proba'
+}
+
+xgboost_classifier = {
+    'name': 'XGBoost Classifier',
+    'source': learnersource.xgboost_classifier_source,
     'meta_feature_generator': 'predict_proba'
 }
