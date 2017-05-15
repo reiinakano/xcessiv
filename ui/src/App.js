@@ -4,7 +4,7 @@ import DataExtractionTabs from './DatasetExtraction/DataExtractionTabs';
 import ContainerBaseLearner from './containers/ContainerBaseLearner';
 import NotificationSystem from 'react-notification-system';
 import { Button, Modal, Form, FormGroup, FormControl, 
-  ControlLabel, Radio } from 'react-bootstrap';
+  ControlLabel, Radio, Glyphicon } from 'react-bootstrap';
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -172,7 +172,7 @@ class NotebookWithToolbar extends Component {
         <Button
           onClick={() => this.setState({showCreateProjectModal: true})}
         >
-          Create/Open Project
+          <Glyphicon glyph="folder-open" />{' Create/Open Project'}
         </Button>
         <p>{'Current open project folder: ' + this.state.path}</p>
         {Boolean(this.state.path) && 

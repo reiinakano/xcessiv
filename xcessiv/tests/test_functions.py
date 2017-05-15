@@ -4,8 +4,9 @@ import os
 import numpy as np
 from xcessiv import functions, exceptions
 from sklearn.datasets import load_digits
-from sklearn.svm import SVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.decomposition import PCA
+from sklearn.pipeline import Pipeline
 import pickle
 
 
@@ -65,6 +66,24 @@ class TestVerifyDataset(unittest.TestCase):
                           [1, 2, 3])
 
 
+class TestIsValidJSON(unittest.TestCase):
+    def test_is_valid_json(self):
+        assert functions.is_valid_json({'x': ['i am serializable', 0.1]})
+        assert not functions.is_valid_json({'x': RandomForestClassifier()})
+
+
+class TestMakeSerializable(unittest.TestCase):
+    def test_make_serializable(self):
+        assert functions.is_valid_json({'x': ['i am serializable', 0.1]})
+        assert not functions.is_valid_json({'x': RandomForestClassifier()})
+        assert functions.make_serializable(
+            {
+                'x': ['i am serializable', 0.1],
+                'y': RandomForestClassifier()
+            }
+        ) == {'x': ['i am serializable', 0.1]}
+
+
 class TestVerifyEstimatorClass(unittest.TestCase):
     def setUp(self):
         self.source = ''.join([
@@ -102,6 +121,15 @@ class TestVerifyEstimatorClass(unittest.TestCase):
             'max_depth': None,
             'class_weight': None
         }
+
+    def test_non_serializable_parameters(self):
+        pipeline = Pipeline((('pca', PCA()), ('rf', RandomForestClassifier())))
+        performance_dict, hyperparameters = functions.verify_estimator_class(
+            pipeline,
+            'predict_proba',
+            dict(Accuracy=self.source)
+        )
+        assert functions.is_valid_json(hyperparameters)
 
     def test_assertion_of_invalid_metric_generator(self):
         np.random.seed(8)

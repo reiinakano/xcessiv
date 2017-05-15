@@ -3,10 +3,11 @@ import imp
 import sys
 import os
 import hashlib
+import json
 import numpy as np
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from six import exec_
+from six import exec_, iteritems
 from sklearn import datasets
 from sklearn.model_selection import StratifiedKFold
 from xcessiv import app, exceptions
@@ -107,6 +108,37 @@ def verify_dataset(X, y):
     )
 
 
+def is_valid_json(x):
+    """Returns true if x can be JSON serialized
+
+    Args:
+        x: Object to test
+    """
+    try:
+        json.dumps(x)
+        return True
+    except TypeError:
+        return False
+
+
+def make_serializable(json):
+    """This function ensures that the dictionary is JSON serializable. If not,
+    keys with non-serializable values are removed from the return value.
+
+    Args:
+        json (dict): Dictionary to convert to serializable
+
+    Returns:
+        new_dict (dict): New dictionary with non JSON serializable values removed
+    """
+    new_dict = dict()
+    for key, value in iteritems(json):
+        if is_valid_json(value):
+            new_dict[key] = value
+
+    return new_dict
+
+
 def verify_estimator_class(est, meta_feature_generator, metric_generators, dataset='binary'):
     """Verify if estimator object is valid for use i.e. scikit-learn format
 
@@ -179,7 +211,7 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators, datas
         except Exception as e:
             raise exceptions.UserError(repr(e))
 
-    return performance_dict, est.get_params()
+    return performance_dict, make_serializable(est.get_params())
 
 
 def get_path_from_query_string(req):

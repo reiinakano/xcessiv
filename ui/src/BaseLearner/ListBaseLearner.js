@@ -167,7 +167,7 @@ class ListBaseLearner extends Component {
             }
             return (
               <Cell {...props}>
-                {String(this.sortedBaseLearners[props.rowIndex].hyperparameters[metric]).substring(0, 5)}
+                {String(this.sortedBaseLearners[props.rowIndex].hyperparameters[metric])}
               </Cell>
             )
           }}
