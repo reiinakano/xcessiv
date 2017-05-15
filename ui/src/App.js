@@ -172,7 +172,7 @@ class NotebookWithToolbar extends Component {
         <Button
           onClick={() => this.setState({showCreateProjectModal: true})}
         >
-          <Glyphicon glyph="folder-open" />{' Create/Open Project'}
+          <Glyphicon glyph="folder-open" />
         </Button>
         <p>{'Current open project folder: ' + this.state.path}</p>
         {Boolean(this.state.path) && 
