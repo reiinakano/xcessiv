@@ -316,7 +316,7 @@ def create_base_learner(id):
         hyperparameters = functions.import_object_from_string_code(req_body['source'],
                                                                    'params')
         est.set_params(**hyperparameters)
-        hyperparameters = est.get_params()
+        hyperparameters = functions.make_serializable(est.get_params())
 
         base_learners = session.query(models.BaseLearner).\
             filter_by(base_learner_origin_id=id,
@@ -376,7 +376,7 @@ def search_base_learner(id):
                 print(repr(e))
                 continue
 
-            hyperparameters = est.get_params()
+            hyperparameters = functions.make_serializable(est.get_params())
 
             base_learners = session.query(models.BaseLearner).\
                 filter_by(base_learner_origin_id=id,
@@ -463,7 +463,7 @@ def create_new_stacked_ensemble():
             params = functions.import_object_from_string_code\
                 (req_body['secondary_learner_hyperparameters_source'], 'params')
             est.set_params(**params)
-            hyperparameters = est.get_params()
+            hyperparameters = functions.make_serializable(est.get_params())
 
             stacked_ensemble = models.StackedEnsemble(
                 secondary_learner_hyperparameters=hyperparameters,
