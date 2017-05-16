@@ -1,8 +1,9 @@
-Flask>=0.11.1
-numpy>=1.12.0
-redis>=2.10.5
-rq>=0.7
-scikit-learn>=0.18.1
-scipy>=0.18.1
-six>=1.10.0
+Flask>=0.11
 gevent>=1.1
+numpy>=1.12
+redis>=2.10
+rq>=0.7
+scikit-learn>=0.18
+scipy>=0.18
+six>=1.10
+SQLAlchemy>=1.1
