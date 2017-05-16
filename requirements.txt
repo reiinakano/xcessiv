@@ -5,3 +5,4 @@ rq>=0.7
 scikit-learn>=0.18.1
 scipy>=0.18.1
 six>=1.10.0
+gevent>=1.1

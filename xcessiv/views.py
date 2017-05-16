@@ -1,6 +1,6 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
-from flask import request, jsonify
+from flask import request, jsonify, send_from_directory
 from sqlalchemy import create_engine
 from sklearn.model_selection import ParameterGrid
 from sklearn.model_selection import ParameterSampler
@@ -20,6 +20,19 @@ def handle_user_error(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+@app.route('/', defaults={'path': 'index.html'})
+@app.route('/<path:path>')
+def home(path):
+    return send_from_directory(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'ui/build',
+            os.path.split(path)[0]
+        ),
+        os.path.split(path)[1]
+    )
 
 
 @app.route('/folders/', methods=['GET'])
