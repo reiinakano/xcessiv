@@ -1,0 +1,10 @@
+language: python
+python:
+  - "2.7"
+  - "3.5"
+install:
+  - pip install --upgrade pip setuptools wheel
+  - pip install --only-binary=numpy,scipy numpy scipy
+  - pip install -r requirements.txt
+# command to run tests
+script: py.test
