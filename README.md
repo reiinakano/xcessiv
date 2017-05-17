@@ -1,7 +1,7 @@
 # Xcessiv
 
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
-[![Build Status](https://travis-ci.org/reiinakano/scikit-plot.svg?branch=master)](https://travis-ci.org/reiinakano/scikit-plot)
+[![Build Status](https://travis-ci.org/reiinakano/xcessiv.svg?branch=master)](https://travis-ci.org/reiinakano/xcessiv)
 
 ### Xcessiv is a tool to help you create the biggest, craziest, and most *excessive* stacked ensemble models you can think of.
 
