@@ -3,25 +3,25 @@
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
 [![Build Status](https://travis-ci.org/reiinakano/xcessiv.svg?branch=master)](https://travis-ci.org/reiinakano/xcessiv)
 
-### Xcessiv is a tool to help you create the biggest, craziest, and most *excessive* stacked ensemble models you can think of.
+### Xcessiv is a tool to help you create the biggest, craziest, and most *excessive* stacked ensembles you can think of.
 
-Stacked ensembles are simple in theory. You combine the predictions of smaller models and feed *those* into another model. However, in practice, implementing and optimizing them can be a major headache.
+Stacked ensembles are simple in theory. You combine the predictions of smaller models and feed *those* into another model. However, in practice, implementing them can be a major headache.
 
-Xcessiv holds your hand through all the implementation details of creating a stacked ensemble so you're free to fully define only the things you care about.
+Xcessiv holds your hand through all the implementation details of creating and optimizing stacked ensembles so you're free to fully define only the things you care about.
 
 ## The Xcessiv process
 
 ### Define your base learners and performance metrics
 
-<gif here>
+![define_base_learner](images/baselearner.gif)
 
 ### Keep track of hundreds of different hyperparameter combinations
 
-<gif here>
+![list_base_learner](images/listbaselearner.gif)
 
 ### Effortlessly choose your base learners and create an ensemble with the click of a button
 
-<gif here>
+![ensemble](images/ensemble.gif)
 
 ## Installation
 
