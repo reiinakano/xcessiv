@@ -59,7 +59,7 @@ def import_object_from_string_code(code, object):
 
         object (string): Name of object to extract from imported module
     """
-    sha256 = hashlib.sha256(code).hexdigest()
+    sha256 = hashlib.sha256(code.encode('UTF-8')).hexdigest()
     module = imp.new_module(sha256)
     try:
         exec_(code, module.__dict__)
