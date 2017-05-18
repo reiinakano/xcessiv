@@ -8,13 +8,16 @@ def main():
     if len(sys.argv) > 1:
         num_workers = int(sys.argv[1])
 
-    cwd = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    cwd = os.getcwd()
+    dirname = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
     processes = []
     try:
-        server_proc = subprocess.Popen(['python', 'runserver.py'], cwd=cwd)
+        server_proc = subprocess.Popen(['python', os.path.join(dirname, 'runserver.py')], cwd=cwd)
 
         for i in range(num_workers):
-            processes.append(subprocess.Popen(['rq', 'worker', '-c', 'xcessiv.config'], cwd=cwd))
+            processes.append(subprocess.Popen(
+                ['python', os.path.join(dirname, 'runworker.py')], cwd=cwd)
+            )
 
         server_proc.wait()
     finally:
