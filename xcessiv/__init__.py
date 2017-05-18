@@ -3,7 +3,7 @@ from flask import Flask
 from redis import Redis
 
 
-__version__ = '0.1.0.dev0'
+__version__ = '0.1.0.dev1'
 
 
 app = Flask(__name__, static_url_path='/static', static_folder='ui/build/static')

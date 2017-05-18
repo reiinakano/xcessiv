@@ -56,7 +56,7 @@ setup(
     description='A web-based application for quick and '
                 'scalable construction of massive machine learning ensembles.',
     long_description=long_description,
-    packages=['xcessiv'],
+    packages=find_packages(),
     include_package_data=True,
     platforms='any',
     test_suite='xcessiv.tests',
