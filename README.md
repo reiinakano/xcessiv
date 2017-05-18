@@ -15,7 +15,7 @@ Xcessiv holds your hand through all the implementation details of creating and o
 
 ![define_base_learner](images/baselearner.gif)
 
-### Keep track of hundreds of different hyperparameter combinations
+### Keep track of hundreds of different model-hyperparameter combinations
 
 ![list_base_learner](images/listbaselearner.gif)
 
