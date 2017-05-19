@@ -37,11 +37,15 @@ The official documentation is located here.
 
 #### Where does Xcessiv fit in the machine learning process?
 
-Xcessiv fits in the model building part of the process after data preparation and feature engineering. At this point, there is no universally acknowledged way of determining which algorithm will work best for a particular dataset (see [No Free Lunch Theorem](https://en.wikipedia.org/wiki/No_free_lunch_theorem)), and things often break down into trial and error. Xcessiv makes this trial and error part bearable.
+Xcessiv fits in the model building part of the process after data preparation and feature engineering. At this point, there is no universally acknowledged way of determining which algorithm will work best for a particular dataset (see [No Free Lunch Theorem](https://en.wikipedia.org/wiki/No_free_lunch_theorem)), and things often break down into trial and error. Xcessiv aims to make this trial and error part as painless as possible.
 
 #### I don't care about fancy stacked ensembles and what not, should I still use Xcessiv?
 
 Absolutely! Even without the ensembling functionality, the sheer amount of utility provided by keeping track of the performance of hundreds, and even thousands of ML models and hyperparameter combinations is a huge boon.
+
+#### How does Xcessiv generate meta-features for stacking?
+
+You can choose whether to generate meta-features through cross-validation (stacked generalization) or with a holdout set (blending). You can read about these two methods and a lot more in the [Kaggle Ensembling Guide](https://mlwave.com/kaggle-ensembling-guide/).
 
 ## Project Status
 
