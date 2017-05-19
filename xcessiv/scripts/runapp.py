@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
 import sys
+import argparse
 from multiprocessing import Process, Pipe
 from xcessiv.server import launch
 from xcessiv.scripts.runworker import runworker
@@ -14,9 +15,20 @@ def wrap(task, pipe):
 
 
 def main():
-    num_workers = 1
-    if len(sys.argv) > 1:
-        num_workers = int(sys.argv[1])
+    parser = argparse.ArgumentParser(description='Launch Xcessiv server and workers')
+    parser.add_argument('-w', '--worker', help='Define number of workers', default=1, type=int)
+    parser.add_argument('-p', '--port', help='Port number to be used by web server',
+                        default=1994, type=int)
+    parser.add_argument('-H', '--host', help='Redis host', default='localhost')
+    parser.add_argument('-P', '--redisport', help='Redis port', default=6379, type=int)
+    parser.add_argument('-D', '--redisdb', help='Redis database number', default=8, type=int)
+    args = parser.parse_args()
+
+    cli_config = {
+        'REDIS_HOST': args.host,
+        'REDIS_PORT': args.redisport,
+        'REDIS_DB': args.redisdb
+    }
 
     cwd = os.getcwd()
     print(cwd)
@@ -24,11 +36,11 @@ def main():
     processes = []
     try:
         conn1, conn2 = Pipe(duplex=False)
-        server_proc = Process(target=wrap(launch, conn2))
+        server_proc = Process(target=wrap(launch, conn2), args=(args.port, cli_config))
         server_proc.start()
 
-        for i in range(num_workers):
-            p = Process(target=wrap(runworker, conn2))
+        for i in range(args.worker):
+            p = Process(target=wrap(runworker, conn2), args=(cli_config,))
             processes.append(p)
             p.start()
 

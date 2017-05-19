@@ -4,7 +4,8 @@ import webbrowser
 from xcessiv import app
 
 
-def launch(port=1994):
+def launch(port, cli_config):
+    app.config.update(**cli_config)
     http_server = WSGIServer(('', port), app)
     webbrowser.open_new('http://localhost:' + str(port))
     http_server.serve_forever()
