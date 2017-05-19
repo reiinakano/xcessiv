@@ -71,7 +71,7 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
+        'Operating System :: Unix',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         ],
     extras_require={

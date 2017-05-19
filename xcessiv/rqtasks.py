@@ -1,7 +1,6 @@
 """This module contains RQ jobs"""
 from rq.decorators import job
 from rq import get_current_job
-from xcessiv import redis_conn
 from xcessiv import functions
 from xcessiv import exceptions
 from xcessiv import models
@@ -85,7 +84,7 @@ def extraction_data_statistics(path):
         session.commit()
 
 
-@job('default', connection=redis_conn, timeout=86400)
+@job('default', timeout=86400)
 def generate_meta_features(path, base_learner_id):
     """Generates meta-features for specified base learner
 
@@ -170,7 +169,7 @@ def generate_meta_features(path, base_learner_id):
             raise
 
 
-@job('default', connection=redis_conn, timeout=86400)
+@job('default', timeout=86400)
 def evaluate_stacked_ensemble(path, ensemble_id):
     """Evaluates the ensemble and updates the database when finished/
 

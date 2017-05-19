@@ -1,6 +1,8 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 import os
-from flask import request, jsonify, send_from_directory
+from flask import request, jsonify, send_from_directory, g
+from redis import Redis
+from rq import Connection
 from sqlalchemy import create_engine
 from sklearn.model_selection import ParameterGrid
 from sklearn.model_selection import ParameterSampler
@@ -20,6 +22,14 @@ def handle_user_error(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
+
+
+def get_redis_connection():
+    redis_conn = getattr(g, '_redis_connection', None)
+    if redis_conn is None:
+        redis_conn = (Redis(app.config['REDIS_HOST'], app.config['REDIS_PORT'], app.config['REDIS_DB']))
+        g._redis_connection = redis_conn
+    return redis_conn
 
 
 @app.route('/', defaults={'path': 'index.html'})
@@ -344,7 +354,8 @@ def create_base_learner(id):
         session.add(base_learner)
         session.commit()
 
-        rqtasks.generate_meta_features.delay(path, base_learner.id)
+        with Connection(get_redis_connection()):
+            rqtasks.generate_meta_features.delay(path, base_learner.id)
 
         return jsonify(base_learner.serialize)
 
@@ -403,8 +414,8 @@ def search_base_learner(id):
 
             session.add(base_learner)
             session.commit()
-
-            rqtasks.generate_meta_features.delay(path, base_learner.id)
+            with Connection(get_redis_connection()):
+                rqtasks.generate_meta_features.delay(path, base_learner.id)
             learners.append(base_learner)
         return jsonify(map(lambda x: x.serialize, learners))
 
@@ -489,7 +500,8 @@ def create_new_stacked_ensemble():
             session.add(stacked_ensemble)
             session.commit()
 
-            rqtasks.evaluate_stacked_ensemble.delay(path, stacked_ensemble.id)
+            with Connection(get_redis_connection()):
+                rqtasks.evaluate_stacked_ensemble.delay(path, stacked_ensemble.id)
 
             return jsonify(stacked_ensemble.serialize)
 
