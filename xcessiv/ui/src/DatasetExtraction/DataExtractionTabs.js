@@ -17,6 +17,16 @@ class DataExtractionTabs extends Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.path !== nextProps.path) {
+      this.setState({
+        'sameMde': true,
+        'sameTde': true,
+        'sameMfe': true
+      })
+    }
+  }
+
   render() {
     return(
       <div className='MainDataExtraction'>

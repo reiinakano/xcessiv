@@ -385,6 +385,15 @@ class BaseLearnerOrigin extends Component {
     };
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.props.data !== nextProps.data) {
+      this.setState({
+        unsavedData: pick(nextProps.data, changeableProps),
+        same: true
+      });
+    }
+  }
+
   // Handler when active panel changes
   onActiveChange(activeKey) {
     console.log(activeKey);
@@ -439,7 +448,6 @@ class BaseLearnerOrigin extends Component {
     .then(json => {
       console.log(json)
       this.props.updateBaseLearnerOrigin(json);
-      this.setState({same: true});
       this.props.addNotification({
         title: 'Success',
         message: 'Successfully updated base learner',
