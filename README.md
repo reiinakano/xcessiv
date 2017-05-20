@@ -25,9 +25,7 @@ Xcessiv holds your hand through all the implementation details of creating and o
 
 ## Installation
 
-I wish I could say you can just type in `pip install xcessiv`. I really do.
-
-Unfortunately, Xcessiv requires a bit more than that. Head on over to the official documentation for installation instructions.
+Head on over to the official documentation for installation instructions.
 
 ## Documentation
 
@@ -37,7 +35,9 @@ The official documentation is located here.
 
 #### Where does Xcessiv fit in the machine learning process?
 
-Xcessiv fits in the model building part of the process after data preparation and feature engineering. At this point, there is no universally acknowledged way of determining which algorithm will work best for a particular dataset (see [No Free Lunch Theorem](https://en.wikipedia.org/wiki/No_free_lunch_theorem)), and things often break down into trial and error. Xcessiv aims to make this trial and error part as painless as possible.
+Xcessiv fits in the model building part of the process after data preparation and feature engineering. At this point, there is no universally acknowledged way of determining which algorithm will work best for a particular dataset (see [No Free Lunch Theorem](https://en.wikipedia.org/wiki/No_free_lunch_theorem)), and while heuristic optimization methods do exist, things often break down into trial and error as you try to find the best model-hyperparameter combinations. 
+
+Stacking is an almost surefire method to improve performance beyond that of any single model, however, the complexity of proper implementation often makes it impractical to apply them in practice outside of Kaggle competitions. Xcessiv aims to make the construction of stacked ensembles as painless as possible and lower the barrier for entry.
 
 #### I don't care about fancy stacked ensembles and what not, should I still use Xcessiv?
 
@@ -45,7 +45,7 @@ Absolutely! Even without the ensembling functionality, the sheer amount of utili
 
 #### How does Xcessiv generate meta-features for stacking?
 
-You can choose whether to generate meta-features through cross-validation (stacked generalization) or with a holdout set (blending). You can read about these two methods and a lot more in the [Kaggle Ensembling Guide](https://mlwave.com/kaggle-ensembling-guide/).
+You can choose whether to generate meta-features through cross-validation (stacked generalization) or with a holdout set (blending). You can read about these two methods and a lot more about stacked ensembles in the [Kaggle Ensembling Guide](https://mlwave.com/kaggle-ensembling-guide/). It's a great article and provides most of the inspiration for this project.
 
 ## Project Status
 
