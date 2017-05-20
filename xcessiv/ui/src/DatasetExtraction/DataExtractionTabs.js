@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './MainDataExtraction.css';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import MainDataExtraction from './MainDataExtraction';
-import TestDataExtraction from './TestDataExtraction';
+//import TestDataExtraction from './TestDataExtraction';
 import MetaFeatureExtraction from './MetaFeatureExtraction';
 import DataVerificationResult from './DataVerificationResult';
 

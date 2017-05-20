@@ -11,12 +11,6 @@ from xcessiv.presets import learnersetting, metricsetting
 import six
 
 
-def my_message(message, code=200):
-    resp = jsonify(message=message)
-    resp.status_code = code
-    return resp
-
-
 @app.errorhandler(exceptions.UserError)
 def handle_user_error(error):
     response = jsonify(error.to_dict())
@@ -60,7 +54,7 @@ def create_new_ensemble():
     ensemble_name = req_body['ensemble_name']
 
     if os.path.exists(ensemble_name):
-        return my_message("File/folder already exists", 400)
+        return jsonify(message="File/folder already exists"), 400
 
     os.makedirs(ensemble_name)
     xcessiv_notebook_path = os.path.join(ensemble_name, app.config['XCESSIV_NOTEBOOK_NAME'])
@@ -75,7 +69,7 @@ def create_new_ensemble():
         session.add(extraction)
         session.commit()
 
-    return my_message("Xcessiv notebook created")
+    return jsonify(message="Xcessiv notebook created")
 
 
 @app.route('/ensemble/extraction/main-dataset/', methods=['GET', 'PATCH'])
@@ -257,7 +251,7 @@ def specific_base_learner_origin(id):
                 session.delete(learner)
             session.delete(base_learner_origin)
             session.commit()
-            return my_message('Deleted base learner origin')
+            return jsonify(message='Deleted base learner origin')
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/verify/', methods=['POST'])
@@ -437,7 +431,7 @@ def get_base_learners():
                 base_learner.delete_meta_features(path)
                 session.delete(base_learner)
             session.commit()
-            return my_message('Deleted all base learners')
+            return jsonify(message='Deleted all base learners')
 
 
 @app.route('/ensemble/base-learners/<int:id>/', methods=['GET', 'DELETE'])
@@ -456,7 +450,7 @@ def specific_base_learner(id):
             base_learner.delete_meta_features(path)
             session.delete(base_learner)
             session.commit()
-            return my_message('Deleted base learner')
+            return jsonify(message='Deleted base learner')
 
 
 @app.route('/ensemble/stacked/', methods=['GET', 'POST'])
@@ -523,4 +517,4 @@ def specific_stacked_ensemble(id):
         if request.method == 'DELETE':
             session.delete(stacked_ensemble)
             session.commit()
-            return my_message('Deleted stacked ensemble')
+            return jsonify(message='Deleted stacked ensemble')
