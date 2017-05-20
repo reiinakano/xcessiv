@@ -8,7 +8,7 @@ Installing and running Redis
 
 For Xcessiv to work properly, it must be able to access a running Redis server.
 
-Instructions for installing and running Redis are OS dependent can be found at https://redis.io/topics/quickstart.
+Instructions for installing and running Redis are OS dependent and can be found at https://redis.io/topics/quickstart.
 
 Make sure to take note of the port at which Redis is running, especially if it is not running at the default Redis port 6379.
 

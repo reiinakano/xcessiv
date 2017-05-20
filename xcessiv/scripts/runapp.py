@@ -3,6 +3,7 @@ import os
 import sys
 import argparse
 from multiprocessing import Process, Pipe
+from redis import Redis
 from xcessiv.server import launch
 from xcessiv.scripts.runworker import runworker
 
@@ -29,6 +30,11 @@ def main():
         'REDIS_PORT': args.redisport,
         'REDIS_DB': args.redisdb
     }
+
+    redis_conn = (Redis(cli_config['REDIS_HOST'],
+                        cli_config['REDIS_PORT'],
+                        cli_config['REDIS_DB']))
+    redis_conn.get(None)  # will throw exception if Redis is unvailable
 
     cwd = os.getcwd()
     print(cwd)

@@ -27,7 +27,9 @@ def handle_user_error(error):
 def get_redis_connection():
     redis_conn = getattr(g, '_redis_connection', None)
     if redis_conn is None:
-        redis_conn = (Redis(app.config['REDIS_HOST'], app.config['REDIS_PORT'], app.config['REDIS_DB']))
+        redis_conn = (Redis(app.config['REDIS_HOST'],
+                            app.config['REDIS_PORT'],
+                            app.config['REDIS_DB']))
         g._redis_connection = redis_conn
     return redis_conn
 
