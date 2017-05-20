@@ -10,8 +10,8 @@ Welcome to Xcessiv's documentation!
    :maxdepth: 2
    :name: mastertoc
 
-   Installation
-   Sample Walkthrough
+   installation
+   walkthrough
 
 
 Indices and tables
