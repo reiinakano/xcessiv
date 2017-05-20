@@ -38,7 +38,7 @@ class DataExtractionTabs extends Component {
           >
           <TabList>
             <Tab>Main Dataset Extraction{!this.state.sameMde && '*'}</Tab>
-            <Tab>Test Dataset Extraction{!this.state.sameTde && '*'}</Tab>
+            {/*<Tab>Test Dataset Extraction{!this.state.sameTde && '*'}</Tab>*/}
             <Tab>Meta-feature Generation{!this.state.sameMfe && '*'}</Tab>
           </TabList>
           <TabPanel className='TabPanel'>
@@ -49,6 +49,7 @@ class DataExtractionTabs extends Component {
               setSame={(x) => this.setState({sameMde: x})}
             />
           </TabPanel>
+          {/*
           <TabPanel className='TabPanel'>
             <TestDataExtraction 
               path={this.props.path}
@@ -57,6 +58,7 @@ class DataExtractionTabs extends Component {
               setSame={(x) => this.setState({sameTde: x})}
             />
           </TabPanel>
+          */}
           <TabPanel className='TabPanel'>
             <MetaFeatureExtraction 
               path={this.props.path}

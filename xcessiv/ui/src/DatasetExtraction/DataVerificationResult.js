@@ -144,10 +144,12 @@ class DataVerificationResult extends Component {
             <h4>Training dataset statistics</h4>
             <BasicDataStatistics stats={this.state.verification.train_data_stats}/>
           </td>
+          {/*
           <td>
             <h4>Testing dataset statistics</h4>
-          <BasicDataStatistics stats={this.state.verification.test_data_stats}/>
+            <BasicDataStatistics stats={this.state.verification.test_data_stats}/>
           </td>
+          */}
           <td>
             <h4>Holdout dataset statistics</h4>
             <BasicDataStatistics stats={this.state.verification.holdout_data_stats}/>
