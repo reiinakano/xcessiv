@@ -225,6 +225,9 @@ Xcessiv provides a **Verify on toy data** button that takes your base learner an
 
 You can choose between testing it on multiclass data or binary class data. Since we'll be using our estimator on the breast cancer dataset, which is binary, we'll want to verify it works on binary class data. Click the **Verify on toy data** button and select **Binary data**. If nothing went wrong with your setup, you'll be able to see your base learner's hyperparameters with their default values, and the base learner's metrics on the sample binary data.
 
+.. image:: _static/verified_base_learner.png
+   :align: center
+   :alt: Verified base learner origin
 
 Finalize your base learner
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -233,5 +236,10 @@ Once you're happy with your base learner and metrics, there is one last step bef
 
 Finalizing locks your base learner setup, after which you will no longer be allowed to make any changes to it. This ensures consistency during the generation of meta-features and metrics while optimizing hyperparameters and creating stacked ensembles.
 
-At this point, feel free to create and play around with different learners and metrics. Make sure to verify and finalize all your base learners so you can use them in the next step.
+After finalization, your base learner setup should look like this.
 
+.. image:: _static/finalized_base_learner.png
+   :align: center
+   :alt: Finalized base learner origin
+
+At this point, feel free to create and play around with different learners and metrics. Make sure to verify and finalize all your base learners so you can use them in the next step.
