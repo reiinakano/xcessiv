@@ -101,6 +101,28 @@ If you wish to use a separate holdout set, Xcessiv gives you the option of autom
 
 If you click again on **Calculate Extracted Datasets Statistics**, you will notice that the holdout dataset statistics are undefined. This is because when we do cross-validation, a holdout set is not generated.
 
-Defining your base learners
----------------------------
+Defining your base learners and metrics
+---------------------------------------
 
+When you're satisfied with your dataset extraction and meta-feature generation setup, the next step is to define your base learners and the metrics by which you will judge the performance of each base learner.
+
+In Xcessiv, a base learner is an *instance of a class* with the methods ``fit``, ``get_params``, and ``set_params``.
+
+Again, **scikit-learn** users will recognize that these are methods common across all **scikit-learn** estimators. In Xcessiv, all **scikit-learn** estimators can be used straight out of the box with no extra configuration. This is a good thing as well even if you wish to use algorithms from external libraries such as **XGBoost** or **Keras**, as these libraries often have **scikit-learn** compatible wrappers around their core estimators e.g. **XGBoostClassifier**, **KerasClassifier**.
+
+Use a basic scikit-learn estimator
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Let's begin by defining a classic **scikit--learn** estimator, the Random Forest.
+
+Click the **Add new base learner origin** button to define a new base learner.
+
+Rename the default name **Base Learner Setup** to **Scikit-learn Random Forest**. Then, copy the following code into the code block.::
+
+   from sklearn.ensemble import RandomForestClassifier
+
+   base_learner = RandomForestClassifier(random_state=8)
+
+All it takes to define the base learner is to assign an *instance of your estimator class* to the variable ``base_learner``.
+
+You will notice that we initialized the Random Forest's ``random_state`` parameter with a value of 8. We want our instantiated class initialized with the default parameters we want it to have. Why ``random_state``? Since we will be storing the performance of our base learners, we want any estimators with a randomized element to run the same way every time. Estimators with the same hyperparameters except for the random seed should still be considered different estimators.
