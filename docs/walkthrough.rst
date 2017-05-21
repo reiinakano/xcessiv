@@ -251,3 +251,33 @@ Optimizing your base learners' hyperparameters
 
 Once you've finalized a base learner, three new buttons appear in the base learner setup window: **Create Single Base Learner**, **Grid Search**, and **Random Search**.
 
+These buttons let you generate meta-features and metrics for your data while giving you different ways to set or search through the space of hyperparameters.
+
+Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on these parameter search methods, see http://scikit-learn.org/stable/modules/grid_search.html.
+
+Single base learner
+~~~~~~~~~~~~~~~~~~~
+
+Let's begin with evaluating a single base learner on the the data. Open up our Random Forest classifier, and click on the **Create Single Base Learner** button.
+
+In the code block shown, enter the following code.::
+
+   params = {'n_estimators': 200}
+
+For creating a single base learner, the code block only has to define a single variable ``params`` containing a Python dictionary. The dictionary should contain the base learner hyperparameters and corresponding values as key-value pairs. Any hyperparameter not included in the dictionary will be left at the default value. In fact, if you pass an empty dictionary to ``params``, a base learner with the  default hyperparameters will be run on the dataset.
+
+After clicking **Create single base learner**, you should immediately be able to see your newly generated base learner in the "Base Learners" list. After about 5 seconds, the spinner should disappear and get replaced with a check symbol, signifying that the processing has finished.
+
+Xcessiv does the following after creation and during processing of the base learner.
+
+1) Xcessiv creates a new job and stores it in the Redis queue.
+2) An available RQ worker reads the job and starts processing.
+3) The RQ worker loads both the dataset and base learner, and sets the base learner with the desired hyperparameters using ``set_params``.
+4) The RQ worker generates meta-features using the method defined during dataset extraction (cross-validation or through a separate holdout set).
+5) Using the newly generated meta-features and ground truth labels, the worker calculates the provided metrics for the given base learner.
+6) The worker updates the database directly with the newly calculated metrics.
+7) The worker saves a copy of the meta-features to the Xcessiv project folder. These are used during the ensembling phase.
+8) The browser polls the Xcessiv server from time to time to see if the job has finished and updates the user interface accordingly.
+
+One significant advantage provided by this architecture is that you don't need to keep the browser open to see the results later on. As long as the worker itself is not stopped while processing, the corresponding database entry will be updated upon success, and you will be able to view the result when you reopen the Xcessiv web application later.
+
