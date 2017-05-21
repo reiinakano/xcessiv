@@ -202,9 +202,9 @@ Click the **Add new metric generator** button. Name it Accuracy. In the resultin
 
 To define a metric, you must define a function ``metric_generator`` that takes two arguments. The first argument should take an array-like object referring to the set of true labels, in this case, ``y_true``, with shape ``(num_samples,)``. The second argument should take an array-like object with shape ``(num_samples, num_meta_features)`` corresponding to the generated meta-features per sample, ``y_probas``. The value returned should be the calculated value of the particular metric.
 
-The function above calculates the Accuracy metric from the ground truth classes and a set of class probabilities returned by a classifier.
+The function above calculates the Accuracy metric from the ground truth labels and the corresponding set of class probabilities returned by a classifier.
 
-In the case our meta-feature generator method is set to ``predict``, this is the correct code for calculating Accuracy::
+In the case that our meta-feature generator method is set to ``predict``, this would be the correct code for calculating Accuracy::
 
    from sklearn.metrics import accuracy_score
 
@@ -212,7 +212,7 @@ In the case our meta-feature generator method is set to ``predict``, this is the
 
 Like predefined base learners, Xcessiv comes with a bunch of preset metric generators for some commonly-used metrics. You can use and reuse these for the most common use cases instead of writing your own function every time you define a base learner.
 
-You can add as many valid metrics as you want. These will be calculated everytime the base learner is processed. Let's go ahead and add the preset metric generators "Recall from Scores/Probabilities", "Precision from Scores/Probabilities", and "F1 Score from Scores/Probabilities" with the **Add preset metric generator** button.
+You can add as many valid metrics as you want. These will be calculated every time the base learner is processed. Let's go ahead and add preset metric generators "Recall from Scores/Probabilities", "Precision from Scores/Probabilities", and "F1 Score from Scores/Probabilities" with the **Add preset metric generator** button.
 
 Save your changes.
 
@@ -221,13 +221,15 @@ Verify your base learner definitions and metrics
 
 After defining your base learners and evaluation metrics, we'll want to ensure they work as expected.
 
-Xcessiv provides a **Verify on toy data** button that takes your base learner and calculates its metrics on a small sample dataset.
+Xcessiv provides verification functionality that takes your base learner and calculates its metrics on a small sample dataset.
 
 You can choose between testing it on multiclass data or binary class data. Since we'll be using our estimator on the breast cancer dataset, which is binary, we'll want to verify it works on binary class data. Click the **Verify on toy data** button and select **Binary data**. If nothing went wrong with your setup, you'll be able to see your base learner's hyperparameters with their default values, and the base learner's metrics on the sample binary data.
 
 .. image:: _static/verified_base_learner.png
    :align: center
    :alt: Verified base learner origin
+
+When doing an actual project, you'll want to verify your base learner on a sample dataset with the closest possible characteristics to your actual data.
 
 Finalize your base learner
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,4 +244,10 @@ After finalization, your base learner setup should look like this.
    :align: center
    :alt: Finalized base learner origin
 
-At this point, feel free to create and play around with different learners and metrics. Make sure to verify and finalize all your base learners so you can use them in the next step.
+At this point, feel free to create and play around with different learners and metrics. Make sure to verify and finalize all your base learners so you can use them in the next step. For the rest of this guide, I'll assume you've created and finalized a Logistic Regression base learner and an Extra Trees Classifier base learner. Both are available as preset learners.
+
+Optimizing your base learners' hyperparameters
+----------------------------------------------
+
+Once you've finalized a base learner, three new buttons appear in the base learner setup window: **Create Single Base Learner**, **Grid Search**, and **Random Search**.
+
