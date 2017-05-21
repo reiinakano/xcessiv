@@ -78,3 +78,29 @@ Save your dataset extraction code and click the **Calculate Extracted Datasets S
 
 Confirm that ``X`` (Features array) has a shape of ``(569, 30)`` and ``y`` (Labels array) has a shape of ``(569,)``.
 
+Define the meta-feature generation method
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After defining the main dataset, we must define how Xcessiv extracts meta-features for training the secondary classifier.
+
+.. image:: _static/meta_feature_extraction.png
+   :align: center
+   :alt: Meta-features Extraction
+
+For stacked ensembles, there are two main ways to extract meta-features: cross-validation to get out-of-fold predictions for every sample in the dataset, or having a separate holdout set to generate the meta-features (blending). The difference between the two can be found at the `Kaggle ensembling guide <https://mlwave.com/kaggle-ensembling-guide/>`_
+
+For now, all you need to know is that using cross-validation will allow you to use your whole training set for training the secondary learner at the expense of added computational complexity while using a holdout set will only train the secondary learner on the meta-features generated from that holdout set.
+
+Therefore, for smaller datasets, cross-validation is preferred while for larger datasets, you should use a holdout set.
+
+Since the breast cancer dataset has only 569 samples, we should use cross-validation. From the drop-down list, select **Stratified Cross-validation** and select the number of folds and random seed. The random seed is required for deterministic generation of the folds when using different base learners.
+
+Let's keep the number of folds and random seed at the defaults of 5 and 8, respectively.
+
+If you wish to use a separate holdout set, Xcessiv gives you the option of automatically splitting one from the main dataset or defining another function ``extract_holdout_dataset`` with the same signature as ``extract_main_dataset``.
+
+If you click again on **Calculate Extracted Datasets Statistics**, you will notice that the holdout dataset statistics are undefined. This is because when we do cross-validation, a holdout set is not generated.
+
+Defining your base learners
+---------------------------
+
