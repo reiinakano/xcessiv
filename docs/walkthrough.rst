@@ -50,3 +50,31 @@ Importing your dataset into Xcessiv
 -----------------------------------
 
 After opening your new project, the first thing to do is to define your dataset.
+
+Define the main dataset
+~~~~~~~~~~~~~~~~~~~~~~~
+
+First, we must define the main dataset.
+
+.. image:: _static/main_data_extraction.png
+   :align: center
+   :alt: Main Data Extraction
+
+In the code block shown, you must define a function ``extract_main_dataset`` that takes no arguments and returns a tuple ``(X, y)``, where ``X`` is a Numpy array with shape ``(n_samples, n_features)`` corresponding to the features of your main dataset and ``y`` is the Numpy array corresponding to the ground truth labels of each sample.
+
+Experienced **scikit-learn** users will recognize this format as the one accepted by **scikit-learn** estimators. As a project heavily influenced by the wonderful **scikit-learn** API, this is a theme that will come up repeatedly when using Xcessiv.
+
+Since we're going with the breast cancer sample dataset that comes with scikit-learn, copy the following code into the Main Dataset Extraction code block.::
+
+   from sklearn.datasets import load_breast_cancer
+
+   def extract_main_dataset():
+       X, y = load_breast_cancer(return_X_y=True)
+       return X, y
+
+Xcessiv gives you the flexibility to extract your dataset any way you want with whatever packages are included in your Python installation. You can open up the quintessential csv file with **pandas**. Or directly download the data from Amazon S3 with **boto**. As long as ``extract_main_dataset`` returns the proper format of your data, any way convenient for you will do. One important thing to keep in mind here is that for every process that needs your data, Xcessiv will call ``extract_main_dataset``. Keeping this function as light as possible is recommended.
+
+Save your dataset extraction code and click the **Calculate Extracted Datasets Statistics** button. This will look for the ``extract_main_dataset`` function in your provided code block and display the shape of ``X`` and ``y``. This is a good way to confirm if your code works properly.
+
+Confirm that ``X`` (Features array) has a shape of ``(569, 30)`` and ``y`` (Labels array) has a shape of ``(569,)``.
+
