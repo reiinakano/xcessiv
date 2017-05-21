@@ -214,6 +214,13 @@ Like predefined base learners, Xcessiv comes with a bunch of preset metric gener
 
 You can add as many valid metrics as you want. These will be calculated everytime the base learner is processed. Let's go ahead and add the preset metric generators "Recall from Scores/Probabilities", "Precision from Scores/Probabilities", and "F1 Score from Scores/Probabilities" with the **Add preset metric generator** button.
 
+Save your changes.
+
 Verify your base learner definitions and metrics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+After defining your base learners and evaluation metrics, we'll want to ensure they work as expected.
+
+Xcessiv provides a **Verify on toy data** button that takes your base learner and calculates its metrics on a small sample dataset.
+
+You can choose between testing it on multiclass data or binary class data. Since we'll be using our estimator on the breast cancer dataset, which is binary, we'll want to verify it works on binary class data. Click the **Verify on toy data** button and select **Binary data**. If nothing went wrong with your setup, you'll be able to see your base learner's hyperparameters with their default values, and the base learner's metrics on the sample binary data.
