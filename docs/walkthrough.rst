@@ -108,16 +108,16 @@ When you're satisfied with your dataset extraction and meta-feature generation s
 
 In Xcessiv, a base learner is an *instance of a class* with the methods ``fit``, ``get_params``, and ``set_params``.
 
-Again, **scikit-learn** users will recognize that these are methods common across all **scikit-learn** estimators. In Xcessiv, all **scikit-learn** estimators can be used straight out of the box with no extra configuration. This is a good thing as well even if you wish to use algorithms from external libraries such as **XGBoost** or **Keras**, as these libraries often have **scikit-learn** compatible wrappers around their core estimators e.g. **XGBoostClassifier**, **KerasClassifier**.
+Again, **scikit-learn** users will recognize that these are methods common across all **scikit-learn** estimators. In Xcessiv, all **scikit-learn** estimators can be used straight out of the box with no extra configuration. This is a good thing as well even if you wish to use algorithms from external libraries such as **XGBoost** or **Keras**, as these libraries often have **scikit-learn** compatible wrappers around their core estimators e.g. :class:`XGBoostClassifier`, :class:`KerasClassifier`.
 
 Use a basic scikit-learn estimator
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's begin by defining a classic **scikit--learn** estimator, the Random Forest.
+Let's begin by defining a classic **scikit--learn** estimator, the :class:`sklearn.ensemble.RandomForestClassifier`.
 
 Click the **Add new base learner origin** button to define a new base learner.
 
-Rename the default name **Base Learner Setup** to **Scikit-learn Random Forest**. Then, copy the following code into the code block.::
+Rename the default name **Base Learner Setup** to **Scikit-learn Random Forest**. Then, copy the following code into the code block then save.::
 
    from sklearn.ensemble import RandomForestClassifier
 
@@ -125,4 +125,27 @@ Rename the default name **Base Learner Setup** to **Scikit-learn Random Forest**
 
 All it takes to define the base learner is to assign an *instance of your estimator class* to the variable ``base_learner``.
 
-You will notice that we initialized the Random Forest's ``random_state`` parameter with a value of 8. We want our instantiated class initialized with the default parameters we want it to have. Why ``random_state``? Since we will be storing the performance of our base learners, we want any estimators with a randomized element to run the same way every time. Estimators with the same hyperparameters except for the random seed should still be considered different estimators.
+You will notice that we initialized the Random Forest's ``random_state`` parameter with a value of 8. We want ``base_learner`` initialized with the default parameters we want it to have.
+
+Why ``random_state``? Since we will be storing the performance of our base learners, we want any estimators with a randomized element to run the same way every time. Estimators with the same hyperparameters except for the random seed should still be considered different estimators. It is good practice to set any random seeds in ``base_learner`` with a deterministic value
+
+Use the scikit-learn pipeline object for more advanced estimators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An incredibly useful tool for chaining together different transformers and estimators is the **scikit-learn** :class:`sklearn.pipeline.Pipeline` object. If you want an in-depth guide to pipelines, see http://scikit-learn.org/stable/modules/pipeline.html.
+
+Create another base learner origin, rename it to **PCA + Random Forest**, and copy the following code into the code block then save.::
+
+   from sklearn.pipeline import Pipeline
+   from sklearn.ensemble import RandomForestClassifier
+   from sklearn.decomposition import PCA
+
+   estimators = [('pca', PCA(random_state=8)), ('rf', RandomForestClassifier(random_state=8))]
+   base_learner = Pipeline(estimators)
+
+Here we've defined a pipeline of PCA followed by Random Forest and assigned it to ``base_learner``. This is now considered a single base learner type whose hyperparameters are a combination of PCA hyperparameters and Random Forest hyperparameters.
+
+Again, notice how we've initialized all random seeds to a fixed value.
+
+Define the meta-feature generator method for a base learner
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
