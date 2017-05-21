@@ -104,6 +104,10 @@ If you click again on **Calculate Extracted Datasets Statistics**, you will noti
 Defining your base learners and metrics
 ---------------------------------------
 
+.. image:: _static/base_learner_origin.png
+   :align: center
+   :alt: Base learner origins
+
 When you're satisfied with your dataset extraction and meta-feature generation setup, the next step is to define your base learners and the metrics by which you will judge the performance of each base learner.
 
 In Xcessiv, a base learner is an *instance of a class* with the methods ``fit``, ``get_params``, and ``set_params``.
@@ -147,6 +151,13 @@ Here we've defined a pipeline of PCA followed by Random Forest and assigned it t
 
 Again, notice how we've initialized all random seeds to a fixed value.
 
+Predefined base learners
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Xcessiv contains predefined base learners for the some of the more common base learners such as Random Forest and Logistic Regression.
+
+You can click the **Choose preset learner setting** button to view and use predefined base learners.
+
 Define the meta-feature generator method for a base learner
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -156,9 +167,53 @@ But we haven't yet defined what method base learners use to generate the meta-fe
 
 For estimators that don't have the ``predict_proba`` method, you can change the meta-feature generator to whatever you want. For example, for SVM classifiers, it is recommended to use ``decision_function`` instead of ``predict_proba`` because of the additional computational complexity in when probabilities are generated.
 
-Whatever you choose to be the meta-feature generator method, it must take a single variable ``X``, where ``X`` is an array-like object of shape ``(n_samples, n_features)``, and return a Numpy array of shape ``(n_samples,)`` or ``(n_samples, N)``, where N can be any positive integer. In other words, the estimator must take every sample and decompose it into a single meta-feature e.g. ``predict``, or a set of meta-features e.g. ``predict_proba``.
+Whatever you choose to be the meta-feature generator method, it must take a single variable ``X``, where ``X`` is an array-like object of shape ``(n_samples, n_features)``, and return a Numpy array of shape ``(n_samples,)`` or ``(n_samples, num_meta_features)``, where ``num_meta_features`` is a positive integer referring to the number of meta-features generated per sample e.g. 5 for ``predict_proba`` in a dataset with 5 unique classes. In other words, the estimator must take every sample and decompose it into a single meta-feature e.g. ``predict``, or a set of meta-features e.g. ``predict_proba``.
 
 This flexibility allows you to do things like using regressors as base learners for classifier ensembles, or even PCA-transformed features as meta-features.
 
 Define your metrics
 ~~~~~~~~~~~~~~~~~~~
+
+To quantify the "goodness" of a base learner, we'll need to define metrics to evaluate the quality of its generated meta-features.
+
+For classifiers, very common metrics include Accuracy, Recall, and Precision. For regression, a useful metric is Mean Squared Error.
+
+Other important metrics include the Area Under Curve of the Receiver Operating Characteristic (AUC-ROC) or the Brier Score, both of which can be calculated through the class probabilities output of a classifier.
+
+Let's define an Accuracy metric for our Random Forest base learner.
+
+Click the **Add new metric generator** button. Name it Accuracy. In the resulting code block, add in the following code and save::
+
+   from sklearn.metrics import accuracy_score
+   import numpy as np
+
+   def metric_generator(y_true, y_probas):
+       """This function computes the accuracy given the true labels array (y_true)
+       and the scores/probabilities array (y_probas) with shape (num_samples, num_classes).
+       For the function to work correctly, the columns of the probabilities array must
+       correspond to a sorted set of the unique values present in y_true.
+       """
+       classes_ = np.unique(y_true)
+       if len(classes_) != y_probas.shape[1]:
+           raise ValueError('The shape of y_probas does not correspond to the number of unique values in y_true')
+       argmax = np.argmax(y_probas, axis=1)
+       y_preds = classes_[argmax]
+       return accuracy_score(y_true, y_preds)
+
+To define a metric, you must define a function ``metric_generator`` that takes two arguments. The first argument should take an array-like object referring to the set of true labels, in this case, ``y_true``, with shape ``(num_samples,)``. The second argument should take an array-like object with shape ``(num_samples, num_meta_features)`` corresponding to the generated meta-features per sample, ``y_probas``. The value returned should be the calculated value of the particular metric.
+
+The function above calculates the Accuracy metric from the ground truth classes and a set of class probabilities returned by a classifier.
+
+In the case our meta-feature generator method is set to ``predict``, this is the correct code for calculating Accuracy::
+
+   from sklearn.metrics import accuracy_score
+
+   metric_generator = accuracy_score
+
+Like predefined base learners, Xcessiv comes with a bunch of preset metric generators for some commonly-used metrics. You can use and reuse these for the most common use cases instead of writing your own function every time you define a base learner.
+
+You can add as many valid metrics as you want. These will be calculated everytime the base learner is processed. Let's go ahead and add the preset metric generators "Recall from Scores/Probabilities", "Precision from Scores/Probabilities", and "F1 Score from Scores/Probabilities" with the **Add preset metric generator** button.
+
+Verify your base learner definitions and metrics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
