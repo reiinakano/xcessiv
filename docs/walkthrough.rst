@@ -294,7 +294,7 @@ Click **Grid Search**, and enter the following code.::
 
 Five new base learners should be created, each with a ``C`` value of 0.01, 0.1, 1, 10, and 100 respectively.
 
-The format of ``param_grid`` should be exactly as that described in http://scikit-learn.org/stable/modules/grid_search.html.
+The format of ``param_grid`` should be exactly as that described in http://scikit-learn.org/stable/modules/grid_search.html#exhaustive-grid-search.
 
 Now, reopen the Grid Search modal and re-enter the parameter grid you ran previously. You'll see that your request is successful but no new base learners will be created. Xcessiv automatically detects whether a previous model-hyperparameter combination has already been processed and skips it. You don't need to worry about overlapping grid search spaces.
 
@@ -304,3 +304,26 @@ Remember that this is Python code, so you can also enter things like::
 
 Random Search
 ~~~~~~~~~~~~~
+
+Randomized parameter optimization is also a popular method of searching hyperparameters.
+
+On our Extra Trees Classifier, click **Random Search**, and enter the following::
+
+   from scipy.stats import randint
+   from scipy.stats import expon
+
+   import numpy as np
+
+   np.random.seed(8)
+
+   param_distributions = {'max_depth': randint(10, 100),
+                          'min_weight_fraction_leaf': expon(scale=.1)}
+
+Enter ``4`` in the **Number of base learners to create** field.
+
+Four new base learners should be created, with random values for ``max_depth`` and ``min_weight_fraction_leaf``, sampled from the given **scipy** distributions.
+
+``param_distributions`` should be a dictionary whose format is described in detail in http://scikit-learn.org/stable/modules/grid_search.html#randomized-parameter-optimization.
+
+By default, the **scipy** distributions will return different values every time you run the random search because it is, well, *random*. However, if you set the Numpy global random seed using the ``np.random.seed`` function. you'll be able to exactly reproduce random searches.
+
