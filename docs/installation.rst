@@ -15,11 +15,20 @@ Make sure to take note of the port at which Redis is running, especially if it i
 Installing Xcessiv
 ------------------
 
-Use pip to install Xcessiv::
+The easiest and recommended way to install Xcessiv is to use pip::
 
    pip install xcessiv
 
-You can also directly install the latest version of Xcessiv from the master branch. To do this, clone the repository at https://github.com/reiinakano/xcessiv and run this command at the root folder::
+If you want to install the latest version of Xcessiv from the master branch, you need some extra JavaScript tools to build the ReactJS application.
 
+First, you need to `install Node>=6 <https://docs.npmjs.com/getting-started/installing-node>`_ and `Create React App <https://github.com/facebookincubator/create-react-app#getting-started>`_.
+
+Then, run the following commands to clone the Xcessiv master branch and build and install Xcessiv.::
+
+   git clone https://github.com/reiinakano/xcessiv.git
+   cd xcessiv/xcessiv/ui
+   npm run build
+   cd ..
+   cd ..
    python setup.py install
 
