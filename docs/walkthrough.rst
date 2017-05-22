@@ -325,5 +325,49 @@ Four new base learners should be created, with random values for ``max_depth`` a
 
 ``param_distributions`` should be a dictionary whose format is described in detail in http://scikit-learn.org/stable/modules/grid_search.html#randomized-parameter-optimization.
 
-By default, the **scipy** distributions will return different values every time you run the random search because it is, well, *random*. However, if you set the Numpy global random seed using the ``np.random.seed`` function. you'll be able to exactly reproduce random searches.
+By default, the **scipy** distributions will return different values every time you run the random search because it is, well, *random*. However, if you set the Numpy global random seed using :func:`np.random.seed`, you'll be able to exactly reproduce random searches.
 
+At this point your list of base learners should look like this.
+
+.. image:: _static/list_base_learners.png
+   :align: center
+   :alt: List of base learners
+
+Creating a stacked ensemble
+---------------------------
+
+If you followed all steps up to now, you'd have 10 base learners. In practice, you'd probably try a lot more than ten but for now, let's go ahead and stack them together using a second-level classifier.
+
+You can add base learners to your ensemble through their checkbox, or by manually selecting their IDs.
+
+Let's select the highest performing base learner from each base learner type. For stacked ensembles, it's good to have as much variance as possible in your meta-features. One way to ensure that is to use as many different types of base learners as you can.
+
+In the **Select secondary base learner to use** dropdown list, choose Logistic Regression as your secondary classifier. You can use anything you want here of course, but let's keep things simple for now.
+
+To set the hyperparameters of the secondary learner, enter the following into the code block.::
+
+   params = {}
+
+This should keep the Logistic Regression at its default values. If you'll notice, the format required for this code block is exactly the same as that required when creating a single base learner.
+
+There's an additional checkbox you can tick to append the original features to the base learners' meta-features. Leave it unchecked for now, and go ahead and **Create new ensemble**.
+
+After a short time, your ensemble should finish processing, and you'll be able to see its performance. Here we get an accuracy of 0.968, which is higher than any individual base learner.
+
+.. image:: _static/create_ensemble.png
+   :align: center
+   :alt: Create ensemble
+
+Here's a complete list of what happens when Xcessiv creates a new ensemble. Note that it is very similar to what Xcessiv does when processing a base learner.
+
+1) Xcessiv creates a new job and stores it in the Redis queue.
+2) An available RQ worker reads the job and starts processing.
+3) The worker loads the secondary learner class and selected base learners' saved meta-features from the project folder, and sets the secondary learner with the desired hyperparameters using ``set_params``.
+4) The worker concatenates the meta-features, and if selected, the original features, together to create the new feature set.
+5) Using 5-fold stratified cross-validation, the secondary base learner's metrics on the new feature set are calculated.
+6) The worker updates the database directly with the newly calculated metrics.
+7) The browser polls the Xcessiv server from time to time to see if the job has finished and updates the user interface accordingly.
+
+And that's it! Try experimenting with more base learners, appending the original features to the meta-features, and even changing the type of your secondary learner. Push that accuracy up as high as you possibly can!
+
+Normally, it would take a lot of extraneous code just to set things up and keep track of everything you try, but Xcessiv takes care of all the dirty work so you can focus solely on the important thing, constructing your ultimate ensemble.
