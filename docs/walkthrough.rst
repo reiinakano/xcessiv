@@ -253,7 +253,7 @@ Once you've finalized a base learner, three new buttons appear in the base learn
 
 These buttons let you generate meta-features and metrics for your data while giving you different ways to set or search through the space of hyperparameters.
 
-Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on these parameter search methods, see http://scikit-learn.org/stable/modules/grid_search.html.
+Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on these grid search and random search, see http://scikit-learn.org/stable/modules/grid_search.html.
 
 Single base learner
 ~~~~~~~~~~~~~~~~~~~
@@ -272,8 +272,8 @@ Xcessiv does the following after creation and during processing of the base lear
 
 1) Xcessiv creates a new job and stores it in the Redis queue.
 2) An available RQ worker reads the job and starts processing.
-3) The RQ worker loads both the dataset and base learner, and sets the base learner with the desired hyperparameters using ``set_params``.
-4) The RQ worker generates meta-features using the method defined during dataset extraction (cross-validation or through a separate holdout set).
+3) The worker loads both the dataset and base learner, and sets the base learner with the desired hyperparameters using ``set_params``.
+4) The worker generates meta-features using the method defined during dataset extraction (cross-validation or through a separate holdout set).
 5) Using the newly generated meta-features and ground truth labels, the worker calculates the provided metrics for the given base learner.
 6) The worker updates the database directly with the newly calculated metrics.
 7) The worker saves a copy of the meta-features to the Xcessiv project folder. These are used during the ensembling phase.
@@ -281,3 +281,26 @@ Xcessiv does the following after creation and during processing of the base lear
 
 One significant advantage provided by this architecture is that you don't need to keep the browser open to see the results later on. As long as the worker itself is not stopped while processing, the corresponding database entry will be updated upon success, and you will be able to view the result when you reopen the Xcessiv web application later.
 
+Grid Search
+~~~~~~~~~~~
+
+Doing a grid search is a common way of quickly exploring hyperparameter spaces.
+
+Let's open up our Logistic Regression classifier.
+
+Click **Grid Search**, and enter the following code.::
+
+   param_grid = [{'C': [0.01, 0.1, 1, 10, 100]}]
+
+Five new base learners should be created, each with a ``C`` value of 0.01, 0.1, 1, 10, and 100 respectively.
+
+The format of ``param_grid`` should be exactly as that described in http://scikit-learn.org/stable/modules/grid_search.html.
+
+Now, reopen the Grid Search modal and re-enter the parameter grid you ran previously. You'll see that your request is successful but no new base learners will be created. Xcessiv automatically detects whether a previous model-hyperparameter combination has already been processed and skips it. You don't need to worry about overlapping grid search spaces.
+
+Remember that this is Python code, so you can also enter things like::
+
+   param_grid = [{'C': range(10)}]
+
+Random Search
+~~~~~~~~~~~~~
