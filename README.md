@@ -1,6 +1,8 @@
 # Xcessiv
 
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+[![PyPI](https://img.shields.io/pypi/v/xcessiv.svg)]()
+[![license](https://img.shields.io/github/license/reiinakano/xcessiv.svg)]()
+[![PyPI](https://img.shields.io/pypi/pyversions/xcessiv.svg)]()
 [![Build Status](https://travis-ci.org/reiinakano/xcessiv.svg?branch=master)](https://travis-ci.org/reiinakano/xcessiv)
 
 ### Xcessiv is a tool to help you create the biggest, craziest, and most *excessive* stacked ensembles you can think of.
@@ -22,6 +24,15 @@ Xcessiv holds your hand through all the implementation details of creating and o
 ### Effortlessly choose your base learners and create an ensemble with the click of a button
 
 ![ensemble](docs/_static/ensemble.gif)
+
+## Features
+
+* Fully define your data source, relevant metrics, and base learners with Python code
+* Any model following the Scikit-learn API can be used as a base learner
+* Task queue based architecture lets you take full advantage of multiple cores and embarrassingly parallel hyperparameter searches
+* Easy management and comparison of hundreds of different model-hyperparameter combinations
+* Automatic saving of generated secondary meta-features
+* Stacked ensemble creation in a few clicks
 
 ## Installation and Documentation
 

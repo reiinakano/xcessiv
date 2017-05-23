@@ -10,6 +10,16 @@ Xcessiv is a web-based application for quick and scalable construction of massiv
 
 ----------------
 
+Features
+--------
+
+* Fully define your data source, relevant metrics, and base learners with Python code
+* Any model following the Scikit-learn API can be used as a base learner
+* Task queue based architecture lets you take full advantage of multiple cores and embarrassingly parallel hyperparameter searches
+* Easy management and comparison of hundreds of different model-hyperparameter combinations
+* Automatic saving of generated secondary meta-features
+* Stacked ensemble creation in a few clicks
+
 .. image:: _static/baselearner.gif
    :align: center
    :alt: Base learner gif
