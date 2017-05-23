@@ -6,6 +6,17 @@
 Welcome to Xcessiv's documentation!
 ===================================
 
+Xcessiv is a web-based application for quick and scalable construction of massive machine learning ensembles.
+
+----------------
+
+.. image:: _static/baselearner.gif
+   :align: center
+   :alt: Base learner gif
+
+Contents
+--------
+
 .. toctree::
    :maxdepth: 2
    :name: mastertoc

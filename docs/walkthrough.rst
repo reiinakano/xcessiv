@@ -292,13 +292,13 @@ Click **Grid Search**, and enter the following code.::
 
    param_grid = [{'C': [0.01, 0.1, 1, 10, 100]}]
 
-Five new base learners should be created, each with a ``C`` value of 0.01, 0.1, 1, 10, and 100 respectively.
+Five new base learners should be created, with ``C`` values of 0.01, 0.1, 1, 10, and 100 respectively.
 
 The format of ``param_grid`` should be exactly as that described in http://scikit-learn.org/stable/modules/grid_search.html#exhaustive-grid-search.
 
-Now, reopen the Grid Search modal and re-enter the parameter grid you ran previously. You'll see that your request is successful but no new base learners will be created. Xcessiv automatically detects whether a previous model-hyperparameter combination has already been processed and skips it. You don't need to worry about overlapping grid search spaces.
+Now, reopen the Grid Search modal and re-enter the parameter grid you ran previously. You'll see that your request is successful but no new base learners are actually created. Xcessiv automatically detects whether a previous model-hyperparameter combination has already been processed and skips it. You don't need to worry about overlapping grid search spaces.
 
-Remember that this is Python code, so you can also enter things like::
+Remember that this is Python code, so if you're feeling creative, you can also enter things like::
 
    param_grid = [{'C': range(10)}]
 

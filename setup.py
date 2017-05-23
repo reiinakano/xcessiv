@@ -37,7 +37,7 @@ setup(
     name='xcessiv',
     version=xcessiv.__version__,
     url='https://github.com/reiinakano/xcessiv',
-    license='MIT License',
+    license='Apache License 2.0',
     author='Reiichiro Nakano',
     tests_require=['pytest'],
     install_requires=[
@@ -70,7 +70,7 @@ setup(
         'Natural Language :: English',
         'Intended Audience :: Developers',
         'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: Unix',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         ],

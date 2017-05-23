@@ -13,15 +13,15 @@ Xcessiv holds your hand through all the implementation details of creating and o
 
 ### Define your base learners and performance metrics
 
-![define_base_learner](images/baselearner.gif)
+![define_base_learner](docs/_static/baselearner.gif)
 
 ### Keep track of hundreds of different model-hyperparameter combinations
 
-![list_base_learner](images/listbaselearner.gif)
+![list_base_learner](docs/_static/listbaselearner.gif)
 
 ### Effortlessly choose your base learners and create an ensemble with the click of a button
 
-![ensemble](images/ensemble.gif)
+![ensemble](docs/_static/ensemble.gif)
 
 ## Installation
 
