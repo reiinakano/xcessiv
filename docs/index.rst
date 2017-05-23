@@ -20,17 +20,25 @@ Features
 * Automatic saving of generated secondary meta-features
 * Stacked ensemble creation in a few clicks
 
+----------------
+
 .. image:: _static/baselearner.gif
    :align: center
    :alt: Base learner gif
+
+----------------
 
 .. image:: _static/listbaselearner.gif
    :align: center
    :alt: List base learner gif
 
+----------------
+
 .. image:: _static/ensemble.gif
    :align: center
    :alt: Ensemble gif
+
+----------------
 
 Contents
 --------
