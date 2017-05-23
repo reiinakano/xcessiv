@@ -14,6 +14,14 @@ Xcessiv is a web-based application for quick and scalable construction of massiv
    :align: center
    :alt: Base learner gif
 
+.. image:: _static/listbaselearner.gif
+   :align: center
+   :alt: List base learner gif
+
+.. image:: _static/ensemble.gif
+   :align: center
+   :alt: Ensemble gif
+
 Contents
 --------
 

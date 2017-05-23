@@ -23,13 +23,9 @@ Xcessiv holds your hand through all the implementation details of creating and o
 
 ![ensemble](docs/_static/ensemble.gif)
 
-## Installation
+## Installation and Documentation
 
-Head on over to the official documentation for installation instructions.
-
-## Documentation
-
-The official documentation is located here.
+You can find installation instructions and detailed documentation hosted [here](http://xcessiv.readthedocs.io/)
 
 ## FAQ
 
@@ -49,4 +45,4 @@ You can choose whether to generate meta-features through cross-validation (stack
 
 ## Project Status
 
-Xcessiv is currently in pre-release and is unstable. Future versions are not guaranteed to be backwards-compatible with current project files.
+Xcessiv is currently in alpha and is unstable. Future versions are not guaranteed to be backwards-compatible with current project files.
