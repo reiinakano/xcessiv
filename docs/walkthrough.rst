@@ -262,7 +262,7 @@ Let's begin with evaluating a single base learner on the the data. Open up our R
 
 In the code block shown, enter the following code.::
 
-   params = {'n_estimators': 200}
+   params = {'n_estimators': 10}
 
 For creating a single base learner, the code block only has to define a single variable ``params`` containing a Python dictionary. The dictionary should contain the base learner hyperparameters and corresponding values as key-value pairs. Any hyperparameter not included in the dictionary will be left at the default value. In fact, if you pass an empty dictionary to ``params``, a base learner with the  default hyperparameters will be run on the dataset.
 

@@ -191,6 +191,7 @@ class BaseLearnerOrigin(Base):
     final = Column(Boolean)
     meta_feature_generator = Column(Text)
     metric_generators = Column(JsonEncodedDict)
+    description = Column(JsonEncodedDict)
     base_learners = relationship('BaseLearner', back_populates='base_learner_origin')
     stacked_ensembles = relationship('StackedEnsemble', back_populates='base_learner_origin')
 
@@ -202,6 +203,7 @@ class BaseLearnerOrigin(Base):
         self.hyperparameters = dict()
         self.final = False
         self.meta_feature_generator = meta_feature_generator
+        self.description = dict()
         self.metric_generators = dict() if metric_generators is None else metric_generators
 
     @property
