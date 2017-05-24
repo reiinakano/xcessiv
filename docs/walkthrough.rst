@@ -19,9 +19,9 @@ To run Xcessiv in the current directory, we simply run::
 
    xcessiv
 
-This will run the Xcessiv server and a single worker process with the default settings. You can view the Xcessiv application by pointing your browser at localhost:1994 by default.
+This will run the Xcessiv server and a single worker process with the default configuration. You can view the Xcessiv application by pointing your browser at localhost:1994 by default.
 
-To view the full range of settings you can configure using the command line, type::
+To view the full range of configuration variables you can configure using the command line, type::
 
    xcessiv -h
 

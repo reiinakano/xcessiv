@@ -44,8 +44,6 @@ def main():
     cli_config = dict((key, value) for key, value in iteritems(cli_config) if value is not None)
     app.config.update(**cli_config)
 
-    print(app.config['NUM_WORKERS'])
-
     redis_conn = (Redis(app.config['REDIS_HOST'],
                         app.config['REDIS_PORT'],
                         app.config['REDIS_DB']))
