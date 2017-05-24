@@ -6,6 +6,8 @@ from multiprocessing import Process, Pipe
 from redis import Redis
 from xcessiv.server import launch
 from xcessiv.scripts.runworker import runworker
+from xcessiv import app
+from six import iteritems
 
 
 def wrap(task, pipe):
@@ -17,24 +19,37 @@ def wrap(task, pipe):
 
 def main():
     parser = argparse.ArgumentParser(description='Launch Xcessiv server and workers')
-    parser.add_argument('-w', '--worker', help='Define number of workers', default=1, type=int)
+    parser.add_argument('-w', '--worker', help='Define number of workers', type=int)
     parser.add_argument('-p', '--port', help='Port number to be used by web server',
-                        default=1994, type=int)
-    parser.add_argument('-H', '--host', help='Redis host', default='localhost')
-    parser.add_argument('-P', '--redisport', help='Redis port', default=6379, type=int)
-    parser.add_argument('-D', '--redisdb', help='Redis database number', default=8, type=int)
+                        type=int)
+    parser.add_argument('-H', '--host', help='Redis host')
+    parser.add_argument('-P', '--redisport', help='Redis port', type=int)
+    parser.add_argument('-D', '--redisdb', help='Redis database number', type=int)
     args = parser.parse_args()
 
+    # Overwrite configuration from configuration file
+    default_config_path = os.path.join(os.path.expanduser('~'), '.xcessiv/config.py')
+    if os.path.exists(default_config_path):
+        print('Config file found at ' + default_config_path)
+        app.config.from_pyfile(default_config_path)
+
+    # Overwrite configuration from command line arguments
     cli_config = {
         'REDIS_HOST': args.host,
         'REDIS_PORT': args.redisport,
-        'REDIS_DB': args.redisdb
+        'REDIS_DB': args.redisdb,
+        'XCESSIV_PORT': args.port,
+        'NUM_WORKERS': args.worker
     }
+    cli_config = dict((key, value) for key, value in iteritems(cli_config) if value is not None)
+    app.config.update(**cli_config)
 
-    redis_conn = (Redis(cli_config['REDIS_HOST'],
-                        cli_config['REDIS_PORT'],
-                        cli_config['REDIS_DB']))
-    redis_conn.get(None)  # will throw exception if Redis is unvailable
+    print(app.config['NUM_WORKERS'])
+
+    redis_conn = (Redis(app.config['REDIS_HOST'],
+                        app.config['REDIS_PORT'],
+                        app.config['REDIS_DB']))
+    redis_conn.get(None)  # will throw exception if Redis is unavailable
 
     cwd = os.getcwd()
     print(cwd)
@@ -42,11 +57,11 @@ def main():
     processes = []
     try:
         conn1, conn2 = Pipe(duplex=False)
-        server_proc = Process(target=wrap(launch, conn2), args=(args.port, cli_config))
+        server_proc = Process(target=wrap(launch, conn2), args=(app,))
         server_proc.start()
 
-        for i in range(args.worker):
-            p = Process(target=wrap(runworker, conn2), args=(cli_config,))
+        for i in range(app.config['NUM_WORKERS']):
+            p = Process(target=wrap(runworker, conn2), args=(app,))
             processes.append(p)
             p.start()
 

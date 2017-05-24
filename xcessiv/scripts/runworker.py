@@ -1,10 +1,8 @@
 from rq import Connection, Worker
 from redis import Redis
-from xcessiv import app
 
 
-def runworker(cli_config):
-    app.config.update(**cli_config)
+def runworker(app):
 
     REDIS_HOST = app.config['REDIS_HOST']
     REDIS_PORT = app.config['REDIS_PORT']
@@ -17,7 +15,3 @@ def runworker(cli_config):
     with redis_conn:
         w = Worker(QUEUES)
         w.work()
-
-
-if __name__ == '__main__':
-    runworker(dict())
