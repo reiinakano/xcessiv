@@ -32,3 +32,19 @@ Then, run the following commands to clone the Xcessiv master branch and build an
    cd ..
    python setup.py install
 
+Configuration
+-------------
+
+To configure Xcessiv outside the default settings, create a Python file at ``{HOME_FOLDER}/.xcessiv/config.py``. Here are the parameters (at their default values) you can copy / paste in that configuration module.::
+
+   #---------------------------------------------------
+   # Xcessiv config
+   #---------------------------------------------------
+   REDIS_HOST = 'localhost'  # Host address of Redis server
+   REDIS_PORT = 6379  # Port of Redis Server
+   REDIS_DB = 8  # Redis database number to use
+
+   XCESSIV_PORT = 1994  # Port at which to start the Xcessiv server
+   NUM_WORKERS = 1  # Number of RQ workers to start
+
+Please note that aside from this configuration file, another way to configure Xcessiv is to directly pass the parameters when starting Xcessiv from the command line. In this case, the configuration variables passed through the command line overrides the the configuration found in ``config.py``. See :ref:`Starting Xcessiv` for details.
