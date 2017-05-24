@@ -54,6 +54,14 @@ Absolutely! Even without the ensembling functionality, the sheer amount of utili
 
 You can choose whether to generate meta-features through cross-validation (stacked generalization) or with a holdout set (blending). You can read about these two methods and a lot more about stacked ensembles in the [Kaggle Ensembling Guide](https://mlwave.com/kaggle-ensembling-guide/). It's a great article and provides most of the inspiration for this project.
 
+## Contributing
+
+Xcessiv is in its very early stages and needs the open-source community to guide it along. 
+
+There are many ways to contribute to Xcessiv. You could report a bug, suggest a feature, submit a pull request, improve documentation, and many more. 
+
+If you would like to contribute something, please visit our [Contributor Guidelines](CONTRIBUTING.md).
+
 ## Project Status
 
 Xcessiv is currently in alpha and is unstable. Future versions are not guaranteed to be backwards-compatible with current project files.
