@@ -303,10 +303,10 @@ def confirm_base_learner_origin(id):
                 base_learner,
                 base_learner_origin.meta_feature_generator,
                 base_learner_origin.metric_generators,
-                base_learner_origin.validation_results.keys()[0]
+                list(base_learner_origin.validation_results.keys())[0]
             )
             base_learner_origin.validation_results = {
-                base_learner_origin.validation_results.keys()[0]: validation_results
+                list(base_learner_origin.validation_results.keys())[0]: validation_results
             }
             base_learner_origin.hyperparameters = hyperparameters
             base_learner_origin.final = True
