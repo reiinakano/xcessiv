@@ -84,6 +84,43 @@ class TestMakeSerializable(unittest.TestCase):
         ) == {'x': ['i am serializable', 0.1]}
 
 
+class GetSampleDataset(unittest.TestCase):
+    def setUp(self):
+        self.dataset_properties = {
+            'type': 'classification',
+        }
+
+    def test_classification_dataset(self):
+        X, y, split = functions.get_sample_dataset(self.dataset_properties)
+        assert X.shape == (100, 20)
+        assert y.shape == (100,)
+        assert len(np.unique(y)) == 2
+
+        self.dataset_properties['n_classes'] = 4
+        self.dataset_properties['n_informative'] = 18
+        X, y, split = functions.get_sample_dataset(self.dataset_properties)
+        assert X.shape == (100, 20)
+        assert y.shape == (100,)
+        assert len(np.unique(y)) == 4
+
+        self.dataset_properties['n_features'] = 100
+        X, y, split = functions.get_sample_dataset(self.dataset_properties)
+        assert X.shape == (100, 100)
+        assert y.shape == (100,)
+        assert len(np.unique(y)) == 4
+
+        self.dataset_properties['n_samples'] = 24
+        X, y, split = functions.get_sample_dataset(self.dataset_properties)
+        assert X.shape == (24, 100)
+        assert y.shape == (24,)
+        assert len(np.unique(y)) == 4
+
+    def test_iris_dataset(self):
+        X, y, split = functions.get_sample_dataset({'type': 'iris'})
+        assert X.shape == (150, 4)
+        assert y.shape == (150,)
+
+
 class TestVerifyEstimatorClass(unittest.TestCase):
     def setUp(self):
         self.source = ''.join([
@@ -94,15 +131,19 @@ class TestVerifyEstimatorClass(unittest.TestCase):
             "    return accuracy_score(y_true, argmax)"
         ])
         self.wrong_source = "metric_generator = ''"
+        self.dataset_properties = {
+            'type': 'classification',
+        }
 
     def test_verify_estimator_class(self):
         np.random.seed(8)
         performance_dict, hyperparameters = functions.verify_estimator_class(
             RandomForestClassifier(),
             'predict_proba',
-            dict(Accuracy=self.source)
+            dict(Accuracy=self.source),
+            self.dataset_properties
         )
-        assert round(performance_dict['Accuracy'], 3) == 0.954
+        assert round(performance_dict['Accuracy'], 3) == 0.8
         assert hyperparameters == {
             'warm_start': False,
             'oob_score': False,
@@ -127,7 +168,8 @@ class TestVerifyEstimatorClass(unittest.TestCase):
         performance_dict, hyperparameters = functions.verify_estimator_class(
             pipeline,
             'predict_proba',
-            dict(Accuracy=self.source)
+            dict(Accuracy=self.source),
+            self.dataset_properties
         )
         assert functions.is_valid_json(hyperparameters)
 
@@ -138,7 +180,8 @@ class TestVerifyEstimatorClass(unittest.TestCase):
             functions.verify_estimator_class,
             RandomForestClassifier(),
             'predict_proba',
-            dict(Accuracy=self.wrong_source)
+            dict(Accuracy=self.wrong_source),
+            self.dataset_properties
         )
 
     def test_assertion_meta_feature_generator(self):
@@ -148,5 +191,6 @@ class TestVerifyEstimatorClass(unittest.TestCase):
             functions.verify_estimator_class,
             RandomForestClassifier(),
             'decision_function',
-            dict(Accuracy=self.source)
+            dict(Accuracy=self.source),
+            self.dataset_properties
         )

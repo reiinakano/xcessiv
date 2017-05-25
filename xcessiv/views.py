@@ -271,9 +271,12 @@ def verify_base_learner_origin(id):
                 base_learner,
                 base_learner_origin.meta_feature_generator,
                 base_learner_origin.metric_generators,
-                req_body['dataset']
+                req_body['dataset_properties']
             )
-            base_learner_origin.validation_results = {req_body['dataset']: validation_results}
+            base_learner_origin.validation_results = {
+                'dataset': req_body['dataset_properties'],
+                'metrics': validation_results
+            }
             base_learner_origin.hyperparameters = hyperparameters
             session.add(base_learner_origin)
             session.commit()
@@ -301,10 +304,11 @@ def confirm_base_learner_origin(id):
                 base_learner,
                 base_learner_origin.meta_feature_generator,
                 base_learner_origin.metric_generators,
-                list(base_learner_origin.validation_results.keys())[0]
+                base_learner_origin.validation_results['dataset']
             )
             base_learner_origin.validation_results = {
-                list(base_learner_origin.validation_results.keys())[0]: validation_results
+                'dataset': base_learner_origin.validation_results['dataset'],
+                'metrics': validation_results
             }
             base_learner_origin.hyperparameters = hyperparameters
             base_learner_origin.final = True

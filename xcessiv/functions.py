@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from six import exec_, iteritems
 from sklearn import datasets
-from sklearn.model_selection import StratifiedKFold
+from sklearn import model_selection
 from xcessiv import app, exceptions
 
 
@@ -139,7 +139,38 @@ def make_serializable(json):
     return new_dict
 
 
-def verify_estimator_class(est, meta_feature_generator, metric_generators, dataset='binary'):
+def get_sample_dataset(dataset_properties):
+    """Returns sample dataset
+
+    Args:
+        dataset_properties (dict): Dictionary corresponding to the properties of the dataset
+            used to verify the estimator and metric generators.
+
+    Returns:
+        X (array-like): Features array
+
+        y (array-like): Labels array
+
+        splits (iterator): This is an iterator that returns train test splits for
+            cross-validation purposes on ``X`` and ``y``.
+    """
+    kwargs = dataset_properties.copy()
+    data_type = kwargs.pop('type')
+    if data_type == 'classification':
+        try:
+            X, y = datasets.make_classification(random_state=8, **kwargs)
+            splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)
+        except Exception as e:
+            raise exceptions.UserError(repr(e))
+    elif data_type == 'iris':
+        X, y = datasets.load_iris(return_X_y=True)
+        splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)
+    else:
+        raise exceptions.UserError('Unknown dataset type {}'.format(dataset_properties['type']))
+    return X, y, splits
+
+
+def verify_estimator_class(est, meta_feature_generator, metric_generators, dataset_properties):
     """Verify if estimator object is valid for use i.e. scikit-learn format
 
     Verifies if an estimator is fit for use by testing for existence of methods
@@ -159,9 +190,8 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators, datas
             function used to calculate the metric from true values and the
             meta-features generated.
 
-        dataset (str, unicode): String corresponding to the dataset used to verify the estimator
-            and metric generators. Can be 'binary' (breast cancer data) or 'multiclass'
-            (digits data).
+        dataset_properties (dict): Dictionary corresponding to the properties of the dataset
+            used to verify the estimator and metric generators.
 
     Returns:
         performance_dict (mapping): Mapping from performance metric
@@ -170,12 +200,7 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators, datas
         hyperparameters (mapping): Mapping from the estimator's hyperparameters to
             their default values e.g. "n_estimators": 10
     """
-    if dataset == 'binary':
-        X, y = datasets.load_breast_cancer(return_X_y=True)
-    elif dataset == 'multiclass':
-        X, y = datasets.load_digits(return_X_y=True)
-    else:
-        raise ValueError('{} not recognized'.format(dataset))
+    X, y, splits = get_sample_dataset(dataset_properties)
 
     if not hasattr(est, "get_params"):
         raise exceptions.UserError('Estimator does not have get_params method')
@@ -189,19 +214,23 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators, datas
 
     true_labels = []
     preds = []
-    for train_index, test_index in StratifiedKFold().split(X, y):
-        X_train, X_test = X[train_index], X[test_index]
-        y_train, y_test = y[train_index], y[test_index]
-        est.fit(X_train, y_train)
-        true_labels.append(y_test)
-        preds.append(getattr(est, meta_feature_generator)(X_test))
+
+    try:
+        for train_index, test_index in splits:
+            X_train, X_test = X[train_index], X[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            est.fit(X_train, y_train)
+            true_labels.append(y_test)
+            preds.append(getattr(est, meta_feature_generator)(X_test))
+    except Exception as e:
+        raise exceptions.UserError(repr(e))
     true_labels = np.concatenate(true_labels)
     preds = np.concatenate(preds, axis=0)
     if preds.shape[0] != true_labels.shape[0]:
         raise exceptions.UserError('Estimator\'s meta-feature generator '
                                    'does not produce valid shape')
-    for key in metric_generators:
 
+    for key in metric_generators:
         metric_generator = import_object_from_string_code(
             metric_generators[key],
             'metric_generator'
