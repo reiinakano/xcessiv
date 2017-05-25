@@ -40,7 +40,7 @@ class ContainerBaseLearner extends Component {
   componentDidMount() {
     this.refreshBaseLearnerOrigins(this.props.path);
     this.refreshBaseLearnersUntilFinished(this.props.path); 
-    this.refreshStackedEnsembles(this.props.path);
+    this.refreshStackedEnsemblesUntilFinished(this.props.path);
     this.refreshPresetBaseLearnerOrigins();
     this.refreshPresetMetricGenerators();
   }
@@ -49,7 +49,7 @@ class ContainerBaseLearner extends Component {
     if (this.props.path !== nextProps.path) {
       this.refreshBaseLearnerOrigins(nextProps.path);
       this.refreshBaseLearnersUntilFinished(nextProps.path); 
-      this.refreshStackedEnsembles(nextProps.path);
+      this.refreshStackedEnsemblesUntilFinished(nextProps.path);
     }
   }
 
@@ -360,20 +360,30 @@ class ContainerBaseLearner extends Component {
     });
   }
 
-  // Refresh stacked ensembles from server data
-  refreshStackedEnsembles(path) {
+  // Refresh stacked ensembles until all are finished
+  refreshStackedEnsemblesUntilFinished(path) {
+    this.refreshingSE = true;
     fetch('/ensemble/stacked/?path=' + path)
+    .then(handleErrors)
     .then(response => response.json())
     .then(json => {
+      if (this.props.path !== path) { return null; }
       console.log(json);
       this.setState({
         stackedEnsembles: json
       });
       for (let obj of json) {
         if (obj.job_status === 'started' || obj.job_status === 'queued') {
-          this.fetchStackedEnsembleUntilFinished(obj.id);          
+          setTimeout(() => this.refreshStackedEnsemblesUntilFinished(path), 5000);
+          return null;    
         }
       }
+      this.refreshingSE = false;
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.refreshingSE = false;
     });
   }
 
@@ -406,7 +416,9 @@ class ContainerBaseLearner extends Component {
         stackedEnsembles.push(json);
         return {stackedEnsembles};
       });
-      this.fetchStackedEnsembleUntilFinished(json.id);
+      if (!this.refreshingSE) {
+        this.refreshStackedEnsemblesUntilFinished(this.props.path)
+      }
       this.props.addNotification({
         title: 'Success',
         message: 'Created ensemble',
@@ -421,38 +433,6 @@ class ContainerBaseLearner extends Component {
         message: error.errMessage,
         level: 'error'
       });
-    });
-  }
-
-  // Callback to update a stacked ensemble in the list
-  updateStackedEnsemble(id, newData) {
-    this.setState((prevState) => {
-      var stackedEnsembles = prevState.stackedEnsembles.slice();
-      var idx = stackedEnsembles.findIndex((x) => x.id === id);
-      stackedEnsembles[idx] = newData;
-      return {stackedEnsembles};
-    });
-  }
-
-  fetchStackedEnsembleUntilFinished(id) {
-    fetch('/ensemble/stacked/' + id + '/?path=' + this.props.path)
-    .then(handleErrors)
-    .then(response => response.json())
-    .then(json => {
-      console.log(json);
-      if (json.job_status === 'queued' || json.job_status === 'started') {
-        // Delay 5 seconds
-        setTimeout(() => this.fetchStackedEnsembleUntilFinished(id), 5000);
-      }
-      else {
-        // Update base learner
-        this.updateStackedEnsemble(id, json);
-        console.log('Job is done');
-      }
-    })
-    .catch(error => {
-      console.log(error.message);
-      console.log(error.errMessage);
     });
   }
 
