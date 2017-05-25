@@ -246,9 +246,7 @@ def specific_base_learner_origin(id):
             return jsonify(base_learner_origin.serialize)
 
         if request.method == 'DELETE':
-            for learner in base_learner_origin.base_learners:
-                learner.delete_meta_features(path)
-                session.delete(learner)
+            base_learner_origin.cleanup(path)
             session.delete(base_learner_origin)
             session.commit()
             return jsonify(message='Deleted base learner origin')
@@ -447,7 +445,7 @@ def specific_base_learner(id):
             return jsonify(base_learner.serialize)
 
         if request.method == 'DELETE':
-            base_learner.delete_meta_features(path)
+            base_learner.cleanup(path)
             session.delete(base_learner)
             session.commit()
             return jsonify(message='Deleted base learner')
