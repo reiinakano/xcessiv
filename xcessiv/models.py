@@ -192,8 +192,10 @@ class BaseLearnerOrigin(Base):
     meta_feature_generator = Column(Text)
     metric_generators = Column(JsonEncodedDict)
     description = Column(JsonEncodedDict)
-    base_learners = relationship('BaseLearner', back_populates='base_learner_origin')
-    stacked_ensembles = relationship('StackedEnsemble', back_populates='base_learner_origin')
+    base_learners = relationship('BaseLearner', back_populates='base_learner_origin',
+                                 cascade='all, delete-orphan', single_parent=True)
+    stacked_ensembles = relationship('StackedEnsemble', back_populates='base_learner_origin',
+                                     cascade='all, delete-orphan', single_parent=True)
 
     def __init__(self, source='', name='Base Learner Setup',
                  meta_feature_generator='predict_proba', metric_generators=None):
@@ -230,6 +232,15 @@ class BaseLearnerOrigin(Base):
 
         return estimator
 
+    def cleanup(self, path):
+        """This function should be called before database deletion to do any pre-delete work
+
+        Args:
+            path (str, unicode): Absolute/local path of xcessiv folder
+        """
+        for learner in self.base_learners:
+            learner.cleanup(path)
+
 
 association_table = Table(
     'association', Base.metadata,
@@ -254,7 +265,9 @@ class BaseLearner(Base):
     stacked_ensembles = relationship(
         'StackedEnsemble',
         secondary=association_table,
-        back_populates='base_learners'
+        back_populates='base_learners',
+        cascade='all, delete-orphan',
+        single_parent=True
     )
 
     def __init__(self, hyperparameters, job_status, base_learner_origin):
@@ -309,6 +322,14 @@ class BaseLearner(Base):
         """
         if os.path.exists(self.meta_features_path(path)):
             os.remove(self.meta_features_path(path))
+
+    def cleanup(self, path):
+        """This function should be called before database deletion to do any pre-delete work
+
+        Args:
+            path (str, unicode): Absolute/local path of xcessiv folder
+        """
+        self.delete_meta_features(path)
 
 
 class StackedEnsemble(Base):
