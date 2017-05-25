@@ -150,6 +150,12 @@ class ContainerBaseLearner extends Component {
         }
         return {baseLearnerOrigins};
       });
+      if (!this.refreshingBL) {
+        this.refreshBaseLearnersUntilFinished(this.props.path);
+      }
+      if (!this.refreshingSE) {
+        this.refreshStackedEnsemblesUntilFinished(this.props.path);
+      }
       this.props.addNotification({
         title: 'Success',
         message: json.message,
@@ -330,7 +336,10 @@ class ContainerBaseLearner extends Component {
         var idx = baseLearners.findIndex((x) => x.id === id);
         baseLearners.splice(idx, 1);
         return {baseLearners};
-      })
+      });
+      if (!this.refreshingSE) {
+        this.refreshStackedEnsemblesUntilFinished(this.props.path);
+      }
       this.props.addNotification({
         title: 'Success',
         message: json.message,
