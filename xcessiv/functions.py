@@ -222,10 +222,11 @@ def verify_estimator_class(est, meta_feature_generator, metric_generators, datas
             est.fit(X_train, y_train)
             true_labels.append(y_test)
             preds.append(getattr(est, meta_feature_generator)(X_test))
+            true_labels = np.concatenate(true_labels)
+            preds = np.concatenate(preds, axis=0)
     except Exception as e:
         raise exceptions.UserError(repr(e))
-    true_labels = np.concatenate(true_labels)
-    preds = np.concatenate(preds, axis=0)
+
     if preds.shape[0] != true_labels.shape[0]:
         raise exceptions.UserError('Estimator\'s meta-feature generator '
                                    'does not produce valid shape')
