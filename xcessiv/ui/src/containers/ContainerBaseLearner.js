@@ -39,7 +39,7 @@ class ContainerBaseLearner extends Component {
   // Get request from server to populate fields
   componentDidMount() {
     this.refreshBaseLearnerOrigins(this.props.path);
-    this.refreshBaseLearners(this.props.path); 
+    this.refreshBaseLearnersUntilFinished(this.props.path); 
     this.refreshStackedEnsembles(this.props.path);
     this.refreshPresetBaseLearnerOrigins();
     this.refreshPresetMetricGenerators();
@@ -48,7 +48,7 @@ class ContainerBaseLearner extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.path !== nextProps.path) {
       this.refreshBaseLearnerOrigins(nextProps.path);
-      this.refreshBaseLearners(nextProps.path); 
+      this.refreshBaseLearnersUntilFinished(nextProps.path); 
       this.refreshStackedEnsembles(nextProps.path);
     }
   }
@@ -158,20 +158,30 @@ class ContainerBaseLearner extends Component {
     });
   }
 
-  // Refresh base learners from server data
-  refreshBaseLearners(path) {
+  // Refresh base learners until all are finished
+  refreshBaseLearnersUntilFinished(path) {
+    this.refreshingBL = true;
     fetch('/ensemble/base-learners/?path=' + path)
+    .then(handleErrors)
     .then(response => response.json())
     .then(json => {
-      console.log(json)
+      if (this.props.path !== path) { return null; }
+      console.log(json);
       this.setState({
         baseLearners: json
       });
       for (let obj of json) {
         if (obj.job_status === 'started' || obj.job_status === 'queued') {
-          this.fetchBaseLearnerUntilFinished(obj.id);          
+          setTimeout(() => this.refreshBaseLearnersUntilFinished(path), 5000);
+          return null;    
         }
       }
+      this.refreshingBL = false;
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.refreshingBL = false;
     });
   }
 
@@ -198,7 +208,9 @@ class ContainerBaseLearner extends Component {
         baseLearners.push(json);
         return {baseLearners};
       });
-      this.fetchBaseLearnerUntilFinished(json.id);
+      if (!this.refreshingBL) { 
+        this.refreshBaseLearnersUntilFinished(this.props.path); 
+      }
       this.props.addNotification({
         title: 'Success',
         message: 'Created new base learner',
@@ -238,10 +250,8 @@ class ContainerBaseLearner extends Component {
         var baseLearners = prevState.baseLearners.concat(json);
         return {baseLearners};
       });
-      for (let obj of json) {
-        if (obj.job_status === 'started' || obj.job_status === 'queued') {
-          this.fetchBaseLearnerUntilFinished(obj.id);          
-        }
+      if (!this.refreshingBL) {
+        this.refreshBaseLearnersUntilFinished(this.props.path);
       }
       this.props.addNotification({
         title: 'Success',
@@ -282,10 +292,8 @@ class ContainerBaseLearner extends Component {
         var baseLearners = prevState.baseLearners.concat(json);
         return {baseLearners};
       });
-      for (let obj of json) {
-        if (obj.job_status === 'started' || obj.job_status === 'queued') {
-          this.fetchBaseLearnerUntilFinished(obj.id);          
-        }
+      if (!this.refreshingBL) {
+        this.refreshBaseLearnersUntilFinished(this.props.path);
       }
       this.props.addNotification({
         title: 'Success',
@@ -301,38 +309,6 @@ class ContainerBaseLearner extends Component {
         message: error.errMessage,
         level: 'error'
       });
-    });
-  }
-
-  // Callback to update a base learner in the list
-  updateBaseLearner(id, newData) {
-    this.setState((prevState) => {
-      var idx = prevState.baseLearners.findIndex((x) => x.id === id);
-      var newBaseLearners = prevState.baseLearners.slice();
-      newBaseLearners[idx] = newData;
-      return {baseLearners: newBaseLearners};
-    });
-  }
-
-  fetchBaseLearnerUntilFinished(id) {
-    fetch('/ensemble/base-learners/' + id + '/?path=' + this.props.path)
-    .then(handleErrors)
-    .then(response => response.json())
-    .then(json => {
-      console.log(json);
-      if (json.job_status === 'queued' || json.job_status === 'started') {
-        // Delay 5 seconds
-        setTimeout(() => this.fetchBaseLearnerUntilFinished(id), 5000);
-      }
-      else {
-        // Update base learner
-        this.updateBaseLearner(id, json);
-        console.log('Job is done');
-      }
-    })
-    .catch(error => {
-      console.log(error.message);
-      console.log(error.errMessage);
     });
   }
 

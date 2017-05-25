@@ -272,6 +272,9 @@ class ListBaseLearner extends Component {
               else if (this.sortedBaseLearners[props.rowIndex].job_status === 'finished') {
                 status_icon = <FaCheck />
               }
+              else if (this.sortedBaseLearners[props.rowIndex].job_status === 'queued') {
+                status_icon = 'Queued'
+              }
               else {
                 status_icon = <FaSpinner className='load-animate'/>
               }
