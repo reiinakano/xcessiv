@@ -29,23 +29,6 @@ class TestReturnTrainDataFromJSON(unittest.TestCase):
         assert X.shape == (1617, 64)
         assert y.shape == (1617,)
 
-    def test_split_main_for_holdout(self):
-        self.extraction.meta_feature_generation['method'] = 'holdout_split'
-        self.extraction.meta_feature_generation['split_ratio'] = 0.1
-        X, y = self.extraction.return_train_dataset()
-        assert X.shape == (1617, 64)
-        assert y.shape == (1617,)
-
-    def test_split_main_for_test_and_holdout(self):
-        self.extraction.test_dataset['method'] = 'split_from_main'
-        self.extraction.test_dataset['split_ratio'] = 0.1
-        self.extraction.test_dataset['split_seed'] = 8
-        self.extraction.meta_feature_generation['method'] = 'holdout_split'
-        self.extraction.meta_feature_generation['split_ratio'] = 0.1
-        X, y = self.extraction.return_train_dataset()
-        assert X.shape == (1455, 64)
-        assert y.shape == (1455,)
-
 
 class TestReturnTestDataFromJSON(unittest.TestCase):
     def setUp(self):

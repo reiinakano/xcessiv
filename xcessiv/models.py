@@ -93,15 +93,6 @@ class Extraction(Base):
                 stratify=y
             )
 
-        if self.meta_feature_generation['method'] == 'holdout_split':
-            X, X_test, y, y_test = train_test_split(
-                X,
-                y,
-                test_size=self.meta_feature_generation['split_ratio'],
-                random_state=self.meta_feature_generation['seed'],
-                stratify=y
-            )
-
         return X, y
 
     def return_test_dataset(self):
