@@ -120,6 +120,16 @@ class GetSampleDataset(unittest.TestCase):
         assert X.shape == (150, 4)
         assert y.shape == (150,)
 
+    def test_mnist_dataset(self):
+        X, y, split = functions.get_sample_dataset({'type': 'mnist'})
+        assert X.shape == (1797, 64)
+        assert y.shape == (1797,)
+
+    def test_breast_cancer_dataset(self):
+        X, y, split = functions.get_sample_dataset({'type': 'breast_cancer'})
+        assert X.shape == (569, 30)
+        assert y.shape == (569,)
+
 
 class TestVerifyEstimatorClass(unittest.TestCase):
     def setUp(self):

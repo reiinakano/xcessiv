@@ -218,10 +218,16 @@ class BaseLearnerOrigin extends Component {
   // Build datasetProperties to pass to verifyLearner
   buildDatasetProperties(selectedDataset) {
     if (selectedDataset === 'iris') {
-      this.verifyLearner( {type: 'iris'} );
+      this.verifyLearner({ type: 'iris' });
     }
     else if (selectedDataset === 'multiclass') {
       this.setState({showMulticlassDatasetModal: true});
+    }
+    else if (selectedDataset === 'mnist') {
+      this.verifyLearner({ type: 'mnist' });
+    }
+    else if (selectedDataset === 'breast_cancer') {
+      this.verifyLearner({ type: 'breast_cancer' });
     }
   }
 
@@ -362,6 +368,8 @@ class BaseLearnerOrigin extends Component {
             }}
           >
             <MenuItem eventKey='iris'>Iris data</MenuItem>
+            <MenuItem eventKey='mnist'>MNIST data</MenuItem>
+            <MenuItem eventKey='breast_cancer'>Breast cancer data (Binary)</MenuItem>
             <MenuItem eventKey='multiclass'>Custom multiclass data</MenuItem>
           </DropdownButton>
 

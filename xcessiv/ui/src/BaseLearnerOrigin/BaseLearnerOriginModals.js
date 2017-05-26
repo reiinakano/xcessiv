@@ -14,7 +14,10 @@ export class MulticlassDatasetModal extends Component {
       type: 'multiclass',
       n_classes: 2,
       n_features: 8,
-      n_samples: 100
+      n_samples: 100,
+      n_clusters_per_class: 1,
+      n_informative: 2,
+      n_redundant: 0
     };
   }
 
@@ -62,6 +65,36 @@ export class MulticlassDatasetModal extends Component {
                 type='number' min='100'
                 value={this.state.n_samples}
                 onChange={(evt) => this.setState({n_samples: parseInt(evt.target.value, 10)})}            
+              />
+            </FormGroup>
+            <FormGroup
+              controlId='nClusters'
+            >
+              <ControlLabel>Number of clusters per class</ControlLabel>
+              <FormControl
+                type='number' min='1'
+                value={this.state.n_clusters_per_class}
+                onChange={(evt) => this.setState({n_clusters_per_class: parseInt(evt.target.value, 10)})}            
+              />
+            </FormGroup>
+            <FormGroup
+              controlId='nInformative'
+            >
+              <ControlLabel>Number of informative features</ControlLabel>
+              <FormControl
+                type='number' min='100'
+                value={this.state.n_informative}
+                onChange={(evt) => this.setState({n_informative: parseInt(evt.target.value, 10)})}            
+              />
+            </FormGroup>
+            <FormGroup
+              controlId='nRedundant'
+            >
+              <ControlLabel>Number of redundant features</ControlLabel>
+              <FormControl
+                type='number' min='100'
+                value={this.state.n_redundant}
+                onChange={(evt) => this.setState({n_redundant: parseInt(evt.target.value, 10)})}            
               />
             </FormGroup>
           </Form>

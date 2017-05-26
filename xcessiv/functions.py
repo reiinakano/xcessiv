@@ -165,6 +165,12 @@ def get_sample_dataset(dataset_properties):
     elif data_type == 'iris':
         X, y = datasets.load_iris(return_X_y=True)
         splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)
+    elif data_type == 'mnist':
+        X, y = datasets.load_digits(return_X_y=True)
+        splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)
+    elif data_type == 'breast_cancer':
+        X, y = datasets.load_breast_cancer(return_X_y=True)
+        splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)
     else:
         raise exceptions.UserError('Unknown dataset type {}'.format(dataset_properties['type']))
     return X, y, splits
