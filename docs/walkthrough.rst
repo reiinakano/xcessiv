@@ -223,7 +223,9 @@ After defining your base learners and evaluation metrics, we'll want to ensure t
 
 Xcessiv provides verification functionality that takes your base learner and calculates its metrics on a small sample dataset.
 
-You can choose between testing it on multiclass data or binary class data. Since we'll be using our estimator on the breast cancer dataset, which is binary, we'll want to verify it works on binary class data. Click the **Verify on toy data** button and select **Binary data**. If nothing went wrong with your setup, you'll be able to see your base learner's hyperparameters with their default values, and the base learner's metrics on the sample binary data.
+You can choose from toy datasets such as MNIST (multiclass classification), the Wisconsin breast cancer dataset (binary classification), Boston housing prices (regression), and many more. Xcessiv also gives you an option to verify your learner against a custom dataset. You should select a sample dataset with properties that most closely resembles your actual dataset.
+
+Since for this example, we'll be using our estimator on the breast cancer dataset, we'll want to verify it on, well, the breast cancer dataset. Click the **Verify on toy data** button and select **Breast cancer data (Binary)**. If nothing went wrong with your setup, you'll be able to see your base learner's hyperparameters with their default values, and the base learner's metrics on the sample data.
 
 .. image:: _static/verified_base_learner.png
    :align: center
