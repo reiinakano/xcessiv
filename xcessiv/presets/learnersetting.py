@@ -10,7 +10,8 @@ __all__ = [
     'sklearn_knn_classifier',
     'sklearn_svm_classifier',
     'sklearn_gaussian_nb',
-    'xgboost_classifier'
+    'xgboost_classifier',
+    'sklearn_linear_regression'
 ]
 
 
@@ -54,4 +55,10 @@ xgboost_classifier = {
     'name': 'XGBoost Classifier',
     'source': learnersource.xgboost_classifier_source,
     'meta_feature_generator': 'predict_proba'
+}
+
+sklearn_linear_regression = {
+    'name': 'scikit-learn Linear Regression',
+    'source': learnersource.sklearn_linear_regression_source,
+    'meta_feature_generator': 'predict'
 }
