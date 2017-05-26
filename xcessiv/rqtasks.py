@@ -46,26 +46,18 @@ def extraction_data_statistics(path):
         else:
             X_test, y_test = None, None
 
-        if extraction.meta_feature_generation['method'] == 'holdout_split':
-            X, X_holdout, y, y_holdout = train_test_split(
-                X,
-                y,
-                test_size=extraction.meta_feature_generation['split_ratio'],
-                random_state=extraction.meta_feature_generation['seed'],
-                stratify=y
-            )
-        elif extraction.meta_feature_generation['method'] == 'holdout_source':
-            if 'source' not in extraction.meta_feature_generation or \
-                    not extraction.meta_feature_generation['source']:
-                raise exceptions.UserError('Source is empty')
+        extraction_code = extraction.meta_feature_generation['source']
+        return_splits_iterable = functions.import_object_from_string_code(
+            extraction_code,
+            'return_splits_iterable'
+        )
 
-            extraction_code = extraction.meta_feature_generation["source"]
-            extraction_function = functions.\
-                import_object_from_string_code(extraction_code,
-                                               "extract_holdout_dataset")
-            X_holdout, y_holdout = extraction_function()
-        else:
-            X_holdout, y_holdout = None, None
+        number_of_splits = 0
+        try:
+            for train_idx, test_idx in return_splits_iterable(X, y):
+                number_of_splits += 1
+        except Exception as e:
+            raise exceptions.UserError('User code exception', exception_message=str(e))
 
         data_stats = dict()
         data_stats['train_data_stats'] = functions.verify_dataset(X, y)
@@ -73,10 +65,7 @@ def extraction_data_statistics(path):
             data_stats['test_data_stats'] = functions.verify_dataset(X_test, y_test)
         else:
             data_stats['test_data_stats'] = None
-        if X_holdout is not None:
-            data_stats['holdout_data_stats'] = functions.verify_dataset(X_holdout, y_holdout)
-        else:
-            data_stats['holdout_data_stats'] = None
+        data_stats['holdout_data_stats'] = {'number_of_splits': number_of_splits}
 
         extraction.data_statistics = data_stats
 
@@ -111,33 +100,24 @@ def generate_meta_features(path, base_learner_id):
             est = base_learner.return_estimator()
             extraction = session.query(models.Extraction).first()
             X, y = extraction.return_train_dataset()
+            return_splits_iterable = functions.import_object_from_string_code(
+                extraction.meta_feature_generation['source'],
+                'return_splits_iterable'
+            )
 
-            if extraction.meta_feature_generation['method'] == 'cv':
-                cv = StratifiedKFold(
-                    n_splits=extraction.meta_feature_generation['folds'],
-                    shuffle=True,
-                    random_state=extraction.meta_feature_generation['seed']
+            meta_features_list = []
+            trues_list = []
+            for train_index, test_index in return_splits_iterable(X, y):
+                X_train, X_test = X[train_index], X[test_index]
+                y_train, y_test = y[train_index], y[test_index]
+                est = est.fit(X_train, y_train)
+                meta_features_list.append(
+                    getattr(est, base_learner.base_learner_origin.
+                            meta_feature_generator)(X_test)
                 )
-                meta_features_list = []
-                trues_list = []
-                for train_index, test_index in cv.split(X, y):
-                    X_train, X_test = X[train_index], X[test_index]
-                    y_train, y_test = y[train_index], y[test_index]
-                    est = est.fit(X_train, y_train)
-                    meta_features_list.append(
-                        getattr(est, base_learner.base_learner_origin.
-                                meta_feature_generator)(X_test)
-                    )
-                    trues_list.append(y_test)
-                meta_features = np.concatenate(meta_features_list, axis=0)
-                y_true = np.concatenate(trues_list)
-
-            else:
-                X_holdout, y_holdout = extraction.return_holdout_dataset()
-                est = est.fit(X, y)
-                meta_features = getattr(est, base_learner.base_learner_origin.
-                                        meta_feature_generator)(X_holdout)
-                y_true = y_holdout
+                trues_list.append(y_test)
+            meta_features = np.concatenate(meta_features_list, axis=0)
+            y_true = np.concatenate(trues_list)
 
             for key in base_learner.base_learner_origin.metric_generators:
                 metric_generator = functions.import_object_from_string_code(
@@ -203,19 +183,16 @@ def evaluate_stacked_ensemble(path, ensemble_id):
 
             # Get data
             extraction = session.query(models.Extraction).first()
-            if extraction.meta_feature_generation['method'] == 'cv':
-                X, y = extraction.return_train_dataset()
-                #  We need to retrieve original order of meta-features
-                cv = StratifiedKFold(
-                    n_splits=extraction.meta_feature_generation['folds'],
-                    shuffle=True,
-                    random_state=extraction.meta_feature_generation['seed']
-                )
-                indices_list = [test_index for train_index, test_index in cv.split(X, y)]
-                indices = np.concatenate(indices_list)
-                X, y = X[indices], y[indices]
-            else:
-                X, y = extraction.return_holdout_dataset()
+            return_splits_iterable = functions.import_object_from_string_code(
+                extraction.meta_feature_generation['source'],
+                'return_splits_iterable'
+            )
+            X, y = extraction.return_train_dataset()
+
+            #  We need to retrieve original order of meta-features
+            indices_list = [test_index for train_index, test_index in return_splits_iterable(X, y)]
+            indices = np.concatenate(indices_list)
+            X, y = X[indices], y[indices]
 
             if stacked_ensemble.append_original:
                 secondary_features = np.concatenate((secondary_features, X), axis=1)
