@@ -232,6 +232,9 @@ class BaseLearnerOrigin extends Component {
     else if (selectedDataset === 'boston') {
       this.verifyLearner({ type: 'boston' })
     }
+    else if (selectedDataset === 'diabetes') {
+      this.verifyLearner({ type: 'diabetes' })
+    }
   }
 
   // Verify Base Learner Origin + Metric Generators
@@ -373,7 +376,8 @@ class BaseLearnerOrigin extends Component {
             <MenuItem eventKey='iris'>Iris data</MenuItem>
             <MenuItem eventKey='mnist'>MNIST data</MenuItem>
             <MenuItem eventKey='breast_cancer'>Breast cancer data (Binary)</MenuItem>
-            <MenuItem eventKey='boston'>Boston housing (Regression)</MenuItem>            
+            <MenuItem eventKey='boston'>Boston housing (Regression)</MenuItem>  
+            <MenuItem eventKey='diabetes'>Diabetes data (Regression)</MenuItem>            
             <MenuItem eventKey='multiclass'>Custom multiclass data</MenuItem>
           </DropdownButton>
 

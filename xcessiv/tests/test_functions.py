@@ -135,6 +135,11 @@ class GetSampleDataset(unittest.TestCase):
         assert X.shape == (506, 13)
         assert y.shape == (506,)
 
+    def test_diabetes(self):
+        X, y, split = functions.get_sample_dataset({'type': 'diabetes'})
+        assert X.shape == (442, 10)
+        assert y.shape == (442,)
+
 
 class TestVerifyEstimatorClass(unittest.TestCase):
     def setUp(self):
