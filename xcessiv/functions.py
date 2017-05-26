@@ -156,7 +156,7 @@ def get_sample_dataset(dataset_properties):
     """
     kwargs = dataset_properties.copy()
     data_type = kwargs.pop('type')
-    if data_type == 'classification':
+    if data_type == 'multiclass':
         try:
             X, y = datasets.make_classification(random_state=8, **kwargs)
             splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)

@@ -7,15 +7,17 @@ import ContentEditable from 'react-contenteditable';
 import MetricGenerators from './MetricGenerators';
 import 'rc-collapse/assets/index.css';
 import Collapse, { Panel } from 'rc-collapse';
-import { isEqual, pick } from 'lodash';
+import { isEqual, pick, omit } from 'lodash';
 import $ from 'jquery';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
-import { Button, ButtonToolbar, Glyphicon, Alert, Modal, Panel as BsPanel,
+import { Button, ButtonToolbar, Glyphicon, Alert, Panel as BsPanel,
   Form, FormGroup, ControlLabel, FormControl, DropdownButton,
   MenuItem } from 'react-bootstrap';
-import Select from 'react-select';
+import { MulticlassDatasetModal, CreateBaseLearnerModal, RandomSearchModal,
+  GridSearchModal, DeleteModal, FinalizeModal, PresetLearnerSettingsModal,
+  ClearModal } from './BaseLearnerOriginModals';
 
 const changeableProps = [
   'name', 
@@ -60,26 +62,46 @@ function FinalizedAlert(props) {
 
 function ValidationResults(props) {
 
-  const items = Object.keys(props.validation_results).map((key) => {
-    return (
-      <div key={key}>
-        {"Data type: "} <b>{key}</b>
+  var dataset_used;
+  if (props.validation_results['dataset']) {
+    dataset_used = (
+      <div>
+        <b>{'Dataset used: ' + props.validation_results['dataset']['type']}</b>
         <ul>
-          {Object.keys(props.validation_results[key]).map((metric) => {
+          {Object.keys(omit(props.validation_results['dataset'], 'type')).map((property) => {
             return(
-              <li key={metric}>
-                {metric + ': ' + props.validation_results[key][metric]}
+              <li key={property}>
+                {property + ': ' + props.validation_results['dataset'][property]}
               </li>
             );
           })}
         </ul>
       </div>
     );
-  })
+  }
+
+  var generated_metrics;
+  if (props.validation_results['metrics']) {
+    generated_metrics = (
+      <div>
+        <b>Learner metrics</b>
+        <ul>
+          {Object.keys(props.validation_results['metrics']).map((property) => {
+            return(
+              <li key={property}>
+                {property + ': ' + props.validation_results['metrics'][property]}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  }
 
   return <div className='DualList'>
     <BsPanel header={<h4>Base learner metrics on toy data</h4>}>
-      {items}
+      {dataset_used}
+      {generated_metrics}
     </BsPanel>
   </div>
 }
@@ -94,270 +116,6 @@ function DefaultHyperparameters(props) {
       <ul>{items}</ul>
     </BsPanel>
   </div>
-}
-
-function ClearModal(props) {
-  return (
-    <Modal 
-      show={props.isOpen} 
-      onHide={props.onRequestClose}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Clear all changes</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>Are you sure you want to clear all unsaved changes?</p>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button bsStyle='primary' onClick={() => {
-          props.handleYes();
-          props.onRequestClose();
-        }}>Yes</Button>
-        <Button onClick={props.onRequestClose}>Cancel</Button>
-      </Modal.Footer>
-    </Modal>
-  )
-}
-
-class PresetLearnerSettingsModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedValue: null
-    };
-  }
-
-  render() {
-    const options = this.props.presetBaseLearnerOrigins.map((obj) => {
-      return {
-        label: obj.name,
-        value: obj
-      }
-    });
-    return (
-      <Modal 
-        show={this.props.isOpen} 
-        onHide={this.props.onRequestClose}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Select a preset base learner origin</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Select
-            options={options}
-            value={this.state.selectedValue}
-            onChange={(selectedValue) => this.setState({selectedValue})}
-            placeholder="Select base learner origin"
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button 
-            disabled={!this.state.selectedValue}
-            bsStyle='primary' 
-            onClick={() => {
-            this.props.apply(this.state.selectedValue);
-            this.props.onRequestClose();
-          }}>
-            Apply
-          </Button>
-          <Button onClick={this.props.onRequestClose}>Cancel</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
-}
-
-function FinalizeModal(props) {
-  return (
-    <Modal 
-      show={props.isOpen} 
-      onHide={props.onRequestClose}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Finalize base learner</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>Are you sure you want to finalize this base learner setup?</p>
-        <p>You will no longer be allowed to make changes to this base 
-        learner after this</p>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button bsStyle='primary' onClick={props.handleYes}>Yes</Button>
-        <Button onClick={props.onRequestClose}>Cancel</Button>
-      </Modal.Footer>
-    </Modal>
-  )
-}
-
-function DeleteModal(props) {
-  return (
-    <Modal 
-      bsStyle='danger'
-      show={props.isOpen} 
-      onHide={props.onRequestClose}
-    >
-      <Modal.Header closeButton>
-        <Modal.Title>Delete base learner</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <p>Are you sure you want to delete this base learner setup?</p>
-        <p>You will also lose all base learners that have been scored using this setup</p>
-        <p><strong>This action is irreversible.</strong></p>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button bsStyle='danger' onClick={props.handleYes}>Yes</Button>
-        <Button onClick={props.onRequestClose}>Cancel</Button>
-      </Modal.Footer>
-    </Modal>
-  )
-}
-
-class CreateBaseLearnerModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      source: 'params = {}'
-    };
-  }
-
-  handleYesAndClose() {
-    this.props.handleYes(this.state.source);
-    this.props.onRequestClose();
-  }
-
-  render() {
-    var options = {
-      lineNumbers: true,
-      indentUnit: 4
-    };
-
-    return (
-      <Modal 
-        show={this.props.isOpen} 
-        onHide={this.props.onRequestClose}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Create base learner</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>{'Enter parameters to use for base learner in variable `params`'}</p>
-          <CodeMirror value={this.state.source} 
-            onChange={(src) => this.setState({source: src})} 
-            options={options}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
-            Create single base learner
-          </Button>
-          <Button onClick={this.props.onRequestClose}>Cancel</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
-}
-
-class GridSearchModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      source: 'param_grid = []'
-    };
-  }
-
-  handleYesAndClose() {
-    this.props.handleYes(this.state.source);
-    this.props.onRequestClose();
-  }
-
-  render() {
-    var options = {
-      lineNumbers: true,
-      indentUnit: 4
-    };
-
-    return (
-      <Modal 
-        show={this.props.isOpen} 
-        onHide={this.props.onRequestClose}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Grid Search</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>{'Designate parameter grid for grid search in variable `param_grid`'}</p>
-          <CodeMirror value={this.state.source} 
-            onChange={(src) => this.setState({source: src})} 
-            options={options}
-          />
-        </Modal.Body>
-        <Modal.Footer>
-          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
-            Go
-          </Button>
-          <Button onClick={this.props.onRequestClose}>Cancel</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
-}
-
-class RandomSearchModal extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      source: 'param_distributions = {}',
-      n: 0
-    };
-  }
-
-  handleYesAndClose() {
-    this.props.handleYes(this.state.source, this.state.n);
-    this.props.onRequestClose();
-  }
-
-  render() {
-    var options = {
-      lineNumbers: true,
-      indentUnit: 4
-    };
-
-    return (
-      <Modal 
-        show={this.props.isOpen} 
-        onHide={this.props.onRequestClose}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Random Search</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>{'Designate parameter distribution for random search in variable `param_distributions`'}</p>
-          <CodeMirror value={this.state.source} 
-            onChange={(src) => this.setState({source: src})} 
-            options={options}
-          />
-          <Form>
-            <FormGroup
-              controlId='numIter'
-            >
-              <ControlLabel>Number of base learners to create</ControlLabel>
-              <FormControl
-                type='number' min='0'
-                value={this.state.n} 
-                onChange={(evt) => this.setState({n: parseInt(evt.target.value, 10)})}            
-              />
-            </FormGroup>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
-            Go
-          </Button>
-          <Button onClick={this.props.onRequestClose}>Cancel</Button>
-        </Modal.Footer>
-      </Modal>
-    )
-  }
 }
 
 class BaseLearnerOrigin extends Component {
@@ -376,6 +134,7 @@ class BaseLearnerOrigin extends Component {
       showPresetLearnerSettingsModal: false,
       showFinalizeModal: false,
       showDeleteModal: false,
+      showMulticlassDatasetModal: false,
       showCreateModal: false,
       showGridSearchModal: false,
       showRandomSearchModal: false,
@@ -456,10 +215,19 @@ class BaseLearnerOrigin extends Component {
     });
   }
 
-  // Verify Base Learner Origin + Metric Generators
-  verifyLearner(dataset) {
-    var payload = {dataset};
+  // Build datasetProperties to pass to verifyLearner
+  buildDatasetProperties(selectedDataset) {
+    if (selectedDataset === 'iris') {
+      this.verifyLearner( {type: 'iris'} );
+    }
+    else if (selectedDataset === 'multiclass') {
+      this.setState({showMulticlassDatasetModal: true});
+    }
+  }
 
+  // Verify Base Learner Origin + Metric Generators
+  verifyLearner(datasetProperties) {
+    var payload = { dataset_properties: datasetProperties };
 
     this.setState({asyncStatus: 'Verifying...'});
     fetch(
@@ -590,11 +358,11 @@ class BaseLearnerOrigin extends Component {
             disabled={!this.state.same || disableAll}
             id='verifyLearner'
             onSelect={(key) => {
-              this.verifyLearner(key)
+              this.buildDatasetProperties(key)
             }}
           >
-            <MenuItem eventKey='binary'>Binary data</MenuItem>
-            <MenuItem eventKey='multiclass'>Multiclass data</MenuItem>
+            <MenuItem eventKey='iris'>Iris data</MenuItem>
+            <MenuItem eventKey='multiclass'>Custom multiclass data</MenuItem>
           </DropdownButton>
 
           <Button 
@@ -699,6 +467,12 @@ class BaseLearnerOrigin extends Component {
               obj.value.meta_feature_generator);
             this.handleDataChange('source', obj.value.source);
           }} />
+
+          <MulticlassDatasetModal
+            isOpen={this.state.showMulticlassDatasetModal}
+            onRequestClose={() => this.setState({showMulticlassDatasetModal: false})}
+            handleYes={(x) => this.verifyLearner(x)}
+          />
 
           <CreateBaseLearnerModal isOpen={this.state.showCreateModal} 
           onRequestClose={() => this.setState({showCreateModal: false})}
