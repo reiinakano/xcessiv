@@ -87,7 +87,7 @@ class TestMakeSerializable(unittest.TestCase):
 class GetSampleDataset(unittest.TestCase):
     def setUp(self):
         self.dataset_properties = {
-            'type': 'classification',
+            'type': 'multiclass',
         }
 
     def test_classification_dataset(self):
@@ -132,7 +132,7 @@ class TestVerifyEstimatorClass(unittest.TestCase):
         ])
         self.wrong_source = "metric_generator = ''"
         self.dataset_properties = {
-            'type': 'classification',
+            'type': 'multiclass',
         }
 
     def test_verify_estimator_class(self):
