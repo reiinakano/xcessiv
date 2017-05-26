@@ -10,7 +10,8 @@ __all__ = [
     'precision_from_scores',
     'precision_from_preds',
     'f1_score_from_scores',
-    'f1_score_from_preds'
+    'f1_score_from_preds',
+    'mse'
 ]
 
 
@@ -192,4 +193,14 @@ def metric_generator(y_true, y_preds):
     return score
 """,
     'selection_name': 'F1 Score from Predictions'
+}
+
+mse = {
+    'name': 'Mean Squared Error',
+    'source':
+    """from sklearn.metrics import mean_squared_error
+
+metric_generator = mean_squared_error
+""",
+    'selection_name': 'Mean Squared Error'
 }

@@ -45,3 +45,9 @@ xgboost_classifier_source = \
 
 base_learner = XGBClassifier(seed=8)
 """
+
+sklearn_linear_regression_source = \
+    """from sklearn.linear_model import LinearRegression
+
+base_learner = LinearRegression()
+"""

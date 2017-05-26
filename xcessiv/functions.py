@@ -171,6 +171,9 @@ def get_sample_dataset(dataset_properties):
     elif data_type == 'breast_cancer':
         X, y = datasets.load_breast_cancer(return_X_y=True)
         splits = model_selection.StratifiedKFold(n_splits=2, random_state=8).split(X, y)
+    elif data_type == 'boston':
+        X, y = datasets.load_boston(return_X_y=True)
+        splits = model_selection.KFold(n_splits=2, random_state=8).split(X)
     else:
         raise exceptions.UserError('Unknown dataset type {}'.format(dataset_properties['type']))
     return X, y, splits

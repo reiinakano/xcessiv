@@ -130,6 +130,11 @@ class GetSampleDataset(unittest.TestCase):
         assert X.shape == (569, 30)
         assert y.shape == (569,)
 
+    def test_boston_housing(self):
+        X, y, split = functions.get_sample_dataset({'type': 'boston'})
+        assert X.shape == (506, 13)
+        assert y.shape == (506,)
+
 
 class TestVerifyEstimatorClass(unittest.TestCase):
     def setUp(self):
