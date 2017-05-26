@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 from flask import Flask
 
 
-__version__ = '0.1.4'
+__version__ = '0.1.5'
 
 
 app = Flask(__name__, static_url_path='/static', static_folder='ui/build/static')
