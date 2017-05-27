@@ -13,76 +13,33 @@ class MainDataExtraction extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      config: {
-        source: ''
-      },
+      unsavedConfig: this.props.config,
       showClearModal: false
     };
   }
 
-  componentDidMount() {
-  	this.fetchMainDataset(this.props.path);
-  }
-
   componentWillReceiveProps(nextProps) {
-    if (this.props.path !== nextProps.path) {
-      this.fetchMainDataset(nextProps.path);
+    if (this.props.config !== nextProps.config) {
+      this.setState({
+        unsavedConfig: nextProps.config
+      })
     }
-  }
-
-  fetchMainDataset(path) {
-    fetch('/ensemble/extraction/main-dataset/?path=' + path)
-    .then(response => response.json())
-    .then(json => {
-      console.log(json);
-      this.setState({config: json});
-      this.savedConfig = json;
-    });
-  }
-
-  saveSetup() {
-    var payload = this.state.config;
-
-    fetch(
-      '/ensemble/extraction/main-dataset/?path=' + this.props.path,
-      {
-      	method: "PATCH",
-      	body: JSON.stringify( payload ),
-      	headers: new Headers({
-      	  'Content-Type': 'application/json'
-      	})
-      }
-    )
-    .then(response => response.json())
-    .then(json => {
-	  	console.log(json);
-	  	this.savedConfig = json;
-	    this.setState({
-	      config: json
-	    });
-      this.props.setSame(true);
-      this.props.addNotification({
-        title: 'Success',
-        message: 'Saved main dataset extraction method',
-        level: 'success'
-      });
-	  });
   }
 
   newSource(newCode) {
   	console.log('change newCode to ' + newCode);
   	this.setState((prevState) => {
-      var config = $.extend({}, prevState.config); // Make copy
+      var config = $.extend({}, prevState.unsavedConfig); // Make copy
       config.source = newCode;
-      this.props.setSame(isEqual(config, this.savedConfig));
+      this.props.setSame(isEqual(config, this.props.config));
       return {
-        config
+        unsavedConfig: config
       };
     })
   }
 
   clearChanges() {
-    this.setState({config: this.savedConfig});
+    this.setState({unsavedConfig: this.props.config});
     this.props.setSame(true);
     this.props.addNotification({
       title: 'Success',
@@ -99,13 +56,13 @@ class MainDataExtraction extends Component {
   	return (
       <div className='MainDataExtraction'>
     	  <h5> Main Dataset Extraction Source Code</h5>
-    	  <CodeMirror value={this.state.config.source} 
+    	  <CodeMirror value={this.state.unsavedConfig.source} 
         onChange={(src) => this.newSource(src)} options={options}/>
         <ButtonToolbar>
       	  <Button 
           bsStyle="primary"
           disabled={this.props.same} 
-          onClick={() => this.saveSetup()}>
+          onClick={() => this.props.saveConfig(this.state.unsavedConfig)}>
             <Glyphicon glyph="save" />
             Save Main Dataset Extraction Setup
           </Button>
