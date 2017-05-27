@@ -33,6 +33,21 @@ function BasicDataStatistics(props) {
   )
 }
 
+function CrossValidationStatistics(props) {
+  var stats = props.stats;
+  if (props.stats === null) {
+    stats = {};
+  }
+  return (
+    <div>
+      <h4>Cross-validation statistics</h4>
+      <ul>
+        <li>Number of splits: <b>{String(stats.number_of_splits)}</b></li>
+      </ul>
+    </div>
+  )
+}
+
 function ErrorAlert(props) {
   return (
     <Alert bsStyle='danger'>
@@ -151,8 +166,7 @@ class DataVerificationResult extends Component {
           </td>
           */}
           <td>
-            <h4>Holdout dataset statistics</h4>
-            <BasicDataStatistics stats={this.state.verification.holdout_data_stats}/>
+            <CrossValidationStatistics stats={this.state.verification.holdout_data_stats}/>
           </td>
           </tr>
         </tbody>

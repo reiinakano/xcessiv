@@ -255,7 +255,7 @@ Once you've finalized a base learner, three new buttons appear in the base learn
 
 These buttons let you generate meta-features and metrics for your data while giving you different ways to set or search through the space of hyperparameters.
 
-Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on these grid search and random search, see http://scikit-learn.org/stable/modules/grid_search.html.
+Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on grid search and random search, see http://scikit-learn.org/stable/modules/grid_search.html.
 
 Single base learner
 ~~~~~~~~~~~~~~~~~~~

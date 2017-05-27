@@ -33,8 +33,8 @@ mutable.MutableDict.associate_with(JsonEncodedDict)
 
 class Extraction(Base):
     """This table's columns are text columns representing JSON data of how
-    to extract the train, test, and holdout datasets. It will contain only a
-    single row.
+    to extract the train and test datasets, and the meta-feature generation method.
+    It will contain only a single row.
     """
     __tablename__ = 'extraction'
 
