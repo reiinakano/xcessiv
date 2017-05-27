@@ -107,6 +107,7 @@ class DataExtractionTabs extends Component {
           */}
           <TabPanel className='TabPanel'>
             <MetaFeatureExtraction 
+              addNotification={(notif) => this.props.addNotification(notif)}
               same={this.state.sameMfe}
               setSame={(x) => this.setState({sameMfe: x})}
               config={this.state.mfeConfig}

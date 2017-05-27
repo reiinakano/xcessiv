@@ -11,9 +11,7 @@ class MetaFeatureExtraction extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      unsavedConfig: {
-        "source": this.props.config.source
-      },
+      unsavedConfig: this.props.config,
       showClearModal: false
     };
   }
@@ -27,8 +25,6 @@ class MetaFeatureExtraction extends Component {
   }
 
   handleConfigChange(option, val) {
-    console.log(option);
-    console.log(val);
     var config = JSON.parse(JSON.stringify(this.state.unsavedConfig));
     config[option] = val;
     this.props.setSame(isEqual(this.props.config, config));
