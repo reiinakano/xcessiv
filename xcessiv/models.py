@@ -33,7 +33,8 @@ mutable.MutableDict.associate_with(JsonEncodedDict)
 
 class Extraction(Base):
     """This table's columns are text columns representing JSON data of how
-    to extract the train and test datasets, and the meta-feature generation method.
+    to extract the train and test datasets, base learner cross-validation method,
+    and the stacked ensemble cross-validation method.
     It will contain only a single row.
     """
     __tablename__ = 'extraction'
@@ -42,12 +43,14 @@ class Extraction(Base):
     main_dataset = Column(JsonEncodedDict)
     test_dataset = Column(JsonEncodedDict)
     meta_feature_generation = Column(JsonEncodedDict)
+    stacked_ensemble_cv = Column(JsonEncodedDict)
     data_statistics = Column(JsonEncodedDict)
 
     def __init__(self):
         self.main_dataset = constants.DEFAULT_EXTRACTION_MAIN_DATASET
         self.test_dataset = constants.DEFAULT_EXTRACTION_TEST_DATASET
         self.meta_feature_generation = constants.DEFAULT_EXTRACTION_META_FEATURE_GENERATION
+        self.stacked_ensemble_cv = constants.DEFAULT_EXTRACTION_META_FEATURE_GENERATION
         self.data_statistics = None
 
     def return_main_dataset(self):

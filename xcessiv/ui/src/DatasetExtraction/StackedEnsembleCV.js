@@ -7,7 +7,7 @@ import { isEqual } from 'lodash';
 import { ClearModal, PresetCVSettingsModal } from './Modals';
 import { Button, ButtonToolbar, Glyphicon } from 'react-bootstrap';
 
-class MetaFeatureExtraction extends Component {
+class StackedEnsembleCV extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -61,7 +61,7 @@ class MetaFeatureExtraction extends Component {
           }}
         > 
           <Glyphicon glyph="save" />
-          Save Base Learner Cross-validation Setup 
+          Save Stacked Ensemble Cross-validation Setup 
         </Button>
         <Button 
           disabled={this.props.same} 
@@ -89,4 +89,4 @@ class MetaFeatureExtraction extends Component {
   }
 }
 
-export default MetaFeatureExtraction;
+export default StackedEnsembleCV;
