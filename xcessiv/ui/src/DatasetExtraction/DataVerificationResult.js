@@ -40,7 +40,7 @@ function CrossValidationStatistics(props) {
   }
   return (
     <div>
-      <h4>Cross-validation statistics</h4>
+      <h4>{props.title + ' CV Stats'}</h4>
       <ul>
         <li>Number of splits: <b>{String(stats.number_of_splits)}</b></li>
       </ul>
@@ -58,8 +58,10 @@ function ErrorAlert(props) {
 
 const defaultVerification = {
   'holdout_data_stats': {
-    'features_shape': [0, 0],
-    'labels_shape': [0]
+    'number_of_splits': 0
+  },
+  'stacked_ensemble_cv_stats': {
+    'number_of_splits': 0
   },
   'test_data_stats': {
     'features_shape': [0, 0],
@@ -166,7 +168,14 @@ class DataVerificationResult extends Component {
           </td>
           */}
           <td>
-            <CrossValidationStatistics stats={this.state.verification.holdout_data_stats}/>
+            <CrossValidationStatistics 
+              stats={this.state.verification.holdout_data_stats}
+              title='Base Learner'/>
+          </td>
+          <td>
+            <CrossValidationStatistics 
+              stats={this.state.verification.stacked_ensemble_cv_stats}
+              title='Stacked Ensemble'/>
           </td>
           </tr>
         </tbody>

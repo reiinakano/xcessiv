@@ -149,7 +149,7 @@ def extraction_stacked_ensemble_cv():
                 extraction.stacked_ensemble_cv[key] = value
             session.add(extraction)
             session.commit()
-            return jsonify(extraction.meta_feature_generation)
+            return jsonify(extraction.stacked_ensemble_cv)
 
 
 @app.route('/ensemble/extraction/verification/', methods=['GET', 'POST'])
