@@ -4,7 +4,7 @@ import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import { isEqual } from 'lodash';
-import { ClearModal } from './Modals';
+import { ClearModal, PresetCVSettingsModal } from './Modals';
 import { Button, ButtonToolbar, Glyphicon } from 'react-bootstrap';
 
 class MetaFeatureExtraction extends Component {
@@ -12,7 +12,8 @@ class MetaFeatureExtraction extends Component {
     super(props);
     this.state = {
       unsavedConfig: this.props.config,
-      showClearModal: false
+      showClearModal: false,
+      showPresetCVSettingsModal: false
     };
   }
 
@@ -67,12 +68,23 @@ class MetaFeatureExtraction extends Component {
           onClick={() => this.setState({showClearModal: true})}>
             Clear unsaved changes
         </Button>
+        <Button 
+          onClick={() => this.setState({showPresetCVSettingsModal: true})}>
+            Choose preset CV
+        </Button>
       </ButtonToolbar>
       <ClearModal
         isOpen={this.state.showClearModal}
         onRequestClose={() => this.setState({showClearModal: false})}
         handleYes={() => this.clearChanges()}
       />
+      <PresetCVSettingsModal 
+        isOpen={this.state.showPresetCVSettingsModal} 
+        onRequestClose={() => this.setState({showPresetCVSettingsModal: false})}
+        presetCVs={this.props.presetCVs}
+        apply={(obj) => {
+          this.handleConfigChange('source', obj.value.source);
+        }} />
     </div>
   }
 }

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Set as ImSet } from 'immutable';
+import DataExtractionTabs from '../DatasetExtraction/DataExtractionTabs'
 import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
 import EnsembleBuilder from '../Ensemble/EnsembleBuilder'
@@ -32,7 +33,8 @@ class ContainerBaseLearner extends Component {
       baseLearnerOrigins: [],
       stackedEnsembles: [],
       presetBaseLearnerOrigins: [],
-      presetMetricGenerators: []
+      presetMetricGenerators: [],
+      presetCVs: []
     };
   }
 
@@ -41,6 +43,7 @@ class ContainerBaseLearner extends Component {
     this.refreshBaseLearnerOrigins(this.props.path);
     this.refreshBaseLearnersUntilFinished(this.props.path); 
     this.refreshStackedEnsemblesUntilFinished(this.props.path);
+    this.refreshPresetCVs();
     this.refreshPresetBaseLearnerOrigins();
     this.refreshPresetMetricGenerators();
   }
@@ -51,6 +54,18 @@ class ContainerBaseLearner extends Component {
       this.refreshBaseLearnersUntilFinished(nextProps.path); 
       this.refreshStackedEnsemblesUntilFinished(nextProps.path);
     }
+  }
+
+  // Refresh cross-validation preset settings from server data
+  refreshPresetCVs() {
+    fetch('/ensemble/cv-settings/')
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        presetCVs: json
+      });
+    });
   }
 
   // Refresh base learner origin preset settings from server data
@@ -507,6 +522,11 @@ class ContainerBaseLearner extends Component {
 
     return (
       <div>
+        <DataExtractionTabs 
+          path={this.props.path}
+          addNotification={(notif) => this.props.addNotification(notif)}
+          presetCVs={this.state.presetCVs}
+        />
         <ListBaseLearnerOrigin 
           path={this.props.path} 
           baseLearnerOrigins={this.state.baseLearnerOrigins}

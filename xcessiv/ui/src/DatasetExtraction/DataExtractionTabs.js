@@ -156,6 +156,7 @@ class DataExtractionTabs extends Component {
               setSame={(x) => this.setState({sameMfe: x})}
               config={this.state.mfeConfig}
               saveConfig={(x) => this.saveMfe(x)}
+              presetCVs={this.props.presetCVs}
             />
           </TabPanel>
         </Tabs>
