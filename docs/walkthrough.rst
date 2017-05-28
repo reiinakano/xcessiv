@@ -60,7 +60,7 @@ First, we must define the main dataset.
    :align: center
    :alt: Main Data Extraction
 
-In the code block shown, you must define a function ``extract_main_dataset`` that takes no arguments and returns a tuple ``(X, y)``, where ``X`` is a Numpy array with shape ``(n_samples, n_features)`` corresponding to the features of your main dataset and ``y`` is the Numpy array corresponding to the ground truth labels of each sample.
+In the code block shown, you must define a function :func:`extract_main_dataset` that takes no arguments and returns a tuple ``(X, y)``, where ``X`` is a Numpy array with shape ``(n_samples, n_features)`` corresponding to the features of your main dataset and ``y`` is the Numpy array corresponding to the ground truth labels of each sample.
 
 Experienced **scikit-learn** users will recognize this format as the one accepted by **scikit-learn** estimators. As a project heavily influenced by the wonderful **scikit-learn** API, this is a theme that will come up repeatedly when using Xcessiv.
 
@@ -72,9 +72,9 @@ Since we're going with the breast cancer sample dataset that comes with scikit-l
        X, y = load_breast_cancer(return_X_y=True)
        return X, y
 
-Xcessiv gives you the flexibility to extract your dataset any way you want with whatever packages are included in your Python installation. You can open up the quintessential csv file with **pandas**. Or directly download the data from Amazon S3 with **boto**. As long as ``extract_main_dataset`` returns the proper format of your data, any way convenient for you will do. One important thing to keep in mind here is that for every process that needs your data, Xcessiv will call ``extract_main_dataset``. Keeping this function as light as possible is recommended.
+Xcessiv gives you the flexibility to extract your dataset any way you want with whatever packages are included in your Python installation. You can open up the quintessential csv file with **pandas**. Or directly download the data from Amazon S3 with **boto**. As long as :func:`extract_main_dataset` returns the proper format of your data, any way convenient for you will do. One important thing to keep in mind here is that for every process that needs your data, Xcessiv will call :func:`extract_main_dataset`. Keeping this function as light as possible is recommended.
 
-Save your dataset extraction code and click the **Calculate Extracted Datasets Statistics** button. This will look for the ``extract_main_dataset`` function in your provided code block and display the shape of ``X`` and ``y``. This is a good way to confirm if your code works properly.
+Save your dataset extraction code and click the **Calculate Extracted Datasets Statistics** button. This will look for the :func:`extract_main_dataset` function in your provided code block and display the shape of ``X`` and ``y``. This is a good way to confirm if your code works properly.
 
 Confirm that ``X`` (Features array) has a shape of ``(569, 30)`` and ``y`` (Labels array) has a shape of ``(569,)``.
 
@@ -87,19 +87,39 @@ After defining the main dataset, we must define how Xcessiv extracts meta-featur
    :align: center
    :alt: Meta-features Extraction
 
-For stacked ensembles, there are two main ways to extract meta-features: cross-validation to get out-of-fold predictions for every sample in the dataset, or having a separate holdout set to generate the meta-features (blending). The difference between the two can be found at the `Kaggle ensembling guide <https://mlwave.com/kaggle-ensembling-guide/>`_
+For stacked ensembles, there are two main ways to extract meta-features: cross-validation to get out-of-fold predictions for every sample in the dataset, or having a single train-test split to generate the meta-features (blending). The difference between the two can be found at the `Kaggle ensembling guide <https://mlwave.com/kaggle-ensembling-guide/>`_
 
-For now, all you need to know is that using cross-validation will allow you to use your whole training set for training the secondary learner at the expense of added computational complexity while using a holdout set will only train the secondary learner on the meta-features generated from that holdout set.
+For now, all you need to know is that using cross-validation will allow you to use your whole training set for training the secondary learner at the expense of added computational complexity while using a single train-test split will only train the secondary learner on the meta-features generated from that test split.
 
-Therefore, for smaller datasets, cross-validation is preferred while for larger datasets, you should use a holdout set.
+Therefore, for smaller datasets, cross-validation is preferred while for larger datasets, you should use a single train-test split.
 
-Since the breast cancer dataset has only 569 samples, we should use cross-validation. From the drop-down list, select **Stratified Cross-validation** and select the number of folds and random seed. The random seed is required for deterministic generation of the folds when using different base learners.
+Since the breast cancer dataset has only 569 samples, we should use cross-validation. In the code block shown, copy the following code.::
 
-Let's keep the number of folds and random seed at the defaults of 5 and 8, respectively.
+   from sklearn.model_selection import StratifiedKFold
 
-If you wish to use a separate holdout set, Xcessiv gives you the option of automatically splitting one from the main dataset or defining another function ``extract_holdout_dataset`` with the same signature as ``extract_main_dataset``.
+   def return_splits_iterable(X, y):
+       """This function returns an iterable that splits the given dataset
+       K times into different stratified train-test splits.
+       """
+       RANDOM_STATE = 8
+       N_SPLITS = 5
+       SHUFFLE = True
 
-If you click again on **Calculate Extracted Datasets Statistics**, you will notice that the holdout dataset statistics are undefined. This is because when we do cross-validation, a holdout set is not generated.
+       return StratifiedKFold(n_splits=N_SPLITS, random_state=RANDOM_STATE, shuffle=SHUFFLE).split(X, y)
+
+Xcessiv gives you the flexibility to generate cross-validation folds however method you want to. To define a cross-validation method, you must define a function :func:`return_splits_iterable` that takes two arguments ``X`` and ``y``. These arguments will be passed the ``X`` and ``y`` variables returned from the previously defined :func:`extract_main_dataset` function. :func:`return_splits_iterable` will then return an iterator that yields a pair of indices for each train-test split it generates. Again, this is a concept taken straight out of the **scikit-learn** API and as such, most built-in cross-validation iterators from **scikit-learn** will work. See http://scikit-learn.org/stable/modules/cross_validation.html#cross-validation-iterators for the details.
+
+.. admonition:: A note about random seeds
+
+   It is extremely important that the folds generated by :func:`return_splits_iterable` are deterministic. Otherwise, ensembling will not work correctly. Therefore, for any cross-validation iterator that depends on a random state, make sure to set it in the function as well.
+
+The given code does stratified K-Fold validation with 5 train-test splits and a random seed set at 8.
+
+So far, we have given code for defining cross-validation. What if we wanted to do a simple train-test split for generating meta-features (blending)? In that case, it is interesting to note that a single train-test split can be defined by a cross-validation iterator that yields only one pair of indices for a train-test split. You can use either :class:`sklearn.model_selection.ShuffleSplit` or :class:`sklearn.model_selection.StratifiedShuffleSplit` with ``n_splits`` set to 1 for this functionality. Or, roll your own implementation.
+
+If you click again on **Calculate Extracted Datasets Statistics**, you will notice that the holdout dataset statistics will show you the number of splits generated.
+
+Since most problems will rely on very common cross-validation methods, Xcessiv provides several preset :func:`return_splits_iterable` implementations based on existing **scikit-learn**  cross-validation iterators.
 
 Defining your base learners and metrics
 ---------------------------------------
@@ -255,7 +275,7 @@ Once you've finalized a base learner, three new buttons appear in the base learn
 
 These buttons let you generate meta-features and metrics for your data while giving you different ways to set or search through the space of hyperparameters.
 
-Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on these grid search and random search, see http://scikit-learn.org/stable/modules/grid_search.html.
+Again, **scikit-learn** forms the basis for these search methods. Experienced users should have no problem figuring out how they work. For more details on grid search and random search, see http://scikit-learn.org/stable/modules/grid_search.html.
 
 Single base learner
 ~~~~~~~~~~~~~~~~~~~

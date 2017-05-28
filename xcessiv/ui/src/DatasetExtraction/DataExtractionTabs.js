@@ -13,17 +13,106 @@ class DataExtractionTabs extends Component {
       "selectedIndex": 0,
       "sameMde": true,
       "sameTde": true,
-      "sameMfe": true
+      "sameMfe": true,
+      "mfeConfig": "",
+      "mdeConfig": ""
     };
+  }
+
+  componentDidMount() {
+    this.fetchMfe(this.props.path);
+    this.fetchMde(this.props.path);
+  }
+
+  fetchMfe(path) {
+    fetch('/ensemble/extraction/meta-feature-generation/?path=' + path)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        mfeConfig: json,
+        sameMfe: true
+      })
+    });
+  }
+
+  // Save all changes to server
+  saveMfe(config) {
+    var payload = config;
+
+    fetch(
+      '/ensemble/extraction/meta-feature-generation/?path=' + this.props.path,
+      {
+        method: "PATCH",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        mfeConfig: json,
+        sameMfe: true
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Saved meta-feature extraction method',
+        level: 'success'
+      });
+    });
+  }
+
+  fetchMde(path) {
+    fetch('/ensemble/extraction/main-dataset/?path=' + path)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        mdeConfig: json,
+        sameMde: true
+      })
+    });
+  }
+
+  // Save all changes to server
+  saveMde(config) {
+    var payload = config;
+
+    fetch(
+      '/ensemble/extraction/main-dataset/?path=' + this.props.path,
+      {
+        method: "PATCH",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState({
+        mdeConfig: json,
+        sameMde: true
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Saved main dataset extraction method',
+        level: 'success'
+      });
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.path !== nextProps.path) {
       this.setState({
-        'sameMde': true,
-        'sameTde': true,
-        'sameMfe': true
-      })
+        'sameTde': true
+      });
+      this.fetchMfe(nextProps.path);
+      this.fetchMde(nextProps.path);
     }
   }
 
@@ -32,7 +121,7 @@ class DataExtractionTabs extends Component {
       <div className='MainDataExtraction'>
         <h2>Extract your dataset into Xcessiv</h2>
         <Tabs 
-          forceRenderTabPanel={true}
+          forceRenderTabPanel={false}
           selectedIndex={this.state.selectedIndex}
           onSelect={(idx) => this.setState({selectedIndex: idx})}
           >
@@ -43,10 +132,11 @@ class DataExtractionTabs extends Component {
           </TabList>
           <TabPanel className='TabPanel'>
             <MainDataExtraction 
-              path={this.props.path}
               addNotification={(notif) => this.props.addNotification(notif)}
               same={this.state.sameMde}
               setSame={(x) => this.setState({sameMde: x})}
+              config={this.state.mdeConfig}
+              saveConfig={(x) => this.saveMde(x)}
             />
           </TabPanel>
           {/*
@@ -61,10 +151,12 @@ class DataExtractionTabs extends Component {
           */}
           <TabPanel className='TabPanel'>
             <MetaFeatureExtraction 
-              path={this.props.path}
               addNotification={(notif) => this.props.addNotification(notif)}
               same={this.state.sameMfe}
               setSame={(x) => this.setState({sameMfe: x})}
+              config={this.state.mfeConfig}
+              saveConfig={(x) => this.saveMfe(x)}
+              presetCVs={this.props.presetCVs}
             />
           </TabPanel>
         </Tabs>

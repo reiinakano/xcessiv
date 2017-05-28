@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import './App.css';
-import DataExtractionTabs from './DatasetExtraction/DataExtractionTabs';
 import ContainerBaseLearner from './containers/ContainerBaseLearner';
 import NotificationSystem from 'react-notification-system';
 import { Button, Modal, Form, FormGroup, FormControl, 
@@ -197,10 +196,6 @@ class NotebookWithToolbar extends Component {
 function Notebook(props) {
   return (
     <div>
-      <DataExtractionTabs 
-        path={props.path}
-        addNotification={(notif) => props.addNotification(notif)}
-      />
       <ContainerBaseLearner 
         path={props.path}
         addNotification={(notif) => props.addNotification(notif)}
