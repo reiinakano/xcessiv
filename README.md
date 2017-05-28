@@ -27,7 +27,7 @@ Xcessiv holds your hand through all the implementation details of creating and o
 
 ## Features
 
-* Fully define your data source, relevant metrics, and base learners with Python code
+* Fully define your data source, cross-validation process, relevant metrics, and base learners with Python code
 * Any model following the Scikit-learn API can be used as a base learner
 * Task queue based architecture lets you take full advantage of multiple cores and embarrassingly parallel hyperparameter searches
 * Easy management and comparison of hundreds of different model-hyperparameter combinations
