@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 from sklearn.model_selection import ParameterGrid
 from sklearn.model_selection import ParameterSampler
 from xcessiv import app, functions, exceptions, models, rqtasks
-from xcessiv.presets import learnersetting, metricsetting
+from xcessiv.presets import learnersetting, metricsetting, cvsetting
 import six
 
 
@@ -187,6 +187,11 @@ def verify_full_extraction():
     with functions.DBContextManager(path) as session:
         extraction = session.query(models.Extraction).first()
         return jsonify(extraction.data_statistics)
+
+
+@app.route('/ensemble/cv-settings/', methods=['GET'])
+def cv_settings():
+    return jsonify([getattr(cvsetting, x) for x in cvsetting.__all__])
 
 
 @app.route('/ensemble/base-learner-origins-settings/', methods=['GET'])
