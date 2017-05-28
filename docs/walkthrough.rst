@@ -121,9 +121,34 @@ The given code does stratified K-Fold validation with 5 train-test splits and a 
 
 So far, we have given code for defining cross-validation. What if we wanted to do a simple train-test split for generating meta-features (blending)? In that case, it is interesting to note that a single train-test split can be defined by a cross-validation iterator that yields only one pair of indices for a train-test split. You can use either :class:`sklearn.model_selection.ShuffleSplit` or :class:`sklearn.model_selection.StratifiedShuffleSplit` with ``n_splits`` set to 1 for this functionality. Or, roll your own implementation.
 
-If you click again on **Calculate Extracted Datasets Statistics**, you will notice that the holdout dataset statistics will show you the number of splits generated.
+If you click again on **Calculate Extracted Datasets Statistics**, you will notice that the base learner cross-validation statistics will show you the number of splits generated.
 
 Since most problems will rely on very common cross-validation methods, Xcessiv provides several preset :func:`return_splits_iterable` implementations based on existing **scikit-learn**  cross-validation iterators.
+
+Define the stacked ensemble cross-validation method
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since the secondary learner of a stacked ensemble is trained on a different set of features (the meta-features), it is natural to define a separate cross-validation method for it. Under the **Stacked Ensemble Cross-validation** tab, we see a field extremely similar to the one we found in the previous step.
+
+In fact, to define your cross-validation method for the secondary learner, you also need to define a function :func:`return_splits_iterable` with the exact same function signature as before. Keep in mind though, that the ``X`` and ``y`` arrays passed to this function will be from the meta-features.
+
+In most use cases and for valid comparison with the base learner metrics, you can just use the exact same cross-validation method you used for the base learners.
+
+Go ahead and copy the exact same code we used previously into this code block.::
+
+   from sklearn.model_selection import StratifiedKFold
+
+   def return_splits_iterable(X, y):
+       """This function returns an iterable that splits the given dataset
+       K times into different stratified train-test splits.
+       """
+       RANDOM_STATE = 8
+       N_SPLITS = 5
+       SHUFFLE = True
+
+       return StratifiedKFold(n_splits=N_SPLITS, random_state=RANDOM_STATE, shuffle=SHUFFLE).split(X, y)
+
+Click on **Calculate Extracted Dataset Statistics** and you should see that the stacked ensemble cross-validation statistics shows the number of splits at 5.
 
 Defining your base learners and metrics
 ---------------------------------------
@@ -390,7 +415,7 @@ Here's a complete list of what happens when Xcessiv creates a new ensemble. Note
 2) An available RQ worker reads the job and starts processing.
 3) The worker loads the secondary learner class and selected base learners' saved meta-features from the project folder, and sets the secondary learner with the desired hyperparameters using ``set_params``.
 4) The worker concatenates the meta-features, and if selected, the original features, together to create the new feature set.
-5) Using 5-fold stratified cross-validation, the secondary base learner's metrics on the new feature set are calculated.
+5) Using the cross-validation method you set for Stacked Ensemble Cross-validation, the secondary base learner's metrics on the new feature set are calculated.
 6) The worker updates the database directly with the newly calculated metrics.
 7) The browser polls the Xcessiv server from time to time to see if the job has finished and updates the user interface accordingly.
 
