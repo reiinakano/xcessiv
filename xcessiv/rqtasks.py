@@ -9,7 +9,6 @@ import os
 import sys
 import traceback
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import StratifiedKFold
 
 
 def extraction_data_statistics(path):
@@ -46,16 +45,35 @@ def extraction_data_statistics(path):
         else:
             X_test, y_test = None, None
 
+        # test base learner cross-validation
         extraction_code = extraction.meta_feature_generation['source']
         return_splits_iterable = functions.import_object_from_string_code(
             extraction_code,
             'return_splits_iterable'
         )
-
         number_of_splits = 0
+        test_indices = []
         try:
             for train_idx, test_idx in return_splits_iterable(X, y):
                 number_of_splits += 1
+                test_indices.append(test_idx)
+        except Exception as e:
+            raise exceptions.UserError('User code exception', exception_message=str(e))
+
+        # preparation before testing stacked ensemble cross-validation
+        test_indices = np.concatenate(test_indices)
+        X, y = X[test_indices], y[test_indices]
+
+        # test stacked ensemble cross-validation
+        extraction_code = extraction.stacked_ensemble_cv['source']
+        return_splits_iterable = functions.import_object_from_string_code(
+            extraction_code,
+            'return_splits_iterable'
+        )
+        number_of_splits_stacked_cv = 0
+        try:
+            for train_idx, test_idx in return_splits_iterable(X, y):
+                number_of_splits_stacked_cv += 1
         except Exception as e:
             raise exceptions.UserError('User code exception', exception_message=str(e))
 
@@ -66,6 +84,7 @@ def extraction_data_statistics(path):
         else:
             data_stats['test_data_stats'] = None
         data_stats['holdout_data_stats'] = {'number_of_splits': number_of_splits}
+        data_stats['stacked_ensemble_cv_stats'] = {'number_of_splits': number_of_splits_stacked_cv}
 
         extraction.data_statistics = data_stats
 
@@ -199,14 +218,13 @@ def evaluate_stacked_ensemble(path, ensemble_id):
 
             est = stacked_ensemble.return_secondary_learner()
 
-            cv = StratifiedKFold(
-                n_splits=5,
-                shuffle=True,
-                random_state=8
+            return_splits_iterable_stacked_ensemble = functions.import_object_from_string_code(
+                extraction.stacked_ensemble_cv['source'],
+                'return_splits_iterable'
             )
             preds = []
             trues_list = []
-            for train_index, test_index in cv.split(secondary_features, y):
+            for train_index, test_index in return_splits_iterable_stacked_ensemble(secondary_features, y):
                 X_train, X_test = secondary_features[train_index], secondary_features[test_index]
                 y_train, y_test = y[train_index], y[test_index]
                 est = est.fit(X_train, y_train)

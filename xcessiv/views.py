@@ -132,44 +132,24 @@ def extraction_meta_feature_generation():
             return jsonify(extraction.meta_feature_generation)
 
 
-@app.route('/ensemble/extraction/train-dataset/verify/', methods=['GET'])
-def verify_extraction_train_dataset():
+@app.route('/ensemble/extraction/stacked-ensemble-cv/', methods=['GET', 'PATCH'])
+def extraction_stacked_ensemble_cv():
     path = functions.get_path_from_query_string(request)
 
-    with functions.DBContextManager(path) as session:
-        extraction = session.query(models.Extraction).first()
+    if request.method == 'GET':
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            return jsonify(extraction.stacked_ensemble_cv)
 
-    X, y = extraction.return_train_dataset()
-
-    return jsonify(functions.verify_dataset(X, y))
-
-
-@app.route('/ensemble/extraction/test-dataset/verify/', methods=['GET'])
-def verify_extraction_test_dataset():
-    path = functions.get_path_from_query_string(request)
-
-    with functions.DBContextManager(path) as session:
-        extraction = session.query(models.Extraction).first()
-
-    X, y = extraction.return_test_dataset()
-
-    return jsonify(functions.verify_dataset(X, y))
-
-
-@app.route('/ensemble/extraction/meta-feature-generation/verify/', methods=['GET'])
-def verify_extraction_meta_feature_generation():
-    path = functions.get_path_from_query_string(request)
-
-    with functions.DBContextManager(path) as session:
-        extraction = session.query(models.Extraction).first()
-
-    if extraction.meta_feature_generation['method'] == 'cv':
-        raise exceptions.UserError('Xcessiv will use cross-validation to'
-                                   ' generate meta-features')
-
-    X_holdout, y_holdout = extraction.return_holdout_dataset()
-
-    return jsonify(functions.verify_dataset(X_holdout, y_holdout))
+    if request.method == 'PATCH':
+        req_body = request.get_json()
+        with functions.DBContextManager(path) as session:
+            extraction = session.query(models.Extraction).first()
+            for key, value in six.iteritems(req_body):
+                extraction.stacked_ensemble_cv[key] = value
+            session.add(extraction)
+            session.commit()
+            return jsonify(extraction.meta_feature_generation)
 
 
 @app.route('/ensemble/extraction/verification/', methods=['GET', 'POST'])
