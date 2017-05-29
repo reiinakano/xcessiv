@@ -27,6 +27,14 @@ def main():
     parser.add_argument('-D', '--redisdb', help='Redis database number', type=int)
     args = parser.parse_args()
 
+    # Check if Windows
+    if os.name == 'nt':
+        raise OSError('Xcessiv has detected that you are using Windows. '
+                      'Unfortunately, Xcessiv does not currently support Windows. '
+                      'The accepted workaround for this is to use Docker to run '
+                      'Xcessiv instead. Please check the Xcessiv documentation for '
+                      'more details.')
+
     # Overwrite configuration from configuration file
     default_config_path = os.path.join(os.path.expanduser('~'), '.xcessiv/config.py')
     if os.path.exists(default_config_path):

@@ -1,12 +1,12 @@
-## Using Xcessiv via Docker
+# Using Xcessiv via Docker
 
 This directory contains a `Dockerfile` for Xcessiv to work regardless of platform.
 
-### Install Docker
+## Install Docker
 
 The first step is to [install Docker](https://docs.docker.com/installation/) for your operating system.
 
-### Steps to use this image
+## Steps to use this image
 
 First, you must run a Redis server that Xcessiv will be able to connect to. You can run the [Redis Docker image](https://hub.docker.com/_/redis/) here if you want. Ensure that your Docker container will be able to communicate with the Redis server by properly configuring [container networking](https://docs.docker.com/engine/userguide/networking/). Additionally, here is a great [StackOverflow post](https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach) that covers communication from within a Docker container.
 
@@ -18,11 +18,15 @@ To start Xcessiv with Redis at `172.17.42.1:6379`, simply run:
 
 The `-P` flag for Docker is used to expose port 1994 to the host, so you can use your web browser to interact with Xcessiv at `localhost:1994`.
 
+### Mounting projects folder into container for persistence
+
 To save any projects you make with Xcessiv, you'll want to mount your own project folder into the Xcessiv Docker container's project folder. To do this, run:
 
 `$ docker run -P --name='xcessiv' -v /myxcessiv/XcessivProjects/:/XcessivProjects/ reiinakano/xcessiv`
 
 where `/myxcessiv/XcessivProjects/` is the host directory you want to save projects to.
+
+### Using your own configuration file
 
 To start Xcessiv with your own configuration file, run:
 
