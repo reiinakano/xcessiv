@@ -5,8 +5,6 @@ import io
 import os
 import sys
 
-import xcessiv
-
 here = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -35,7 +33,7 @@ class PyTest(TestCommand):
 
 setup(
     name='xcessiv',
-    version=xcessiv.__version__,
+    version='0.2.2',
     url='https://github.com/reiinakano/xcessiv',
     license='Apache License 2.0',
     author='Reiichiro Nakano',
