@@ -1,7 +1,11 @@
 Installation and Configuration
 ==============================
 
-Xcessiv is currently tested on Python ``2.7`` and Python ``3.5``. Because of its dependency on RQ, Xcessiv does not support Windows but should work on any Unix-based OS.
+Xcessiv is currently tested on Python ``2.7`` and Python ``3.5``.
+
+.. admonition:: A note about Windows
+
+   Because of its dependency on RQ, Xcessiv does not natively support Windows. At the moment, the only alternative for Windows users to run Xcessiv is to use Docker. See :ref:`Installation through Docker` for details.
 
 Installing and running Redis
 ----------------------------
@@ -15,9 +19,15 @@ Make sure to take note of the port at which Redis is running, especially if it i
 Installing Xcessiv
 ------------------
 
+Installing with Pip
+~~~~~~~~~~~~~~~~~~~
+
 The easiest and recommended way to install Xcessiv is to use pip::
 
    pip install xcessiv
+
+Installing from source
+~~~~~~~~~~~~~~~~~~~~~~
 
 If you want to install the latest version of Xcessiv from the master branch, you need some extra JavaScript tools to build the ReactJS application.
 
@@ -31,6 +41,13 @@ Then, run the following commands to clone the Xcessiv master branch and build an
    cd ..
    cd ..
    python setup.py install
+
+Installation through Docker
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+An alternative way to run Xcessiv is to run the server inside a Docker container. At the moment, this is the only alternative for Windows users to run Xcessiv.
+
+There is a full guide for using Docker to run Xcessiv `here <https://github.com/reiinakano/xcessiv/tree/master/docker>`_.
 
 Configuration
 -------------
