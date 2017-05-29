@@ -12,8 +12,9 @@ RUN pip --no-cache-dir install \
         gevent \
         redis \
         rq \
-        six \
-        xcessiv
+        six
+
+RUN pip --no-cache-dir install xcessiv
 
 RUN mkdir /XcessivProjects
 
