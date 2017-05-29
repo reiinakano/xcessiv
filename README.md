@@ -36,7 +36,7 @@ Xcessiv holds your hand through all the implementation details of creating and o
 
 ## Installation and Documentation
 
-You can find installation instructions and detailed documentation hosted [here](http://xcessiv.readthedocs.io/)
+You can find installation instructions and detailed documentation hosted [here](http://xcessiv.readthedocs.io/).
 
 ## FAQ
 
