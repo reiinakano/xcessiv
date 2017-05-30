@@ -171,13 +171,37 @@ def generate_meta_features(path, base_learner_id):
 @job('default', timeout=86400)
 def start_automated_run(path, automated_run_id):
     """Starts automated run. This will automatically create
-    base learners until the run finishes or errors.
+    base learners until the run finishes or errors out.
 
     Args:
         path (str): Path to Xcessiv notebook
 
         automated_run_id (str): Automated Run ID
     """
+    with functions.DBContextManager(path) as session:
+        automated_run = session.query(models.AutomatedRun).filter_by(id=automated_run_id).first()
+        if not automated_run:
+            raise exceptions.UserError('Automated run {} '
+                                       'does not exist'.format(automated_run_id))
+        automated_run.job_id = get_current_job().id
+        automated_run.job_status = 'started'
+
+        session.add(automated_run)
+        session.commit()
+
+        try:
+            module = functions.import_string_code_as_module(automated_run.source)
+
+        except:
+            session.rollback()
+            automated_run.job_status = 'errored'
+            automated_run.description['error_type'] = repr(sys.exc_info()[0])
+            automated_run.description['error_value'] = repr(sys.exc_info()[1])
+            automated_run.description['error_traceback'] = \
+                traceback.format_exception(*sys.exc_info())
+            session.add(automated_run)
+            session.commit()
+            raise
 
 
 @job('default', timeout=86400)
