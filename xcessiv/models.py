@@ -145,6 +145,8 @@ class BaseLearnerOrigin(Base):
     description = Column(JsonEncodedDict)
     base_learners = relationship('BaseLearner', back_populates='base_learner_origin',
                                  cascade='all, delete-orphan', single_parent=True)
+    automated_runs = relationship('AutomatedRun', back_populates='base_learner_origin',
+                                  cascade='all, delete-orphan', single_parent=True)
     stacked_ensembles = relationship('StackedEnsemble', back_populates='base_learner_origin',
                                      cascade='all, delete-orphan', single_parent=True)
 
@@ -191,6 +193,26 @@ class BaseLearnerOrigin(Base):
         """
         for learner in self.base_learners:
             learner.cleanup(path)
+
+
+class AutomatedRun(Base):
+    """This table contains initialized/completed automated hyperparameter searches"""
+    __tablename__ = 'automatedrun'
+
+    id = Column(Integer, primary_key=True)
+    source = Column(Text)
+    job_status = Column(Text)
+    job_id = Column(Text)
+    description = Column(JsonEncodedDict)
+    base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
+    base_learner_origin = relationship('BaseLearnerOrigin', back_populates='automated_runs')
+
+    def __init__(self, source, job_status, base_learner_origin):
+        self.source = source
+        self.job_status = job_status
+        self.job_id = None
+        self.description = dict()
+        self.base_learner_origin = base_learner_origin
 
 
 association_table = Table(
