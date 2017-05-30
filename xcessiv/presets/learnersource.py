@@ -63,3 +63,9 @@ sklearn_linear_regression_source = \
 
 base_learner = LinearRegression()
 """
+
+sklearn_adaboost_regressor_source = \
+    """from sklearn.ensemble import AdaBoostRegressor
+
+base_learner = AdaBoostRegressor(random_state=8)
+"""

@@ -13,7 +13,8 @@ __all__ = [
     'sklearn_adaboost_classifier',
     'xgboost_classifier',
     'xgboost_regressor',
-    'sklearn_linear_regression'
+    'sklearn_linear_regression',
+    'sklearn_adaboost_regressor'
 ]
 
 
@@ -74,5 +75,11 @@ xgboost_regressor = {
 sklearn_linear_regression = {
     'name': 'scikit-learn Linear Regression',
     'source': learnersource.sklearn_linear_regression_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_adaboost_regressor = {
+    'name': 'scikit-learn AdaBoost Regressor',
+    'source': learnersource.sklearn_adaboost_regressor_source,
     'meta_feature_generator': 'predict'
 }
