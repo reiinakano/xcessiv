@@ -11,7 +11,8 @@ __all__ = [
     'precision_from_preds',
     'f1_score_from_scores',
     'f1_score_from_preds',
-    'mse'
+    'mse',
+    'roc_auc_score_from_scores'
 ]
 
 
@@ -203,4 +204,31 @@ mse = {
 metric_generator = mean_squared_error
 """,
     'selection_name': 'Mean Squared Error'
+}
+
+
+roc_auc_score_from_scores = {
+    'name': 'ROC AUC Score',
+    'source':
+    """from sklearn.metrics import roc_auc_score
+from sklearn.preprocessing import label_binarize
+import numpy as np
+
+def metric_generator(y_true, y_probas):
+    \"\"\"This function computes the Area under Curve of the
+    Receiver Operating Characteristic given the true labels array (y_true)
+    and the scores/probabilities array (y_probas). In a non-binary classification
+    task, this will calculate a weighted mean of the AUC for each class. This
+    behavior can be changed by passing a different parameter to the
+    `average` argument.
+    \"\"\"
+    classes_ = np.unique(y_true)
+    if len(classes_) != np.array(y_probas).shape[1]:
+        raise ValueError('The shape of y_probas does not correspond to the number of unique values in y_true')
+    binarized = label_binarize(y_true, classes_)
+    if len(classes_) == 2:
+        binarized = binarized.ravel()
+    return roc_auc_score(binarized, y_probas, average='weighted')
+""",
+    'selection_name': 'ROC AUC Score from Scores/Probabilities'
 }
