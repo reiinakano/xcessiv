@@ -10,8 +10,11 @@ __all__ = [
     'sklearn_knn_classifier',
     'sklearn_svm_classifier',
     'sklearn_gaussian_nb',
+    'sklearn_adaboost_classifier',
     'xgboost_classifier',
-    'sklearn_linear_regression'
+    'xgboost_regressor',
+    'sklearn_linear_regression',
+    'sklearn_adaboost_regressor'
 ]
 
 
@@ -51,14 +54,32 @@ sklearn_gaussian_nb = {
     'meta_feature_generator': 'predict_proba'
 }
 
+sklearn_adaboost_classifier = {
+    'name': 'scikit-learn AdaBoost Classifier',
+    'source': learnersource.sklearn_adaboost_classifier_source,
+    'meta_feature_generator': 'predict_proba'
+}
+
 xgboost_classifier = {
     'name': 'XGBoost Classifier',
     'source': learnersource.xgboost_classifier_source,
     'meta_feature_generator': 'predict_proba'
 }
 
+xgboost_regressor = {
+    'name': 'XGBoost Regressor',
+    'source': learnersource.xgboost_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
 sklearn_linear_regression = {
     'name': 'scikit-learn Linear Regression',
     'source': learnersource.sklearn_linear_regression_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_adaboost_regressor = {
+    'name': 'scikit-learn AdaBoost Regressor',
+    'source': learnersource.sklearn_adaboost_regressor_source,
     'meta_feature_generator': 'predict'
 }
