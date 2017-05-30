@@ -403,6 +403,32 @@ def search_base_learner(id):
         return jsonify(map(lambda x: x.serialize, learners))
 
 
+@app.route('/ensemble/base-learner-origins/<int:id>/automated-run/', methods=['POST'])
+def start_automated_run(id):
+    """This starts an automated run using the passed in source code for configuration"""
+    path = functions.get_path_from_query_string(request)
+    req_body = request.get_json()
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+
+        if not base_learner_origin.final:
+            raise exceptions.UserError('Base learner origin {} is not final'.format(id))
+
+        automated_run = models.AutomatedRun(req_body['source'],
+                                            'queued',
+                                            base_learner_origin)
+
+        session.add(automated_run)
+        session.commit()
+
+        with Connection(get_redis_connection()):
+            rqtasks.start_automated_run.delay(path, automated_run.id)
+
+        return jsonify(automated_run.serialize)
+
+
 @app.route('/ensemble/base-learners/', methods=['GET', 'DELETE'])
 def get_base_learners():
     path = functions.get_path_from_query_string(request)

@@ -169,6 +169,18 @@ def generate_meta_features(path, base_learner_id):
 
 
 @job('default', timeout=86400)
+def start_automated_run(path, automated_run_id):
+    """Starts automated run. This will automatically create
+    base learners until the run finishes or errors.
+
+    Args:
+        path (str): Path to Xcessiv notebook
+
+        automated_run_id (str): Automated Run ID
+    """
+
+
+@job('default', timeout=86400)
 def evaluate_stacked_ensemble(path, ensemble_id):
     """Evaluates the ensemble and updates the database when finished/
 

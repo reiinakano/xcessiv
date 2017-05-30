@@ -214,6 +214,17 @@ class AutomatedRun(Base):
         self.description = dict()
         self.base_learner_origin = base_learner_origin
 
+    @property
+    def serialize(self):
+        return dict(
+            id=self.id,
+            source=self.source,
+            job_status=self.job_status,
+            job_id=self.job_id,
+            description=self.description,
+            base_learner_origin_id=self.base_learner_origin_id
+        )
+
 
 association_table = Table(
     'association', Base.metadata,
