@@ -32,7 +32,7 @@ class ListBaseLearner extends Component {
     super(props);
     this.state = {
       filteredTypes: [],
-      includedMetrics: ['Accuracy', 'Recall', 'Precision'],
+      includedMetrics: [],
       includedHyperparameters: [],
       sortAscending: true,
       sortCol: 'id',

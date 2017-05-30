@@ -30,7 +30,7 @@ class ListEnsemble extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      includedMetrics: ['Accuracy', 'Recall', 'Precision'],
+      includedMetrics: [],
       includedHyperparameters: [],
       sortAscending: true,
       sortCol: 'id',
