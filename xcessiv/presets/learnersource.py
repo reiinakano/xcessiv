@@ -40,10 +40,22 @@ sklearn_gaussian_nb_source = \
 base_learner = GaussianNB()
 """
 
+sklearn_adaboost_classifier_source = \
+    """from sklearn.ensemble import AdaBoostClassifier
+
+base_learner = AdaBoostClassifier(random_state=8)
+"""
+
 xgboost_classifier_source = \
     """from xgboost import XGBClassifier
 
 base_learner = XGBClassifier(seed=8)
+"""
+
+xgboost_regressor_source = \
+    """from xgboost import XGBRegressor
+
+base_learner = XGBRegressor(seed=8)
 """
 
 sklearn_linear_regression_source = \
