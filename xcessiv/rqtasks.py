@@ -171,20 +171,47 @@ def generate_meta_features(path, base_learner_id):
             raise
 
 
-def return_func_to_optimize(session, base_learner_origin, default_params,
+def return_func_to_optimize(path, session, base_learner_origin, default_params,
                             metric_to_optimize, invert_metric, integers):
+    """Creates the function to be optimized by Bayes Optimization.
+
+    The function automatically handles the case of already existing base learners, and if
+    no base learner for the hyperparameters exists yet, creates one and updates it in the
+    usual way.
+
+    Args:
+        path (str): Path to Xcessiv notebook
+
+        session: Database session passed down
+
+        base_learner_origin: BaseLearnerOrigin object
+
+        default_params (dict): Dictionary containing default params of estimator
+
+        metric_to_optimize (str, unicode): String containing name of metric to optimize
+
+        invert_metric (bool): Specifies whether metric should be inverted e.g. losses
+
+        integers (set): Set of strings that specify which hyperparameters are integers
+
+    Returns:
+        func_to_optimize (function): Function to be optimized
+    """
     def func_to_optimize(**params):
         base_estimator = base_learner_origin.return_estimator()
         base_estimator.set_params(**default_params)
-        # For integer hyperparameters, make sure they are rounded
+        # For integer hyperparameters, make sure they are rounded off
         params = dict((key, val) if key not in integers else (key, int(val))
                       for key, val in iteritems(params))
         base_estimator.set_params(**params)
         hyperparameters = functions.make_serializable(base_estimator.get_params())
 
+        # Look if base learner already exists
         base_learner = session.query(models.BaseLearner).\
-            filter_by(base_learner_origin_id=id,
+            filter_by(base_learner_origin_id=base_learner_origin.id,
                       hyperparameters=hyperparameters).first()
+
+        calculate_only = False
 
         # If base learner exists and has finished, just return its result
         if base_learner and base_learner.job_status == 'finished':
@@ -193,12 +220,15 @@ def return_func_to_optimize(session, base_learner_origin, default_params,
             else:
                 return base_learner.individual_score[metric_to_optimize]
 
-        # else if base learner is non-existent, create it.
-        elif not base_learner:
-            base_learner = models.BaseLearner(hyperparameters,
-                                              'queued',
-                                              base_learner_origin)
+        # else if base learner exists but is unfinished, just calculate the result without storing
+        elif base_learner and base_learner.job_status != 'finished':
+            calculate_only = True
 
+        # else if base learner does not exist, create it
+        else:
+            base_learner = models.BaseLearner(hyperparameters,
+                                              'started',
+                                              base_learner_origin)
             session.add(base_learner)
             session.commit()
 
@@ -232,16 +262,23 @@ def return_func_to_optimize(session, base_learner_origin, default_params,
                 )
                 base_learner.individual_score[key] = metric_generator(y_true, meta_features)
 
-            meta_features_path = base_learner.meta_features_path(path)
+            # Only do this if you want to save things
+            if not calculate_only:
+                meta_features_path = base_learner.meta_features_path(path)
 
-            if not os.path.exists(os.path.dirname(meta_features_path)):
-                os.makedirs(os.path.dirname(meta_features_path))
+                if not os.path.exists(os.path.dirname(meta_features_path)):
+                    os.makedirs(os.path.dirname(meta_features_path))
 
-            np.save(meta_features_path, meta_features, allow_pickle=False)
-            base_learner.job_status = 'finished'
-            base_learner.meta_features_exists = True
-            session.add(base_learner)
-            session.commit()
+                np.save(meta_features_path, meta_features, allow_pickle=False)
+                base_learner.job_status = 'finished'
+                base_learner.meta_features_exists = True
+                session.add(base_learner)
+                session.commit()
+
+            if invert_metric:
+                return -base_learner.individual_score[metric_to_optimize]
+            else:
+                return base_learner.individual_score[metric_to_optimize]
 
         except:
             session.rollback()
@@ -253,6 +290,7 @@ def return_func_to_optimize(session, base_learner_origin, default_params,
             session.add(base_learner)
             session.commit()
             raise
+    return func_to_optimize
 
 
 @job('default', timeout=86400)
@@ -320,6 +358,7 @@ def start_automated_run(path, automated_run_id):
             initialization_dict['target'] = target if not module.invert_metric \
                 else list(map(lambda x: -x, target))
 
+            # Create function to be optimized
 
 
         except:
