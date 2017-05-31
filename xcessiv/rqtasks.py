@@ -359,7 +359,21 @@ def start_automated_run(path, automated_run_id):
                 else list(map(lambda x: -x, target))
 
             # Create function to be optimized
+            func_to_optimize = return_func_to_optimize(
+                path, session, automated_run.base_learner_origin, module.default_params,
+                module.metric_to_optimize, module.invert_metric, set(module.integers)
+            )
 
+            # Create Bayes object
+            bo = BayesianOptimization(func_to_optimize, module.pbounds)
+
+            np.random.seed(random_state)
+
+            bo.maximize(**module.maximize_config)
+
+            automated_run.job_status = 'finished'
+            session.add(automated_run)
+            session.commit()
 
         except:
             session.rollback()
