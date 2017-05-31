@@ -191,7 +191,7 @@ def base_learner_origins_view():
     if request.method == 'GET':
         with functions.DBContextManager(path) as session:
             base_learner_origins = session.query(models.BaseLearnerOrigin).all()
-            return jsonify(map(lambda x: x.serialize, base_learner_origins))
+            return jsonify(list(map(lambda x: x.serialize, base_learner_origins)))
 
     if request.method == 'POST':  # Create new base learner origin
         req_body = request.get_json()
@@ -400,7 +400,7 @@ def search_base_learner(id):
             with Connection(get_redis_connection()):
                 rqtasks.generate_meta_features.delay(path, base_learner.id)
             learners.append(base_learner)
-        return jsonify(map(lambda x: x.serialize, learners))
+        return jsonify(list(map(lambda x: x.serialize, learners)))
 
 
 @app.route('/ensemble/base-learner-origins/<int:id>/automated-run/', methods=['POST'])
@@ -437,7 +437,7 @@ def get_base_learners():
         base_learners = session.query(models.BaseLearner).all()
 
         if request.method == 'GET':
-            return jsonify(map(lambda x: x.serialize, base_learners))
+            return jsonify(list(map(lambda x: x.serialize, base_learners)))
 
         if request.method == 'DELETE':  # Go crazy and delete everything
             for base_learner in base_learners:
@@ -474,7 +474,7 @@ def create_new_stacked_ensemble():
     with functions.DBContextManager(path) as session:
         if request.method == 'GET':
                 return jsonify(
-                    map(lambda x: x.serialize, session.query(models.StackedEnsemble).all())
+                    list(map(lambda x: x.serialize, session.query(models.StackedEnsemble).all()))
                 )
 
         if request.method == 'POST':
