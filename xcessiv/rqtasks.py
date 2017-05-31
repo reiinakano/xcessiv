@@ -10,6 +10,7 @@ import sys
 import traceback
 from sklearn.model_selection import train_test_split
 from six import iteritems
+import numbers
 from bayes_opt import BayesianOptimization
 
 
@@ -170,6 +171,90 @@ def generate_meta_features(path, base_learner_id):
             raise
 
 
+def return_func_to_optimize(session, base_learner_origin, default_params,
+                            metric_to_optimize, invert_metric, integers):
+    def func_to_optimize(**params):
+        base_estimator = base_learner_origin.return_estimator()
+        base_estimator.set_params(**default_params)
+        # For integer hyperparameters, make sure they are rounded
+        params = dict((key, val) if key not in integers else (key, int(val))
+                      for key, val in iteritems(params))
+        base_estimator.set_params(**params)
+        hyperparameters = functions.make_serializable(base_estimator.get_params())
+
+        base_learner = session.query(models.BaseLearner).\
+            filter_by(base_learner_origin_id=id,
+                      hyperparameters=hyperparameters).first()
+
+        # If base learner exists and has finished, just return its result
+        if base_learner and base_learner.job_status == 'finished':
+            if invert_metric:
+                return -base_learner.individual_score[metric_to_optimize]
+            else:
+                return base_learner.individual_score[metric_to_optimize]
+
+        # else if base learner is non-existent, create it.
+        elif not base_learner:
+            base_learner = models.BaseLearner(hyperparameters,
+                                              'queued',
+                                              base_learner_origin)
+
+            session.add(base_learner)
+            session.commit()
+
+        try:
+            est = base_learner.return_estimator()
+            extraction = session.query(models.Extraction).first()
+            X, y = extraction.return_train_dataset()
+            return_splits_iterable = functions.import_object_from_string_code(
+                extraction.meta_feature_generation['source'],
+                'return_splits_iterable'
+            )
+
+            meta_features_list = []
+            trues_list = []
+            for train_index, test_index in return_splits_iterable(X, y):
+                X_train, X_test = X[train_index], X[test_index]
+                y_train, y_test = y[train_index], y[test_index]
+                est = est.fit(X_train, y_train)
+                meta_features_list.append(
+                    getattr(est, base_learner.base_learner_origin.
+                            meta_feature_generator)(X_test)
+                )
+                trues_list.append(y_test)
+            meta_features = np.concatenate(meta_features_list, axis=0)
+            y_true = np.concatenate(trues_list)
+
+            for key in base_learner.base_learner_origin.metric_generators:
+                metric_generator = functions.import_object_from_string_code(
+                    base_learner.base_learner_origin.metric_generators[key],
+                    'metric_generator'
+                )
+                base_learner.individual_score[key] = metric_generator(y_true, meta_features)
+
+            meta_features_path = base_learner.meta_features_path(path)
+
+            if not os.path.exists(os.path.dirname(meta_features_path)):
+                os.makedirs(os.path.dirname(meta_features_path))
+
+            np.save(meta_features_path, meta_features, allow_pickle=False)
+            base_learner.job_status = 'finished'
+            base_learner.meta_features_exists = True
+            session.add(base_learner)
+            session.commit()
+
+        except:
+            session.rollback()
+            base_learner.job_status = 'errored'
+            base_learner.description['error_type'] = repr(sys.exc_info()[0])
+            base_learner.description['error_value'] = repr(sys.exc_info()[1])
+            base_learner.description['error_traceback'] = \
+                traceback.format_exception(*sys.exc_info())
+            session.add(base_learner)
+            session.commit()
+            raise
+
+
 @job('default', timeout=86400)
 def start_automated_run(path, automated_run_id):
     """Starts automated run. This will automatically create
@@ -206,6 +291,8 @@ def start_automated_run(path, automated_run_id):
             # get already calculated base learners in search space
             existing_base_learners = []
             for base_learner in automated_run.base_learner_origin.base_learners:
+                if not base_learner.job_status == 'finished':
+                    continue
                 in_search_space = True
                 for key, val in iteritems(non_searchable_params):
                     if base_learner.hyperparameters[key] != val:
@@ -218,9 +305,22 @@ def start_automated_run(path, automated_run_id):
             target = []
             initialization_dict = dict((key, list()) for key in module.pbounds.keys())
             for base_learner in existing_base_learners:
+                # check if base learner's searchable hyperparameters are all numerical
+                all_numerical = True
+                for key in module.pbounds.keys():
+                    if not isinstance(base_learner.hyperparameters[key], numbers.Number):
+                        all_numerical = False
+                        break
+                if not all_numerical:
+                    continue  # if there is a non-numerical hyperparameter, skip this.
+
                 for key in module.pbounds.keys():
                     initialization_dict[key].append(base_learner.hyperparameters[key])
-            initialization_dict['target'] = target
+                target.append(base_learner.individual_score[module.metric_to_optimize])
+            initialization_dict['target'] = target if not module.invert_metric \
+                else list(map(lambda x: -x, target))
+
+
 
         except:
             session.rollback()
