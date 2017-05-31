@@ -1,3 +1,4 @@
+bayesian-optimization>=0.4
 Flask>=0.11
 gevent>=1.1
 numpy>=1.12

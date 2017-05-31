@@ -9,6 +9,8 @@ import os
 import sys
 import traceback
 from sklearn.model_selection import train_test_split
+from six import iteritems
+from bayes_opt import BayesianOptimization
 
 
 def extraction_data_statistics(path):
@@ -191,6 +193,34 @@ def start_automated_run(path, automated_run_id):
 
         try:
             module = functions.import_string_code_as_module(automated_run.source)
+            random_state = 8 if not hasattr(module, 'random_state') else module.random_state
+            assert module.metric_to_optimize in automated_run.base_learner_origin.metric_generators
+
+            # get non-searchable parameters
+            base_estimator = automated_run.base_learner_origin.return_estimator()
+            base_estimator.set_params(**module.default_params)
+            default_params = functions.make_serializable(base_estimator.get_params())
+            non_searchable_params = dict((key, val) for key, val in iteritems(default_params)
+                                         if key not in module.pbounds)
+
+            # get already calculated base learners in search space
+            existing_base_learners = []
+            for base_learner in automated_run.base_learner_origin.base_learners:
+                in_search_space = True
+                for key, val in iteritems(non_searchable_params):
+                    if base_learner.hyperparameters[key] != val:
+                        in_search_space = False
+                        break  # If no match, move on to the next base learner
+                if in_search_space:
+                    existing_base_learners.append(base_learner)
+
+            # build initialize dictionary
+            target = []
+            initialization_dict = dict((key, list()) for key in module.pbounds.keys())
+            for base_learner in existing_base_learners:
+                for key in module.pbounds.keys():
+                    initialization_dict[key].append(base_learner.hyperparameters[key])
+            initialization_dict['target'] = target
 
         except:
             session.rollback()
