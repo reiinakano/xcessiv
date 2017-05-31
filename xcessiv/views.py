@@ -414,6 +414,25 @@ def get_automated_runs():
             return jsonify(list(map(lambda x: x.serialize, automated_runs)))
 
 
+@app.route('/ensemble/automated-runs/<int:id>/', methods=['GET', 'DELETE'])
+def specific_automated_run(id):
+    path = functions.get_path_from_query_string(request)
+
+    with functions.DBContextManager(path) as session:
+        automated_run = session.query(models.AutomatedRun).filter_by(id=id).first()
+        if automated_run is None:
+            raise exceptions.UserError('Base learner {} not found'.format(id), 404)
+
+        if request.method == 'GET':
+            return jsonify(automated_run.serialize)
+
+        if request.method == 'DELETE':
+            automated_run.cleanup(path)
+            session.delete(automated_run)
+            session.commit()
+            return jsonify(message='Deleted automated run')
+
+
 @app.route('/ensemble/base-learner-origins/<int:id>/automated-runs/', methods=['POST'])
 def start_automated_run(id):
     """This starts an automated run using the passed in source code for configuration"""
