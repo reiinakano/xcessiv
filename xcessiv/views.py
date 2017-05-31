@@ -427,6 +427,10 @@ def start_automated_run(id):
         if not base_learner_origin.final:
             raise exceptions.UserError('Base learner origin {} is not final'.format(id))
 
+        # Check for any syntax errors
+        module = functions.import_string_code_as_module(req_body['source'])
+        del module
+
         automated_run = models.AutomatedRun(req_body['source'],
                                             'queued',
                                             base_learner_origin)

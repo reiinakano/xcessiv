@@ -229,6 +229,7 @@ def return_func_to_optimize(path, session, base_learner_origin, default_params,
             base_learner = models.BaseLearner(hyperparameters,
                                               'started',
                                               base_learner_origin)
+            base_learner.job_id = get_current_job().id
             session.add(base_learner)
             session.commit()
 
@@ -357,6 +358,8 @@ def start_automated_run(path, automated_run_id):
                 target.append(base_learner.individual_score[module.metric_to_optimize])
             initialization_dict['target'] = target if not module.invert_metric \
                 else list(map(lambda x: -x, target))
+            print('{} existing in initialization dictionary'.
+                  format(len(initialization_dict['target'])))
 
             # Create function to be optimized
             func_to_optimize = return_func_to_optimize(
@@ -366,6 +369,8 @@ def start_automated_run(path, automated_run_id):
 
             # Create Bayes object
             bo = BayesianOptimization(func_to_optimize, module.pbounds)
+
+            bo.initialize(initialization_dict)
 
             np.random.seed(random_state)
 
