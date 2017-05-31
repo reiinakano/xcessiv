@@ -403,7 +403,18 @@ def search_base_learner(id):
         return jsonify(list(map(lambda x: x.serialize, learners)))
 
 
-@app.route('/ensemble/base-learner-origins/<int:id>/automated-run/', methods=['POST'])
+@app.route('/ensemble/automated-runs/', methods=['GET'])
+def get_automated_runs():
+    """Return all automated runs"""
+    path = functions.get_path_from_query_string(request)
+
+    if request.method == 'GET':
+        with functions.DBContextManager(path) as session:
+            automated_runs = session.query(models.AutomatedRun).all()
+            return jsonify(list(map(lambda x: x.serialize, automated_runs)))
+
+
+@app.route('/ensemble/base-learner-origins/<int:id>/automated-runs/', methods=['POST'])
 def start_automated_run(id):
     """This starts an automated run using the passed in source code for configuration"""
     path = functions.get_path_from_query_string(request)
