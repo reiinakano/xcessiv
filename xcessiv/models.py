@@ -333,7 +333,7 @@ class StackedEnsemble(Base):
             job_id=self.job_id,
             description=self.description,
             base_learner_origin_id=self.base_learner_origin_id,
-            base_learner_ids=map(lambda x: x.id, self.base_learners),
+            base_learner_ids=list(map(lambda x: x.id, self.base_learners)),
             number_of_base_learners=len(self.base_learners),
             append_original=self.append_original
         )
