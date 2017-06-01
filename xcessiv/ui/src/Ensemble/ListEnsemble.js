@@ -222,7 +222,7 @@ class ListEnsemble extends Component {
           rowHeight={35}
           headerHeight={50}
           width={this.props.containerWidth}
-          height={500}>
+          height={Math.min(500, 50 + 35*this.props.stackedEnsembles.length)}>
           {this.getDataColumns()}
           {this.getMetricsColumns()}
           {this.getHyperparametersColumns()}

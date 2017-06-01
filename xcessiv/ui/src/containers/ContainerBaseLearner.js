@@ -257,6 +257,42 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Delete a base learner in the list
+  deleteAutomatedRun(id) {
+
+    fetch(
+      '/ensemble/automated-runs/' + id + '/?path=' + this.props.path,
+      {
+        method: "DELETE"
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var automatedRuns = prevState.automatedRuns.slice();
+        var idx = automatedRuns.findIndex((x) => x.id === id);
+        automatedRuns.splice(idx, 1);
+        return {automatedRuns};
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
+    });
+  }
+
   // Refresh base learners until all are finished
   refreshBaseLearnersUntilFinished(path) {
     this.refreshingBL = true;
@@ -621,6 +657,7 @@ class ContainerBaseLearner extends Component {
         />
         <AutomatedRunsDisplay
           automatedRuns={this.state.automatedRuns}
+          deleteAutomatedRun={(id) => this.deleteAutomatedRun(id)}
         />
         <ListBaseLearner 
           path={this.props.path} 

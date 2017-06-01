@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './AutomatedRuns.css';
 import 'react-select/dist/react-select.css';
-import { Modal, Panel, Button, Alert } from 'react-bootstrap';
+import { Modal, Button, Alert } from 'react-bootstrap';
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
@@ -50,6 +50,37 @@ export class DetailsModal extends Component {
           {(automatedRun.job_status === 'errored') && 
           <DisplayError description={automatedRun.description} />}
         </Modal.Body>
+      </Modal>
+    )
+  }
+}
+
+export class DeleteModal extends Component {
+
+  handleYesAndClose() {
+    this.props.handleYes();
+    this.props.onRequestClose();
+  }
+
+  render() {
+    return (
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Delete Automated Run</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete record of this automated run?</p>
+          <p><strong>This action is irreversible.</strong></p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='danger' onClick={() => this.handleYesAndClose()}>
+            Delete
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
       </Modal>
     )
   }

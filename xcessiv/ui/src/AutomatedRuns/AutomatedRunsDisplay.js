@@ -9,7 +9,7 @@ import FaTrash from 'react-icons/lib/fa/trash';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 import FaInfo from 'react-icons/lib/fa/info';
-import { DetailsModal } from './Modals'
+import { DetailsModal, DeleteModal } from './Modals'
 
 class AutomatedRunsDisplay extends Component {
   constructor(props) {
@@ -50,7 +50,7 @@ class AutomatedRunsDisplay extends Component {
             rowHeight={35}
             headerHeight={50}
             width={this.props.containerWidth}
-            height={300}>
+            height={Math.min(300, 50 + 35*this.props.automatedRuns.length)}>
             <Column
               header={'ID'}
               cell={(props) => {
@@ -149,6 +149,11 @@ class AutomatedRunsDisplay extends Component {
           onRequestClose={() => this.setState({moreDetailsId: null})}
           automatedRuns={this.props.automatedRuns}
           moreDetailsId={this.state.moreDetailsId}
+        />
+        <DeleteModal
+          isOpen={this.state.idToDelete !== null}
+          onRequestClose={() => this.setState({idToDelete: null})}
+          handleYes={() => this.props.deleteAutomatedRun(this.state.idToDelete)}
         />
       </div>
     )
