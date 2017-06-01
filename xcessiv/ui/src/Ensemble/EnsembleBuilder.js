@@ -36,7 +36,7 @@ class EnsembleBuilder extends Component {
     };
 
     const buttonDisabled = (!this.state.selectedValue || 
-      !(this.props.checkedOptions.length > 1));
+      !(this.props.checkedOptions.length > 0));
 
     return (
       <div className='Ensemble'>
