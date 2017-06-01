@@ -14,7 +14,9 @@ class AutomatedRunsDisplay extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      open: false
+      open: false,
+      moreDetailsId: null,
+      idToDelete: null
     };
   }
 
@@ -23,7 +25,7 @@ class AutomatedRunsDisplay extends Component {
       <table><tbody><tr>
         <td>
           <Button onClick={() => this.setState({open: !this.state.open})}>
-            View Automated Runs
+            {(this.state.open ?  'Hide' : 'Show') + ' Automated Runs'}
           </Button>
         </td>
         <td>{'Succeeded: ' + this.props.automatedRuns.filter((el) => 
@@ -98,6 +100,35 @@ class AutomatedRunsDisplay extends Component {
               }}
               width={50}
               flexGrow={1}
+            />
+            <Column
+            cell={(props) => {
+
+                return (
+                  <Cell {...props}>
+                    <FaInfo 
+                      style={{cursor: 'pointer'}}
+                      onClick={() => 
+                        this.setState({moreDetailsId: this.props.automatedRuns[props.rowIndex].id})}
+                    />
+                  </Cell>
+                )
+              }}
+              width={50}
+            />
+            <Column
+              cell={(props) => {
+
+                return (
+                  <Cell {...props}>
+                    <FaTrash 
+                      style={{cursor: 'pointer'}}
+                      onClick={() => this.setState({idToDelete: this.props.automatedRuns[props.rowIndex].id})}
+                    />
+                  </Cell>
+                )
+              }}
+              width={50}
             />
           </Table>
         </Panel>
