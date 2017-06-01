@@ -9,6 +9,7 @@ import FaTrash from 'react-icons/lib/fa/trash';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 import FaInfo from 'react-icons/lib/fa/info';
+import { DetailsModal } from './Modals'
 
 class AutomatedRunsDisplay extends Component {
   constructor(props) {
@@ -56,6 +57,18 @@ class AutomatedRunsDisplay extends Component {
                 return (
                   <Cell {...props}>
                     {this.props.automatedRuns[props.rowIndex].id}
+                  </Cell>
+                )
+              }}
+              width={50}
+              flexGrow={1}
+            />
+            <Column
+              header={'Base Learner Type ID'}
+              cell={(props) => {
+                return (
+                  <Cell {...props}>
+                    {this.props.automatedRuns[props.rowIndex].base_learner_origin_id}
                   </Cell>
                 )
               }}
@@ -132,6 +145,11 @@ class AutomatedRunsDisplay extends Component {
             />
           </Table>
         </Panel>
+        <DetailsModal 
+          onRequestClose={() => this.setState({moreDetailsId: null})}
+          automatedRuns={this.props.automatedRuns}
+          moreDetailsId={this.state.moreDetailsId}
+        />
       </div>
     )
   }
