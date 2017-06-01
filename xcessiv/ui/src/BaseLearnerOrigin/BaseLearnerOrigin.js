@@ -17,7 +17,7 @@ import { Button, ButtonToolbar, Glyphicon, Alert, Panel as BsPanel,
   MenuItem } from 'react-bootstrap';
 import { MulticlassDatasetModal, CreateBaseLearnerModal, RandomSearchModal,
   GridSearchModal, DeleteModal, FinalizeModal, PresetLearnerSettingsModal,
-  ClearModal } from './BaseLearnerOriginModals';
+  ClearModal, AutomatedRunModal } from './BaseLearnerOriginModals';
 
 const changeableProps = [
   'name', 
@@ -138,6 +138,7 @@ class BaseLearnerOrigin extends Component {
       showCreateModal: false,
       showGridSearchModal: false,
       showRandomSearchModal: false,
+      showAutomatedRunModal: false,
       activeKey: [],
       asyncStatus: '',
       errorMessage: ''
@@ -413,6 +414,12 @@ class BaseLearnerOrigin extends Component {
             Random Search
           </Button>
 
+          <Button 
+            disabled={!this.props.data.final}
+            onClick={() => this.setState({showAutomatedRunModal: true})}>
+            Bayesian Optimization
+          </Button>
+
         </ButtonToolbar>
       )
     }
@@ -502,6 +509,10 @@ class BaseLearnerOrigin extends Component {
             isOpen={this.state.showRandomSearchModal} 
             onRequestClose={() => this.setState({showRandomSearchModal: false})}
             handleYes={(source, n) => this.props.randomSearch(source, n)} />
+
+          <AutomatedRunModal isOpen={this.state.showAutomatedRunModal} 
+          onRequestClose={() => this.setState({showAutomatedRunModal: false})}
+          handleYes={(source) => this.props.createAutomatedRun(source)} />
           
         </Panel>
       </Collapse>

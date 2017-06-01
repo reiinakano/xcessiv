@@ -18,6 +18,7 @@ class ListBaseLearnerOrigin extends Component {
           createBaseLearner={(source) => this.props.createBaseLearner(el.id, source)}
           gridSearch={(source) => this.props.gridSearch(el.id, source)}
           randomSearch={(source, n) => this.props.randomSearch(el.id, source, n)}
+          createAutomatedRun={(source) => this.props.createAutomatedRun(el.id, source)}
           addNotification={(notif) => this.props.addNotification(notif)}
           presetBaseLearnerOrigins={this.props.presetBaseLearnerOrigins}
           presetMetricGenerators={this.props.presetMetricGenerators}

@@ -7,6 +7,36 @@ import 'codemirror/mode/python/python';
 import Select from 'react-select';
 
 
+const defaultAutomatedRunSource = `random_state = 8  # Random seed
+
+# Configuration to pass to maximize()
+maximize_config = {
+  'init_points': 2,
+  'n_iter': 30,
+  'acq': 'ucb',
+  'kappa': 5
+}
+
+# Default parameters of base learner
+default_params = {
+
+}
+
+# Min-max bounds of parameters to be searched
+pbounds = {
+
+}
+
+# List of hyperparameters that should be rounded off to integers
+integers = [
+]
+
+metric_to_optimize = 'Accuracy'  # metric to optimize
+
+invert_metric = False  # Whether or not to invert metric e.g. optimizing a loss
+`
+
+
 export class MulticlassDatasetModal extends Component {
   constructor(props) {
     super(props);
@@ -246,6 +276,52 @@ export class RandomSearchModal extends Component {
               />
             </FormGroup>
           </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
+            Go
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+}
+
+export class AutomatedRunModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      source: defaultAutomatedRunSource
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.source);
+    this.props.onRequestClose();
+  }
+
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+
+    return (
+      <Modal 
+        bsSize='large'
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Bayesian Optimization</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{'Designate configurations for Bayesian hyperparameter optimization'}</p>
+          <CodeMirror value={this.state.source} 
+            onChange={(src) => this.setState({source: src})} 
+            options={options}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
