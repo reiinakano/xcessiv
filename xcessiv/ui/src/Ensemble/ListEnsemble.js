@@ -244,6 +244,9 @@ class ListEnsemble extends Component {
               else if (this.sortedStackedEnsembles[props.rowIndex].job_status === 'finished') {
                 status_icon = <FaCheck />
               }
+              else if (this.sortedStackedEnsembles[props.rowIndex].job_status === 'queued') {
+                status_icon = 'Queued'
+              }
               else {
                 status_icon = <FaSpinner className='load-animate'/>
               }

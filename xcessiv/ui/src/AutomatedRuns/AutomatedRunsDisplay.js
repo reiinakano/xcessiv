@@ -101,6 +101,9 @@ class AutomatedRunsDisplay extends Component {
                 else if (this.props.automatedRuns[props.rowIndex].job_status === 'finished') {
                   status_icon = <FaCheck />
                 }
+                else if (this.props.automatedRuns[props.rowIndex].job_status === 'queued') {
+                  status_icon = 'Queued'
+                }
                 else {
                   status_icon = <FaSpinner className='load-animate'/>
                 }
