@@ -5,6 +5,7 @@ import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
 import EnsembleBuilder from '../Ensemble/EnsembleBuilder'
 import ListEnsemble from '../Ensemble/ListEnsemble'
+import AutomatedRunsDisplay from '../AutomatedRuns/AutomatedRunsDisplay'
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -617,6 +618,9 @@ class ContainerBaseLearner extends Component {
           addNotification={(notif) => this.props.addNotification(notif)}
           presetBaseLearnerOrigins={this.state.presetBaseLearnerOrigins}
           presetMetricGenerators={this.state.presetMetricGenerators}
+        />
+        <AutomatedRunsDisplay
+          automatedRuns={this.state.automatedRuns}
         />
         <ListBaseLearner 
           path={this.props.path} 
