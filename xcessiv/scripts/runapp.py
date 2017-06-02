@@ -10,13 +10,6 @@ from xcessiv import app
 from six import iteritems
 
 
-def wrap(task, pipe):
-    def wrapper(*args, **kwargs):
-        sys.stdout = pipe
-        task(*args, **kwargs)
-    return wrapper
-
-
 def main():
     parser = argparse.ArgumentParser(description='Launch Xcessiv server and workers')
     parser.add_argument('-w', '--worker', help='Define number of workers', type=int)
@@ -62,12 +55,11 @@ def main():
 
     processes = []
     try:
-        conn1, conn2 = Pipe(duplex=False)
-        server_proc = Process(target=wrap(launch, conn2), args=(app,))
+        server_proc = Process(target=launch, args=(app,))
         server_proc.start()
 
         for i in range(app.config['NUM_WORKERS']):
-            p = Process(target=wrap(runworker, conn2), args=(app,))
+            p = Process(target=runworker, args=(app,))
             processes.append(p)
             p.start()
 
