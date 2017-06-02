@@ -24,17 +24,9 @@ Suppose you're exploring the hyperparameter space of a scikit-learn Random Fores
 
 Make sure you also use "Accuracy" as a metric.
 
-You want to use Bayesian optimization to tune the hyperparameters ``max_depth``, ``min_samples_split``, and ``min_samples_leaf``. After verifying and finalizing the base learner, click the **Bayesian Optimization** button and enter the following configuration into the code block.::
+You want to use Bayesian optimization to tune the hyperparameters ``max_depth``, ``min_samples_split``, and ``min_samples_leaf``. After verifying and finalizing the base learner, click the **Bayesian Optimization** button and enter the following configuration into the code block and hit Go.::
 
    random_state = 8  # Random seed
-
-   # Configuration to pass to maximize()
-   maximize_config = {
-     'init_points': 2,
-     'n_iter': 10,
-     'acq': 'ucb',
-     'kappa': 5
-   }
 
    # Default parameters of base learner
    default_params = {
@@ -44,9 +36,9 @@ You want to use Bayesian optimization to tune the hyperparameters ``max_depth``,
 
    # Min-max bounds of parameters to be searched
    pbounds = {
-     'max_depth': (1, 100),
-     'min_samples_split': (0.1, 0.9),
-     'min_samples_leaf': (0.1, 0.9)
+     'max_depth': (10, 300),
+     'min_samples_split': (0.001, 0.5),
+     'min_samples_leaf': (0.001, 0.5)
    }
 
    # List of hyperparameters that should be rounded off to integers
@@ -58,3 +50,22 @@ You want to use Bayesian optimization to tune the hyperparameters ``max_depth``,
 
    invert_metric = False  # Whether or not to invert metric e.g. optimizing a loss
 
+   # Configuration to pass to maximize()
+   maximize_config = {
+     'init_points': 2,
+     'n_iter': 10,
+     'acq': 'ucb',
+     'kappa': 5
+   }
+
+If everything goes well, you should see that an "Automated Run" has started. From here, you can just watch as the Base Learners list updates with a new entry every time the Bayesian search explores a new hyperparameter combination.
+
+Let's review the code we used to configure the Bayesian search.
+
+All variables shown need to be defined for Bayesian search.
+
+First, the ``random_state`` parameter is used to seed the Numpy random generator that is used internally by the Bayesian search. You can set this to any integer you like.
+
+Next, define the default parameters of your base learner in the ``default_params`` dictionary. In our case, we don't really want to search ``n_estimators`` or ``criterion`` but we don't want to leave them at their default values either. This dictionary will set ``n_estimators`` to 200 and ``criterion`` to "entropy" for base learners produced by the Bayesian search.
+
+The `pbounds` variable
