@@ -66,6 +66,16 @@ All variables shown need to be defined for Bayesian search.
 
 First, the ``random_state`` parameter is used to seed the Numpy random generator that is used internally by the Bayesian search. You can set this to any integer you like.
 
-Next, define the default parameters of your base learner in the ``default_params`` dictionary. In our case, we don't really want to search ``n_estimators`` or ``criterion`` but we don't want to leave them at their default values either. This dictionary will set ``n_estimators`` to 200 and ``criterion`` to "entropy" for base learners produced by the Bayesian search.
+Next, define the default parameters of your base learner in the ``default_params`` dictionary. In our case, we don't really want to search ``n_estimators`` or ``criterion`` but we don't want to leave them at their default values either. This dictionary will set ``n_estimators`` to 200 and ``criterion`` to "entropy" for base learners produced by the Bayesian search. If ``default_params`` is an empty dictionary, the default values for all non-searchable hyperparameters will be used.
 
-The `pbounds` variable
+The ``pbounds`` variable is a dictionary that maps the hyperparameters to tune with their minimum and maximum values. In our example, ``max_depth`` will be searched but kept between 10 and 300, while ``min_samples_split`` will be searched but kept between 0.001 and 0.5.
+
+``integers`` is an array containing the list of hyperparameters that should be converted to an integer before using it to configure the base learner. In our example ``max_depth`` only accepts integer values, so we add it to the list.
+
+``metric_to_optimize`` defines the metric that the Bayesian search will use to determine the effectiveness of a single base learner. In our case, the search optimizes for higher accuracy.
+
+``invert_metric`` must be set to ``True`` when the metric you are optimizing is "better" at a lower value. For example, metrics such as the Brier Score Loss and Mean Squared Error are better when they are smaller.
+
+``maximize_config`` is a dictionary of parameters used by the actual Bayesian search to dictate behavior such as the number of points to explore and the algorithm's acquisition function. ``init_points`` sets the number of initial points to randomly explore before the actual Bayesian search takes over. ``n_iter`` sets the number of hyperparameter combinations the Bayesian search will explore. ``acq`` and ``kappa`` refer to the parameters of the acquisition function and determine the search's balance between exploration and exploitation. Keys included in ``maximize_config`` that are not directly used by the Bayesian search process are passed on to the underlying :class:`sklearn.gaussian_process.GaussianProcessRegressor` object.
+
+For more info on setting ``maximize_config``, please see the :func:`maximize` method of the :class:`bayes_opt.BayesianOptimization` class in the `BayesianOptimization source code <https://github.com/fmfn/BayesianOptimization/blob/master/bayes_opt/bayesian_optimization.py>`_. Seeing this `notebook example <https://github.com/fmfn/BayesianOptimization/blob/master/examples/exploitation%20vs%20exploration.ipynb>`_ will also give you some intuition on how the different acquisition function parameters ``acq``, ``kappa``, and ``xi`` affect the Bayesian search.
