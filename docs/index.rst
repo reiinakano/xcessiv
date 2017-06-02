@@ -58,6 +58,7 @@ Contents
 
    installation
    walkthrough
+   advanced
 
 
 Indices and tables
