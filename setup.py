@@ -33,13 +33,13 @@ class PyTest(TestCommand):
 
 setup(
     name='xcessiv',
-    version='0.3.0',
+    version='0.3.1',
     url='https://github.com/reiinakano/xcessiv',
     license='Apache License 2.0',
     author='Reiichiro Nakano',
     tests_require=['pytest'],
     install_requires=[
-        'bayesian-optimization==0.4.0'
+        'bayesian-optimization>=0.4.0'
         'Flask>=0.11.0',
         'gevent>=1.1.0',
         'numpy>=1.12.0',
