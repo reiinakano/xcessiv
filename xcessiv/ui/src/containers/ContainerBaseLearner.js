@@ -5,6 +5,7 @@ import ListBaseLearner from '../BaseLearner/ListBaseLearner';
 import ListBaseLearnerOrigin from '../BaseLearnerOrigin/ListBaseLearnerOrigin'
 import EnsembleBuilder from '../Ensemble/EnsembleBuilder'
 import ListEnsemble from '../Ensemble/ListEnsemble'
+import AutomatedRunsDisplay from '../AutomatedRuns/AutomatedRunsDisplay'
 
 function handleErrors(response) {
   if (!response.ok) {
@@ -31,6 +32,7 @@ class ContainerBaseLearner extends Component {
       baseLearners: [],
       checkedBaseLearners: ImSet([]),
       baseLearnerOrigins: [],
+      automatedRuns: [],
       stackedEnsembles: [],
       presetBaseLearnerOrigins: [],
       presetMetricGenerators: [],
@@ -41,6 +43,7 @@ class ContainerBaseLearner extends Component {
   // Get request from server to populate fields
   componentDidMount() {
     this.refreshBaseLearnerOrigins(this.props.path);
+    this.refreshAutomatedRunsUntilFinished(this.props.path);
     this.refreshBaseLearnersUntilFinished(this.props.path); 
     this.refreshStackedEnsemblesUntilFinished(this.props.path);
     this.refreshPresetCVs();
@@ -51,6 +54,7 @@ class ContainerBaseLearner extends Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.path !== nextProps.path) {
       this.refreshBaseLearnerOrigins(nextProps.path);
+      this.refreshAutomatedRunsUntilFinished(nextProps.path);
       this.refreshBaseLearnersUntilFinished(nextProps.path); 
       this.refreshStackedEnsemblesUntilFinished(nextProps.path);
     }
@@ -175,6 +179,116 @@ class ContainerBaseLearner extends Component {
         title: 'Success',
         message: json.message,
         level: 'success'
+      });
+    });
+  }
+
+  // Refresh automated runs until all are finished
+  refreshAutomatedRunsUntilFinished(path) {
+    this.refreshingAR = true;
+    fetch('/ensemble/automated-runs/?path=' + path)
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      if (this.props.path !== path) { return null; }
+      console.log(json);
+      this.setState({
+        automatedRuns: json
+      });
+      // If base learners are not refreshing, trigger it
+      if (!this.refreshingBL) { 
+        this.refreshBaseLearnersUntilFinished(this.props.path); 
+      }
+      for (let obj of json) {
+        if (obj.job_status === 'started' || obj.job_status === 'queued') {
+          setTimeout(() => this.refreshAutomatedRunsUntilFinished(path), 5000);
+          return null;
+        }
+      }
+      this.refreshingAR = false;
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.refreshingAR = false;
+    });
+  }
+
+  // Create a single automated run from a base learner origin
+  createAutomatedRun(id, source) {
+    var payload = {source: source};
+
+    fetch(
+      '/ensemble/base-learner-origins/' + id + '/automated-runs/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var automatedRuns = prevState.automatedRuns.slice();
+        automatedRuns.push(json);
+        return {automatedRuns};
+      });
+      if (!this.refreshingAR) { 
+        this.refreshAutomatedRunsUntilFinished(this.props.path); 
+      }
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Created new automated run',
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
+    });
+  }
+
+  // Delete a base learner in the list
+  deleteAutomatedRun(id) {
+
+    fetch(
+      '/ensemble/automated-runs/' + id + '/?path=' + this.props.path,
+      {
+        method: "DELETE"
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var automatedRuns = prevState.automatedRuns.slice();
+        var idx = automatedRuns.findIndex((x) => x.id === id);
+        automatedRuns.splice(idx, 1);
+        return {automatedRuns};
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
       });
     });
   }
@@ -536,9 +650,14 @@ class ContainerBaseLearner extends Component {
           createBaseLearner={(id, source) => this.createBaseLearner(id, source)}
           gridSearch={(id, source) => this.gridSearch(id, source)}
           randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
+          createAutomatedRun={(id, source) => this.createAutomatedRun(id, source)}
           addNotification={(notif) => this.props.addNotification(notif)}
           presetBaseLearnerOrigins={this.state.presetBaseLearnerOrigins}
           presetMetricGenerators={this.state.presetMetricGenerators}
+        />
+        <AutomatedRunsDisplay
+          automatedRuns={this.state.automatedRuns}
+          deleteAutomatedRun={(id) => this.deleteAutomatedRun(id)}
         />
         <ListBaseLearner 
           path={this.props.path} 

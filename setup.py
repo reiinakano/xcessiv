@@ -39,6 +39,7 @@ setup(
     author='Reiichiro Nakano',
     tests_require=['pytest'],
     install_requires=[
+        'bayesian-optimization==0.4.0'
         'Flask>=0.11.0',
         'gevent>=1.1.0',
         'numpy>=1.12.0',

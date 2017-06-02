@@ -228,6 +228,7 @@ def metric_generator(y_true, y_probas):
     binarized = label_binarize(y_true, classes_)
     if len(classes_) == 2:
         binarized = binarized.ravel()
+        y_probas = y_probas[:, 1]
     return roc_auc_score(binarized, y_probas, average='weighted')
 """,
     'selection_name': 'ROC AUC Score from Scores/Probabilities'

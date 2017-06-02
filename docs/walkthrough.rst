@@ -384,6 +384,11 @@ At this point your list of base learners should look like this.
    :align: center
    :alt: List of base learners
 
+Bayesian Search
+~~~~~~~~~~~~~~~
+
+As of ``v0.3.0``, Xcessiv includes an experimental automated hyperparameter tuning functionality based on Bayesian search. For the purposes of this initial walkthrough, we will skip this and move on to the next section. A detailed tutorial for using Bayesian optimization can be found in :ref:`Bayesian Hyperparameter Search`.
+
 Creating a stacked ensemble
 ---------------------------
 

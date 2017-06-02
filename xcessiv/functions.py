@@ -72,6 +72,25 @@ def import_object_from_string_code(code, object):
         raise exceptions.UserError("{} not found in code".format(object))
 
 
+def import_string_code_as_module(code):
+    """Used to run arbitrary passed code as a module
+
+    Args:
+        code (string): Python code to import as module
+
+    Returns:
+        module: Python module
+    """
+    sha256 = hashlib.sha256(code.encode('UTF-8')).hexdigest()
+    module = imp.new_module(sha256)
+    try:
+        exec_(code, module.__dict__)
+    except Exception as e:
+        raise exceptions.UserError('User code exception', exception_message=str(e))
+    sys.modules[sha256] = module
+    return module
+
+
 def verify_dataset(X, y):
     """Verifies if a dataset is valid for use i.e. scikit-learn format
 

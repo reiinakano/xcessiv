@@ -16,8 +16,8 @@ filepath = os.path.join(os.path.dirname(__file__),
 
 class TestHashFile(unittest.TestCase):
     def test_hash_file(self):
-        assert functions.hash_file(filepath) == "8f562f857f8b13d7e2b1f2ac59d2fc" \
-                                                "7603ba47db1cacef1d16ed7730102af5a7"
+        assert functions.hash_file(filepath) == "1c67f8f573b69a9da2f986e1006ff63a" \
+                                                "10fbb70298af45d0293e490b65b34edc"
 
         assert functions.hash_file(filepath) == functions.hash_file(filepath, 2)
 
@@ -40,6 +40,18 @@ class TestImportObjectFromStringCode(unittest.TestCase):
         assert callable(returned_object)
 
         pickle.loads(pickle.dumps(returned_object))  # make sure pickle works
+
+
+class TestImportStringCodeAsModule(unittest.TestCase):
+    def test_import_string_code_as_module(self):
+        with open(filepath) as f:
+            module = functions.\
+                import_string_code_as_module(f.read())
+
+        assert callable(module.extract_main_dataset)
+        assert module.dummy_variable == 2
+
+        pickle.loads(pickle.dumps(module.extract_main_dataset))  # make sure pickle works
 
 
 class TestVerifyDataset(unittest.TestCase):

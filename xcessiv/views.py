@@ -403,6 +403,65 @@ def search_base_learner(id):
         return jsonify(list(map(lambda x: x.serialize, learners)))
 
 
+@app.route('/ensemble/automated-runs/', methods=['GET'])
+def get_automated_runs():
+    """Return all automated runs"""
+    path = functions.get_path_from_query_string(request)
+
+    if request.method == 'GET':
+        with functions.DBContextManager(path) as session:
+            automated_runs = session.query(models.AutomatedRun).all()
+            return jsonify(list(map(lambda x: x.serialize, automated_runs)))
+
+
+@app.route('/ensemble/automated-runs/<int:id>/', methods=['GET', 'DELETE'])
+def specific_automated_run(id):
+    path = functions.get_path_from_query_string(request)
+
+    with functions.DBContextManager(path) as session:
+        automated_run = session.query(models.AutomatedRun).filter_by(id=id).first()
+        if automated_run is None:
+            raise exceptions.UserError('Automated run {} not found'.format(id), 404)
+
+        if request.method == 'GET':
+            return jsonify(automated_run.serialize)
+
+        if request.method == 'DELETE':
+            session.delete(automated_run)
+            session.commit()
+            return jsonify(message='Deleted automated run')
+
+
+@app.route('/ensemble/base-learner-origins/<int:id>/automated-runs/', methods=['POST'])
+def start_automated_run(id):
+    """This starts an automated run using the passed in source code for configuration"""
+    path = functions.get_path_from_query_string(request)
+    req_body = request.get_json()
+    with functions.DBContextManager(path) as session:
+        base_learner_origin = session.query(models.BaseLearnerOrigin).filter_by(id=id).first()
+        if base_learner_origin is None:
+            raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+
+        if not base_learner_origin.final:
+            raise exceptions.UserError('Base learner origin {} is not final'.format(id))
+
+        # Check for any syntax errors
+        module = functions.import_string_code_as_module(req_body['source'])
+        del module
+
+        automated_run = models.AutomatedRun(req_body['source'],
+                                            'queued',
+                                            base_learner_origin)
+
+        session.add(automated_run)
+        session.commit()
+
+        with Connection(get_redis_connection()):
+            rqtasks.start_automated_run.delay(path, automated_run.id)
+
+        return jsonify(automated_run.serialize)
+
+
 @app.route('/ensemble/base-learners/', methods=['GET', 'DELETE'])
 def get_base_learners():
     path = functions.get_path_from_query_string(request)

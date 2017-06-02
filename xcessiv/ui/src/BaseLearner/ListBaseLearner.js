@@ -232,7 +232,7 @@ class ListBaseLearner extends Component {
           rowHeight={35}
           headerHeight={50}
           width={this.props.containerWidth}
-          height={500}>
+          height={Math.min(500, 50 + 35*this.sortedBaseLearners.length)}>
           <Column
             cell={(props) => {
 
