@@ -60,6 +60,7 @@ Contents
    installation
    walkthrough
    advanced
+   thirdparty
 
 
 Indices and tables
