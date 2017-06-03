@@ -11,6 +11,7 @@ __all__ = [
     'precision_from_preds',
     'f1_score_from_scores',
     'f1_score_from_preds',
+    'mae',
     'mse',
     'roc_auc_score_from_scores'
 ]
@@ -194,6 +195,16 @@ def metric_generator(y_true, y_preds):
     return score
 """,
     'selection_name': 'F1 Score from Predictions'
+}
+
+mae = {
+    'name': 'Mean Absolute Error',
+    'source':
+    """from sklearn.metrics import mean_absolute_error
+
+metric_generator = mean_absolute_error
+""",
+    'selection_name': 'Mean Absolute Error'
 }
 
 mse = {
