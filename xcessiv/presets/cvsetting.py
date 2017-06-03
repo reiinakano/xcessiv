@@ -6,7 +6,11 @@ __all__ = [
     'k_fold',
     'stratified_k_fold',
     'shuffle_split',
-    'stratified_shuffle_split'
+    'stratified_shuffle_split',
+    'leave_one_out',
+    'group_k_fold',
+    'time_series_split'
+
 ]
 
 k_fold = {
@@ -84,3 +88,53 @@ def return_splits_iterable(X, y):
                                   test_size=TEST_SIZE, train_size=TRAIN_SIZE).split(X, y)
 """
 }
+
+
+leave_one_out = {
+    'name': 'Leave One Out',
+    'source':
+    """from sklearn.model_selection import LeaveOneOut
+
+def return_splits_iterable(X, y):
+    \"\"\" This function returns an iterable that splits the dataset, where
+    train dataset is n-1, leaving only one out to test. 
+    \"\"\"
+
+    return LeaveOneOut().split(X, y)
+"""
+}
+
+group_k_fold = {
+    'name': 'Group K-fold',
+    'source':
+    """from sklearn.model_selection import GroupKFold
+
+def return_splits_iterable(X, y):
+    \"\"\" This function returns a K-fold iterator variant
+    with non-overlapping groups. The number of distict groups has to be at least 
+    equal to the number of folds
+    \"\"\"
+
+    N_SPLITS = 3
+
+    return GroupKFold(n_splits=N_SPLITS).split(X, y)
+"""
+}
+
+time_series_split = {
+    'name': 'Time Series Split',
+    'source':
+    """from sklearn.model_selection import TimeSeriesSplit
+
+def return_splits_iterable(X, y):
+    \"\"\" This function is a variation of Kfold where it splits
+    time-series dataset at fixed time intervals.
+    \"\"\"
+
+    N_SPLITS = 3
+
+    return TimeSeriesSplit(n_split=N_SPLITS).split(X, y)
+"""
+}
+
+
