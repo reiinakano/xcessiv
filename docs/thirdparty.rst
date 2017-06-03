@@ -153,4 +153,18 @@ This pipeline gets an accuracy of 0.9876, our highest so far.
 Stacking TPOT Pipelines together
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Once they're in Xcessiv, TPOT pipelines are just regular pipelines you can tune or stack. For now, we've got three high-performing, quite different algorithms
+Once they're in Xcessiv, TPOT pipelines are just regular base learners you can tune or stack. For now, we've got three high-performing base learners with rather different decision models i.e. a tree-based model, a linear SVM, and a nearest neighbors classifier. These should be ideal to stack together.
+
+Create and finalize a preset Logistic Regression base learner. We'll use this to stack the base learners together.
+
+Let's begin by stacking together the two highest performers. the ExtraTreesClassifier and the KNeighborsClassifier without the original features. Right off the bat, cross-validating on the secondary meta-features yields an accuracy of 0.9975.
+
+Going further, let's see if adding the less effective (on its own) Linear SVM will prove useful to our small ensemble. Running it, we get an even better 0.9992 accuracy.
+
+It seems that seeing how the Linear SVM looks at the problem lets our Logistic Regression meta-learner further improve its own understanding of the data.
+
+Quoting top Kaggler Marios Michailidis:
+
+   Sometimes it is useful to allow XGBoost to see what a KNN-classifier sees.
+
+And that's it for our TPOT guide. There's loads more you can try if you want to push up model performance even more. For instance, why not see if a TPOT pipeline as your secondary learner will work better? Or try experimenting with adding the original features appended to the meta-features. Xcessiv is built for this kind of crazy exploration. Go get those accuracies up as high as you can!
