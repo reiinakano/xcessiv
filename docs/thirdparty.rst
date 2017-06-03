@@ -97,8 +97,8 @@ Once the algorithm is finished running, open up ``tpot_1.py`` and you should see
 
 You can see that our exported pipeline is in the variable ``exported_pipeline``. This is actually the only part of the code we need to add into Xcessiv.
 
-Adding a TPOT Pipeline to Xcessiv
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding TPOT Pipelines to Xcessiv
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Create a new base learner setup and copy the following code into Xcessiv.::
 
@@ -114,7 +114,43 @@ Create a new base learner setup and copy the following code into Xcessiv.::
 
 This is a stripped down version of the code in ``tpot_1.py``, with only the part we need. Notice two changes: we renamed ``exported_pipeline`` to ``base_learner`` to follow the Xcessiv format, and  set the ``random_state`` parameter in the :class:`sklearn.ensemble.ExtraTreesClassifier` object to 8 for determinism.
 
-Name your base learner "TPOT 1", set ``predict_proba`` as the meta-feature generator, and add the following preset metrics: "Accuracy from Scores/Probabilities", "Recall from Scores/Probabilities", "Precision from Scores/Probabilities", "F1 Score from Scores/Probabilities", and "AUC from Scores/Probabilities".
+Name your base learner "TPOT 1", set ``predict_proba`` as the meta-feature generator, and add the following preset metrics: **Accuracy from Scores/Probabilities**, **Recall from Scores/Probabilities**, **Precision from Scores/Probabilities**, **F1 Score from Scores/Probabilities**, and **AUC from Scores/Probabilities**.
 
 Since the hill-valley dataset is binary, verify and finalize your base learner on the breast cancer dataset.
 
+Keep in mind that the pipeline returned by TPOT has already been tuned, so there isn't much need to tune it now. Feel free to do so, though. It's very easy to do this in Xcessiv. For this case, let's just create a single new base learner with default hyperparameters. You should get a pretty good accuracy of about 0.9868.
+
+As mentioned earlier, different runs of TPOT will probably produce different results. I ran the script two more times, this time with different random seeds set. For a random state of 10, TPOT produced the following pipeline (stripped down to Xcessiv format).::
+
+   from copy import copy
+   from sklearn.ensemble import VotingClassifier
+   from sklearn.model_selection import train_test_split
+   from sklearn.pipeline import make_pipeline, make_union
+   from sklearn.preprocessing import FunctionTransformer
+   from sklearn.svm import LinearSVC
+
+   base_learner = make_pipeline(
+       make_union(VotingClassifier([("est", LinearSVC(C=5.0, loss="hinge", tol=0.0001, random_state=8))]), FunctionTransformer(copy)),
+       LinearSVC(C=0.0001, random_state=8, loss="squared_hinge")
+   )
+
+This combination of Linear SVCs and a VotingClassifier gets an accuracy of about 0.9612.
+
+For a random state of 242, the following stripped down pipeline is produced.::
+
+   from sklearn.model_selection import train_test_split
+   from sklearn.neighbors import KNeighborsClassifier
+   from sklearn.pipeline import make_pipeline
+   from sklearn.preprocessing import Normalizer
+
+   base_learner = make_pipeline(
+       Normalizer(norm="l1"),
+       KNeighborsClassifier(n_neighbors=22, p=1)
+   )
+
+This pipeline gets an accuracy of 0.9876, our highest so far.
+
+Stacking TPOT Pipelines together
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once they're in Xcessiv, TPOT pipelines are just regular pipelines you can tune or stack. For now, we've got three high-performing, quite different algorithms
