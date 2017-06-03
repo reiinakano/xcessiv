@@ -315,6 +315,25 @@ class BaseLearner(Base):
         """
         self.delete_meta_features(path)
 
+    def export_as_file(self, filepath):
+        """Generates a Python file with the importable base learner
+
+         This function generates a Python file in the specified file path that contains
+         the base learner as an importable variable stored in ``base_learner``. The base
+         learner will be set to the appropriate  hyperparameters through ``set_params``.
+
+        Args:
+            filepath (str, unicode): File path to save file in
+        """
+        if not filepath.endswith('.py'):
+            filepath += '.py'
+
+        file_contents = ''
+        file_contents += self.base_learner_origin.source
+        file_contents += '\n\nbase_learner.set_params(**{})\n'.format(self.hyperparameters)
+        with open(filepath, 'w') as f:
+            f.write(file_contents.encode('utf8'))
+
 
 class StackedEnsemble(Base):
     """This table contains StackedEnsembles created in the xcessiv notebook"""
@@ -355,6 +374,27 @@ class StackedEnsemble(Base):
         estimator = self.base_learner_origin.return_estimator()
         estimator = estimator.set_params(**self.secondary_learner_hyperparameters)
         return estimator
+
+    def export_as_package(self, package_path):
+        """Exports the ensemble as a Python package and saves it to `package_path`.
+
+        Args:
+            package_path (str, unicode): Absolute/local path of place to save package in
+
+        Raises:
+            exceptions.UserError: If os.path.join(path, name) already exists.
+        """
+        if os.path.exists(package_path):
+            raise exceptions.UserError('{} already exists'.format(package_path))
+
+        os.makedirs(package_path)
+        open(os.path.join(package_path, '__init__.py'), 'a').close()
+        os.makedirs(os.path.join(package_path, 'baselearners'))
+        open(os.path.join(package_path, 'baselearners', '__init__.py'), 'a').close()
+        for idx, base_learner in enumerate(self.base_learners):
+            base_learner.export_as_file(os.path.join(package_path,
+                                                     'baselearners',
+                                                     'baselearner' + str(idx)))
 
     @property
     def serialize(self):

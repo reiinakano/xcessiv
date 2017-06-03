@@ -577,7 +577,8 @@ def export_stacked_ensemble(id):
 
         if request.method == 'POST':
             req_body = request.get_json()
-            stacked_ensemble.export_as_package(path, req_body['name'])
-            return ('Stacked ensemble successfully exported as package {} in {}'.format(
+            stacked_ensemble.export_as_package(os.path.join(path, req_body['name']))
+            return jsonify(message='Stacked ensemble successfully '
+                                   'exported as package {} in {}'.format(
                 req_body['name'], path
             ))
