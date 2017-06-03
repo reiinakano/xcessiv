@@ -57,14 +57,64 @@ Open up your favorite place to run Python code (I used Jupyter notebook) and run
 
    from pmlb import fetch_data
    from tpot import TPOTClassifier
+
    X, y = fetch_data('Hill_Valley_with_noise', local_cache_dir='./', return_X_y=True)
    tpot = TPOTClassifier(generations=5, population_size=50, verbosity=2, n_jobs=-1)
    tpot.fit(X, y)
+
    tpot.export('tpot_1.py')
 
 This snippet will run the TPOT algorithm on the Hill valley with noise dataset and automatically find an optimal pipeline. Then, it will export the found pipeline as Python code in ``tpot_1.py``.
 
+Note that this could take a while. On my computer, it took around 30 minutes to an hour to run. If you want, you can just skip this part since the pipelines I found will be available in this documentation anyway.
+
 .. admonition:: Note
 
    Note that the TPOT algorithm is stochastic, so different runs will probably result in different pipelines found. It might be best to set the ``random_state`` parameter in :class:`TPOTClassifier` for reproducibility. This randomness is a good thing, because stacking works best when very different base learners are used.
+
+Once the algorithm is finished running, open up ``tpot_1.py`` and you should see something like the following code.::
+
+   import numpy as np
+
+   from sklearn.ensemble import ExtraTreesClassifier
+   from sklearn.model_selection import train_test_split
+   from sklearn.pipeline import make_pipeline
+   from sklearn.preprocessing import Normalizer
+
+   # NOTE: Make sure that the class is labeled 'class' in the data file
+   tpot_data = np.recfromcsv('PATH/TO/DATA/FILE', delimiter='COLUMN_SEPARATOR', dtype=np.float64)
+   features = np.delete(tpot_data.view(np.float64).reshape(tpot_data.size, -1), tpot_data.dtype.names.index('class'), axis=1)
+   training_features, testing_features, training_classes, testing_classes = \
+       train_test_split(features, tpot_data['class'], random_state=42)
+
+   exported_pipeline = make_pipeline(
+       Normalizer(norm="max"),
+       ExtraTreesClassifier(bootstrap=False, criterion="entropy", max_features=0.15, min_samples_leaf=7, min_samples_split=13, n_estimators=100)
+   )
+
+   exported_pipeline.fit(training_features, training_classes)
+   results = exported_pipeline.predict(testing_features)
+
+You can see that our exported pipeline is in the variable ``exported_pipeline``. This is actually the only part of the code we need to add into Xcessiv.
+
+Adding a TPOT Pipeline to Xcessiv
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a new base learner setup and copy the following code into Xcessiv.::
+
+   from sklearn.ensemble import ExtraTreesClassifier
+   from sklearn.model_selection import train_test_split
+   from sklearn.pipeline import make_pipeline
+   from sklearn.preprocessing import Normalizer
+
+   base_learner = make_pipeline(
+       Normalizer(norm="max"),
+       ExtraTreesClassifier(bootstrap=False, criterion="entropy", max_features=0.15, min_samples_leaf=7, min_samples_split=13, n_estimators=100, random_state=8)
+   )
+
+This is a stripped down version of the code in ``tpot_1.py``, with only the part we need. Notice two changes: we renamed ``exported_pipeline`` to ``base_learner`` to follow the Xcessiv format, and  set the ``random_state`` parameter in the :class:`sklearn.ensemble.ExtraTreesClassifier` object to 8 for determinism.
+
+Name your base learner "TPOT 1", set ``predict_proba`` as the meta-feature generator, and add the following preset metrics: "Accuracy from Scores/Probabilities", "Recall from Scores/Probabilities", "Precision from Scores/Probabilities", "F1 Score from Scores/Probabilities", and "AUC from Scores/Probabilities".
+
+Since the hill-valley dataset is binary, verify and finalize your base learner on the breast cancer dataset.
 
