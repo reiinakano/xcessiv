@@ -212,6 +212,7 @@ class BaseLearnerOrigin(Base):
         file_contents = ''
         file_contents += self.source
         file_contents += '\n\nbase_learner.set_params(**{})\n'.format(hyperparameters)
+        file_contents += '\nmeta_feature_generator = "{}"\n'.format(self.meta_feature_generator)
         with open(filepath, 'w') as f:
             f.write(file_contents.encode('utf8'))
 
@@ -389,11 +390,14 @@ class StackedEnsemble(Base):
         estimator = estimator.set_params(**self.secondary_learner_hyperparameters)
         return estimator
 
-    def export_as_package(self, package_path):
+    def export_as_package(self, package_path, cv_source):
         """Exports the ensemble as a Python package and saves it to `package_path`.
 
         Args:
             package_path (str, unicode): Absolute/local path of place to save package in
+
+            cv_source (str, unicode): String containing actual code for base learner
+                cross-validation used to generate secondary meta-features.
 
         Raises:
             exceptions.UserError: If os.path.join(path, name) already exists.
@@ -409,6 +413,13 @@ class StackedEnsemble(Base):
             base_learner.export_as_file(os.path.join(package_path,
                                                      'baselearners',
                                                      'baselearner' + str(idx)))
+        self.base_learner_origin.export_as_file(
+            os.path.join(package_path, 'metalearner'),
+            self.secondary_learner_hyperparameters
+        )
+
+        with open(os.path.join(package_path, 'cv.py'), 'w') as f:
+            f.write(cv_source)
 
     @property
     def serialize(self):

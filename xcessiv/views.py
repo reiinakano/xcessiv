@@ -575,9 +575,12 @@ def export_stacked_ensemble(id):
         if stacked_ensemble is None:
             raise exceptions.UserError('Stacked ensemble {} not found'.format(id), 404)
 
+        extraction = session.query(models.Extraction).first()
+
         if request.method == 'POST':
             req_body = request.get_json()
-            stacked_ensemble.export_as_package(os.path.join(path, req_body['name']))
+            stacked_ensemble.export_as_package(os.path.join(path, req_body['name']),
+                                               extraction.meta_feature_generation['source'])
             return jsonify(message='Stacked ensemble successfully '
                                    'exported as package {} in {}'.format(
                 req_body['name'], path
