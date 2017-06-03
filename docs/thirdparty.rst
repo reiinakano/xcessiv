@@ -167,4 +167,4 @@ Quoting top Kaggler Marios Michailidis:
 
    Sometimes it is useful to allow XGBoost to see what a KNN-classifier sees.
 
-And that's it for our TPOT guide. There's loads more you can try if you want to push up model performance even more. For instance, why not see if a TPOT pipeline as your secondary learner will work better? Or try experimenting with adding the original features appended to the meta-features. Xcessiv is built for this kind of crazy exploration. Go get those accuracies up as high as you can!
+And that's it for our guide to using TPOT in Xcessiv. There's loads more you can try if you want to push up model performance even more. For instance, why not see if a TPOT pipeline as your secondary learner will work better? Or try experimenting with adding the original features appended to the meta-features. Xcessiv is built for this kind of crazy exploration. Go get those accuracies up as high as you can!
