@@ -194,6 +194,27 @@ class BaseLearnerOrigin(Base):
         for learner in self.base_learners:
             learner.cleanup(path)
 
+    def export_as_file(self, filepath, hyperparameters):
+        """Generates a Python file with the importable base learner set to ``hyperparameters``
+
+         This function generates a Python file in the specified file path that contains
+         the base learner as an importable variable stored in ``base_learner``. The base
+         learner will be set to the appropriate  hyperparameters through ``set_params``.
+
+        Args:
+            filepath (str, unicode): File path to save file in
+
+            hyperparameters (dict): Dictionary to use for ``set_params``
+        """
+        if not filepath.endswith('.py'):
+            filepath += '.py'
+
+        file_contents = ''
+        file_contents += self.source
+        file_contents += '\n\nbase_learner.set_params(**{})\n'.format(hyperparameters)
+        with open(filepath, 'w') as f:
+            f.write(file_contents.encode('utf8'))
+
 
 class AutomatedRun(Base):
     """This table contains initialized/completed automated hyperparameter searches"""
@@ -325,14 +346,7 @@ class BaseLearner(Base):
         Args:
             filepath (str, unicode): File path to save file in
         """
-        if not filepath.endswith('.py'):
-            filepath += '.py'
-
-        file_contents = ''
-        file_contents += self.base_learner_origin.source
-        file_contents += '\n\nbase_learner.set_params(**{})\n'.format(self.hyperparameters)
-        with open(filepath, 'w') as f:
-            f.write(file_contents.encode('utf8'))
+        self.base_learner_origin.export_as_file(filepath, self.hyperparameters)
 
 
 class StackedEnsemble(Base):
