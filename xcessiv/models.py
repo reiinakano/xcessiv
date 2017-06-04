@@ -408,22 +408,30 @@ class StackedEnsemble(Base):
         package_name = os.path.basename(os.path.normpath(package_path))
 
         os.makedirs(package_path)
+
+        # Write __init__.py
         with open(os.path.join(package_path, '__init__.py'), 'w') as f:
             f.write('from {}.builder import xcessiv_ensemble'.format(package_name).encode('utf8'))
+
+        # Create package baselearners with each base learner having its own module
         os.makedirs(os.path.join(package_path, 'baselearners'))
         open(os.path.join(package_path, 'baselearners', '__init__.py'), 'a').close()
         for idx, base_learner in enumerate(self.base_learners):
             base_learner.export_as_file(os.path.join(package_path,
                                                      'baselearners',
                                                      'baselearner' + str(idx)))
+
+        # Create metalearner.py containing secondary learner
         self.base_learner_origin.export_as_file(
             os.path.join(package_path, 'metalearner'),
             self.secondary_learner_hyperparameters
         )
 
+        # Create cv.py containing CV method for getting meta-features
         with open(os.path.join(package_path, 'cv.py'), 'w') as f:
             f.write(cv_source)
 
+        # Create stacker.py containing class for Xcessiv ensemble
         ensemble_source = ''
         stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
         with open(stacker_file_loc) as f:
@@ -439,6 +447,7 @@ class StackedEnsemble(Base):
         with open(os.path.join(package_path, 'stacker.py'), 'w') as f:
             f.write(ensemble_source.encode('utf8'))
 
+        # Create builder.py containing file where `xcessiv_ensemble` is instantiated for import
         builder_source = ''
 
         for idx, base_learner in enumerate(self.base_learners):
