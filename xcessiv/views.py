@@ -564,3 +564,24 @@ def specific_stacked_ensemble(id):
             session.delete(stacked_ensemble)
             session.commit()
             return jsonify(message='Deleted stacked ensemble')
+
+
+@app.route('/ensemble/stacked/<int:id>/export/', methods=['POST'])
+def export_stacked_ensemble(id):
+    path = functions.get_path_from_query_string(request)
+
+    with functions.DBContextManager(path) as session:
+        stacked_ensemble = session.query(models.StackedEnsemble).filter_by(id=id).first()
+        if stacked_ensemble is None:
+            raise exceptions.UserError('Stacked ensemble {} not found'.format(id), 404)
+
+        extraction = session.query(models.Extraction).first()
+
+        if request.method == 'POST':
+            req_body = request.get_json()
+            stacked_ensemble.export_as_package(os.path.join(path, req_body['name']),
+                                               extraction.meta_feature_generation['source'])
+            return jsonify(message='Stacked ensemble successfully '
+                                   'exported as package {} in {}'.format(
+                req_body['name'], path
+            ))

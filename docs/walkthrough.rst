@@ -427,3 +427,46 @@ Here's a complete list of what happens when Xcessiv creates a new ensemble. Note
 And that's it! Try experimenting with more base learners, appending the original features to the meta-features, and even changing the type of your secondary learner. Push that accuracy up as high as you possibly can!
 
 Normally, it would take a lot of extraneous code just to set things up and keep track of everything you try, but Xcessiv takes care of all the dirty work so you can focus solely on the important thing, constructing your ultimate ensemble.
+
+Exporting your stacked ensemble
+-------------------------------
+
+Let's say that after trying out different stacked ensemble combinations, you think you've found the one. It wouldn't be very useful if you didn't have a way to use it on other data to generate predictions. Xcessiv offers a way to convert any stacked ensemble into an importable Python package. Click on the export icon of your chosen ensemble, and enter a unique package name to save your package as.
+
+Give your package name a unique name that conforms to Python package naming conventions. For example, we obviously wouldn't want to name our package "numpy" or "my.package". In this walkthrough, we might save our package as "DigitsDataEnsemble1".
+
+On successful export, Xcessiv will automatically save your package inside your project folder.
+
+Your ensemble can then be imported from :class:`DigitsDataEnsemble1` like this.::
+
+   # Make sure DigitsDataEnsemble1 is importable
+   from DigitsDataEnsemble1 import xcessiv_ensemble
+
+``xcessiv_ensemble`` will then contain a stacked ensemble instance with the methods ``get_params``, ``set_params``, ``fit``, and the ensemble's secondary learner's meta-feature generator method. For example, if your secondary learner's meta-feature generator method is ``predict``, you'll be able to call :func:`xcessiv_ensemble.predict` after fitting.
+
+Here's an example of how you'd normally use an imported ensemble.::
+
+   from DigitsDataEnsemble1 import xcessiv_ensemble
+
+   # Fit all base learners and secondary learner on training data
+   xcessiv_ensemble.fit(X_train, y_train)
+
+   # Generate some predictions on test/unseen data
+   predictions = xcessiv_ensemble.predict(X_test)
+
+Most common use cases for ``xcessiv_ensemble`` will involve using a method other than the configured meta-feature generator. Take the case of using :class:`sklearn.linear_model.LogisticRegression` as our secondary learner. :class:`sklearn.linear_model.LogisticRegression` has both methods :func:`predict` and :func:`predict_proba`, but if our meta-feature generator is set to :func:`predict`, Xcessiv doesn't know :func:`predict_proba` actually exists and only :func:`xcessiv_ensemble.predict` will be a valid method. For these cases, ``xcessiv_ensemble`` exposes a method :func:`_process_using_meta_feature_generator` you can use in the following way.::
+
+   from DigitsDataEnsemble1 import xcessiv_ensemble
+
+   # Fit all base learners and secondary learner on training data
+   xcessiv_ensemble.fit(X_train, y_train)
+
+   # Generate some prediction probabilities on test/unseen data
+   probas = xcessiv_ensemble._process_using_meta_feature_generator(X_test, 'predict_proba')
+
+You'll notice that ``xcessiv_ensemble`` follows the **scikit-learn** interface for estimators. That means you'll be able to use it as its own standalone base learner. If you're crazy enough, you can even try *stacking together already stacked ensembles*. For now, the recommended way of quickly adding your stacked ensemble as a separate base learner is to write something like this in your base learner setup.::
+
+   # Make sure DigitsDataEnsemble1 is importable
+   from DigitsDataEnsemble1 import xcessiv_ensemble
+
+   base_learner = xcessiv_ensemble

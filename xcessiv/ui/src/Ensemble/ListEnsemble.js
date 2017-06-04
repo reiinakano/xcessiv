@@ -4,12 +4,31 @@ import 'fixed-data-table/dist/fixed-data-table.min.css';
 import { Table, Column, Cell } from 'fixed-data-table';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaTrash from 'react-icons/lib/fa/trash';
+import FaDownload from 'react-icons/lib/fa/download';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 import FaInfo from 'react-icons/lib/fa/info';
 import Dimensions from 'react-dimensions';
 import Select from 'react-select';
-import DetailsModal, { DeleteModal } from './EnsembleMoreDetailsModal'
+import DetailsModal, { DeleteModal, ExportModal } from './EnsembleMoreDetailsModal'
+
+function handleErrors(response) {
+  if (!response.ok) {
+    var error = new Error(response.statusText);
+
+    // Unexpected error
+    if (response.status === 500) {
+      error.errMessage = 'Unexpected error';
+      throw error;
+    }
+    return response.json()
+      .then(errorBody => {
+        error.errMessage = JSON.stringify(errorBody);
+        throw error;
+      });
+  }
+  return response;
+}
 
 function HeaderCell(props) {
   return (
@@ -36,7 +55,8 @@ class ListEnsemble extends Component {
       sortCol: 'id',
       sortType: null,
       moreDetailsId: null,
-      idToDelete: null
+      idToDelete: null,
+      idToExport: null
     };
     this.sortedStackedEnsembles = this.props.stackedEnsembles;
   }
@@ -175,6 +195,40 @@ class ListEnsemble extends Component {
     });
   }
 
+  // Export an ensemble
+  exportEnsemble(id, name) {
+    var payload = {name};
+
+    fetch(
+      '/ensemble/stacked/' + id + '/export/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      this.props.addNotification({
+        title: 'Success',
+        message: json.message,
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
+    });
+  }
+
   render() {
     const metricsOptionsSet = new Set([]);
     for (let obj of this.props.stackedEnsembles) {
@@ -265,6 +319,20 @@ class ListEnsemble extends Component {
 
               return (
                 <Cell {...props}>
+                  <FaDownload 
+                    style={{cursor: 'pointer'}}
+                    onClick={() => this.setState({idToExport: this.sortedStackedEnsembles[props.rowIndex].id})}
+                  />
+                </Cell>
+              )
+            }}
+            width={50}
+          />
+          <Column
+            cell={(props) => {
+
+              return (
+                <Cell {...props}>
                   <FaInfo 
                     style={{cursor: 'pointer'}}
                     onClick={() => 
@@ -299,6 +367,11 @@ class ListEnsemble extends Component {
           isOpen={this.state.idToDelete !== null}
           onRequestClose={() => this.setState({idToDelete: null})}
           handleYes={() => this.props.deleteStackedEnsemble(this.state.idToDelete)}
+        />
+        <ExportModal
+          isOpen={this.state.idToExport !== null}
+          onRequestClose={() => this.setState({idToExport: null})}
+          handleYes={(name) => this.exportEnsemble(this.state.idToExport, name)}
         />
       </div>
     )

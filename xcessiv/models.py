@@ -194,6 +194,28 @@ class BaseLearnerOrigin(Base):
         for learner in self.base_learners:
             learner.cleanup(path)
 
+    def export_as_file(self, filepath, hyperparameters):
+        """Generates a Python file with the importable base learner set to ``hyperparameters``
+
+         This function generates a Python file in the specified file path that contains
+         the base learner as an importable variable stored in ``base_learner``. The base
+         learner will be set to the appropriate  hyperparameters through ``set_params``.
+
+        Args:
+            filepath (str, unicode): File path to save file in
+
+            hyperparameters (dict): Dictionary to use for ``set_params``
+        """
+        if not filepath.endswith('.py'):
+            filepath += '.py'
+
+        file_contents = ''
+        file_contents += self.source
+        file_contents += '\n\nbase_learner.set_params(**{})\n'.format(hyperparameters)
+        file_contents += '\nmeta_feature_generator = "{}"\n'.format(self.meta_feature_generator)
+        with open(filepath, 'wb') as f:
+            f.write(file_contents.encode('utf8'))
+
 
 class AutomatedRun(Base):
     """This table contains initialized/completed automated hyperparameter searches"""
@@ -315,6 +337,18 @@ class BaseLearner(Base):
         """
         self.delete_meta_features(path)
 
+    def export_as_file(self, filepath):
+        """Generates a Python file with the importable base learner
+
+         This function generates a Python file in the specified file path that contains
+         the base learner as an importable variable stored in ``base_learner``. The base
+         learner will be set to the appropriate  hyperparameters through ``set_params``.
+
+        Args:
+            filepath (str, unicode): File path to save file in
+        """
+        self.base_learner_origin.export_as_file(filepath, self.hyperparameters)
+
 
 class StackedEnsemble(Base):
     """This table contains StackedEnsembles created in the xcessiv notebook"""
@@ -355,6 +389,94 @@ class StackedEnsemble(Base):
         estimator = self.base_learner_origin.return_estimator()
         estimator = estimator.set_params(**self.secondary_learner_hyperparameters)
         return estimator
+
+    def export_as_package(self, package_path, cv_source):
+        """Exports the ensemble as a Python package and saves it to `package_path`.
+
+        Args:
+            package_path (str, unicode): Absolute/local path of place to save package in
+
+            cv_source (str, unicode): String containing actual code for base learner
+                cross-validation used to generate secondary meta-features.
+
+        Raises:
+            exceptions.UserError: If os.path.join(path, name) already exists.
+        """
+        if os.path.exists(package_path):
+            raise exceptions.UserError('{} already exists'.format(package_path))
+
+        package_name = os.path.basename(os.path.normpath(package_path))
+
+        os.makedirs(package_path)
+
+        # Write __init__.py
+        with open(os.path.join(package_path, '__init__.py'), 'wb') as f:
+            f.write('from {}.builder import xcessiv_ensemble'.format(package_name).encode('utf8'))
+
+        # Create package baselearners with each base learner having its own module
+        os.makedirs(os.path.join(package_path, 'baselearners'))
+        open(os.path.join(package_path, 'baselearners', '__init__.py'), 'a').close()
+        for idx, base_learner in enumerate(self.base_learners):
+            base_learner.export_as_file(os.path.join(package_path,
+                                                     'baselearners',
+                                                     'baselearner' + str(idx)))
+
+        # Create metalearner.py containing secondary learner
+        self.base_learner_origin.export_as_file(
+            os.path.join(package_path, 'metalearner'),
+            self.secondary_learner_hyperparameters
+        )
+
+        # Create cv.py containing CV method for getting meta-features
+        with open(os.path.join(package_path, 'cv.py'), 'wb') as f:
+            f.write(cv_source.encode('utf8'))
+
+        # Create stacker.py containing class for Xcessiv ensemble
+        ensemble_source = ''
+        stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
+        with open(stacker_file_loc) as f:
+            ensemble_source += f.read()
+
+        ensemble_source += '\n\n' \
+                           '    def {}(self, X):\n' \
+                           '        return self._process_using_' \
+                           'meta_feature_generator(X, "{}")\n\n'\
+            .format(self.base_learner_origin.meta_feature_generator,
+                    self.base_learner_origin.meta_feature_generator)
+
+        with open(os.path.join(package_path, 'stacker.py'), 'wb') as f:
+            f.write(ensemble_source.encode('utf8'))
+
+        # Create builder.py containing file where `xcessiv_ensemble` is instantiated for import
+        builder_source = ''
+
+        for idx, base_learner in enumerate(self.base_learners):
+            builder_source += 'from {}.baselearners import baselearner{}\n'.format(package_name, idx)
+
+        builder_source += 'from {}.cv import return_splits_iterable\n'.format(package_name)
+
+        builder_source += 'from {} import metalearner\n'.format(package_name)
+
+        builder_source += 'from {}.stacker import XcessivStackedEnsemble\n'.format(package_name)
+
+        builder_source += '\nbase_learners = [\n'
+        for idx, base_learner in enumerate(self.base_learners):
+            builder_source += '    baselearner{}.base_learner,\n'.format(idx)
+        builder_source += ']\n'
+
+        builder_source += '\nmeta_feature_generators = [\n'
+        for idx, base_learner in enumerate(self.base_learners):
+            builder_source += '    baselearner{}.meta_feature_generator,\n'.format(idx)
+        builder_source += ']\n'
+
+        builder_source += '\nxcessiv_ensemble = XcessivStackedEnsemble(base_learners=base_learners,' \
+                          ' meta_feature_generators=meta_feature_generators,' \
+                          ' secondary_learner=metalearner.base_learner,' \
+                          ' cv_function=return_splits_iterable,' \
+                          ' append_original={})\n'.format(self.append_original)
+
+        with open(os.path.join(package_path, 'builder.py'), 'wb') as f:
+            f.write(builder_source.encode('utf8'))
 
     @property
     def serialize(self):

@@ -157,7 +157,7 @@ Once they're in Xcessiv, TPOT pipelines are just regular base learners you can t
 
 Create and finalize a preset Logistic Regression base learner. We'll use this to stack the base learners together.
 
-Let's begin by stacking together the two highest performers. the ExtraTreesClassifier and the KNeighborsClassifier without the original features. Right off the bat, cross-validating on the secondary meta-features yields an accuracy of 0.9975.
+Let's begin by stacking together the two highest performers, the ExtraTreesClassifier and the KNeighborsClassifier without the original features. Right off the bat, cross-validating on the secondary meta-features yields an accuracy of 0.9975.
 
 Going further, let's see if adding the less effective (on its own) Linear SVM will prove useful to our small ensemble. Running it, we get an even better 0.9992 accuracy.
 
