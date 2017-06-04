@@ -37,7 +37,7 @@ class XcessivStackedEnsemble(_BasePipeline):
         return self
 
     def fit(self, X, y):
-        print('Fitting %d base learners'.format(len(self.base_learners)))
+        print('Fitting {} base learners'.format(len(self.base_learners)))
 
         all_learner_meta_features = []
         for idx, base_learner in enumerate(self.base_learners):
@@ -45,7 +45,7 @@ class XcessivStackedEnsemble(_BasePipeline):
             single_learner_meta_features = []
             test_indices = []
             for num, (train_idx, test_idx) in enumerate(self.cv_function(X, y)):
-                print('Fold %d of base learner %d'.format(num+1, idx+1))
+                print('Fold {} of base learner {}'.format(num+1, idx+1))
 
                 base_learner.fit(X[train_idx], y[train_idx])
 
