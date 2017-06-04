@@ -427,3 +427,10 @@ Here's a complete list of what happens when Xcessiv creates a new ensemble. Note
 And that's it! Try experimenting with more base learners, appending the original features to the meta-features, and even changing the type of your secondary learner. Push that accuracy up as high as you possibly can!
 
 Normally, it would take a lot of extraneous code just to set things up and keep track of everything you try, but Xcessiv takes care of all the dirty work so you can focus solely on the important thing, constructing your ultimate ensemble.
+
+Exporting your stacked ensemble
+-------------------------------
+
+Let's say that after trying out different stacked ensemble combinations, you think you've found the one. It wouldn't be very useful if you didn't have a way to use it on other data to generate predictions. Xcessiv offers a way to convert any stacked ensemble into an importable Python package. Click on the export icon of your chosen ensemble, and enter a unique package name to save your package as. Try giving your package name a unique name that conforms to Python package naming conventions. For example, we obviously wouldn't want to name our package "numpy" or "my.package". In this walkthrough, we might save our package as "DigitsDataEnsemble1".
+
+After your ensemble is saved as a package
