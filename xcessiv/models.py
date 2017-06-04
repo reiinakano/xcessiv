@@ -421,6 +421,21 @@ class StackedEnsemble(Base):
         with open(os.path.join(package_path, 'cv.py'), 'w') as f:
             f.write(cv_source)
 
+        ensemble_source = ''
+        stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
+        with open(stacker_file_loc) as f:
+            ensemble_source += f.read()
+
+        ensemble_source += '\n\n' \
+                           '    def {}(self, X):\n' \
+                           '        return self._process_using_' \
+                           'meta_feature_generator(self, X, "{}")\n'\
+            .format(self.base_learner_origin.meta_feature_generator,
+                    self.base_learner_origin.meta_feature_generator)
+
+        with open(os.path.join(package_path, 'ensemble.py'), 'w') as f:
+            f.write(ensemble_source.encode('utf8'))
+
     @property
     def serialize(self):
         return dict(
