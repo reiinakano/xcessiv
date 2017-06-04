@@ -676,6 +676,8 @@ class ContainerBaseLearner extends Component {
             this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp, appendOriginal)}
         />
         <ListEnsemble 
+          path={this.props.path}
+          addNotification={(notif) => this.props.addNotification(notif)}
           stackedEnsembles={this.state.stackedEnsembles}
           deleteStackedEnsemble={(id) => this.deleteStackedEnsemble(id)}
         />
