@@ -405,8 +405,11 @@ class StackedEnsemble(Base):
         if os.path.exists(package_path):
             raise exceptions.UserError('{} already exists'.format(package_path))
 
+        package_name = os.path.basename(os.path.normpath(package_path))
+
         os.makedirs(package_path)
-        open(os.path.join(package_path, '__init__.py'), 'a').close()
+        with open(os.path.join(package_path, '__init__.py'), 'w') as f:
+            f.write('from {}.builder import xcessiv_ensemble'.format(package_name).encode('utf8'))
         os.makedirs(os.path.join(package_path, 'baselearners'))
         open(os.path.join(package_path, 'baselearners', '__init__.py'), 'a').close()
         for idx, base_learner in enumerate(self.base_learners):
@@ -421,8 +424,6 @@ class StackedEnsemble(Base):
         with open(os.path.join(package_path, 'cv.py'), 'w') as f:
             f.write(cv_source)
 
-        package_name = os.path.basename(os.path.normpath(package_path))
-
         ensemble_source = ''
         stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
         with open(stacker_file_loc) as f:
@@ -431,7 +432,7 @@ class StackedEnsemble(Base):
         ensemble_source += '\n\n' \
                            '    def {}(self, X):\n' \
                            '        return self._process_using_' \
-                           'meta_feature_generator(self, X, "{}")\n\n'\
+                           'meta_feature_generator(X, "{}")\n\n'\
             .format(self.base_learner_origin.meta_feature_generator,
                     self.base_learner_origin.meta_feature_generator)
 
@@ -458,6 +459,12 @@ class StackedEnsemble(Base):
         for idx, base_learner in enumerate(self.base_learners):
             builder_source += '    baselearner{}.meta_feature_generator,\n'.format(idx)
         builder_source += ']\n'
+
+        builder_source += '\nxcessiv_ensemble = XcessivStackedEnsemble(base_learners=base_learners,' \
+                          ' meta_feature_generators=meta_feature_generators,' \
+                          ' secondary_learner=metalearner.base_learner,' \
+                          ' cv_function=return_splits_iterable,' \
+                          ' append_original={})\n'.format(self.append_original)
 
         with open(os.path.join(package_path, 'builder.py'), 'w') as f:
             f.write(builder_source.encode('utf8'))
