@@ -421,6 +421,8 @@ class StackedEnsemble(Base):
         with open(os.path.join(package_path, 'cv.py'), 'w') as f:
             f.write(cv_source)
 
+        package_name = os.path.basename(os.path.normpath(package_path))
+
         ensemble_source = ''
         stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
         with open(stacker_file_loc) as f:
@@ -429,9 +431,16 @@ class StackedEnsemble(Base):
         ensemble_source += '\n\n' \
                            '    def {}(self, X):\n' \
                            '        return self._process_using_' \
-                           'meta_feature_generator(self, X, "{}")\n'\
+                           'meta_feature_generator(self, X, "{}")\n\n'\
             .format(self.base_learner_origin.meta_feature_generator,
                     self.base_learner_origin.meta_feature_generator)
+
+        for idx, base_learner in enumerate(self.base_learners):
+            ensemble_source += 'from {}.baselearners import baselearner{}\n'.format(package_name, idx)
+
+        ensemble_source += 'from {}.cv import return_splits_iterable\n'.format(package_name)
+
+        ensemble_source += 'from {} import metalearner\n'.format(package_name)
 
         with open(os.path.join(package_path, 'ensemble.py'), 'w') as f:
             f.write(ensemble_source.encode('utf8'))
