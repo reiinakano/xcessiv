@@ -213,7 +213,7 @@ class BaseLearnerOrigin(Base):
         file_contents += self.source
         file_contents += '\n\nbase_learner.set_params(**{})\n'.format(hyperparameters)
         file_contents += '\nmeta_feature_generator = "{}"\n'.format(self.meta_feature_generator)
-        with open(filepath, 'w') as f:
+        with open(filepath, 'wb') as f:
             f.write(file_contents.encode('utf8'))
 
 
@@ -410,7 +410,7 @@ class StackedEnsemble(Base):
         os.makedirs(package_path)
 
         # Write __init__.py
-        with open(os.path.join(package_path, '__init__.py'), 'w') as f:
+        with open(os.path.join(package_path, '__init__.py'), 'wb') as f:
             f.write('from {}.builder import xcessiv_ensemble'.format(package_name).encode('utf8'))
 
         # Create package baselearners with each base learner having its own module
@@ -428,8 +428,8 @@ class StackedEnsemble(Base):
         )
 
         # Create cv.py containing CV method for getting meta-features
-        with open(os.path.join(package_path, 'cv.py'), 'w') as f:
-            f.write(cv_source)
+        with open(os.path.join(package_path, 'cv.py'), 'wb') as f:
+            f.write(cv_source.encode('utf8'))
 
         # Create stacker.py containing class for Xcessiv ensemble
         ensemble_source = ''
@@ -444,7 +444,7 @@ class StackedEnsemble(Base):
             .format(self.base_learner_origin.meta_feature_generator,
                     self.base_learner_origin.meta_feature_generator)
 
-        with open(os.path.join(package_path, 'stacker.py'), 'w') as f:
+        with open(os.path.join(package_path, 'stacker.py'), 'wb') as f:
             f.write(ensemble_source.encode('utf8'))
 
         # Create builder.py containing file where `xcessiv_ensemble` is instantiated for import
@@ -475,7 +475,7 @@ class StackedEnsemble(Base):
                           ' cv_function=return_splits_iterable,' \
                           ' append_original={})\n'.format(self.append_original)
 
-        with open(os.path.join(package_path, 'builder.py'), 'w') as f:
+        with open(os.path.join(package_path, 'builder.py'), 'wb') as f:
             f.write(builder_source.encode('utf8'))
 
     @property
