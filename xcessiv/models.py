@@ -435,15 +435,32 @@ class StackedEnsemble(Base):
             .format(self.base_learner_origin.meta_feature_generator,
                     self.base_learner_origin.meta_feature_generator)
 
-        for idx, base_learner in enumerate(self.base_learners):
-            ensemble_source += 'from {}.baselearners import baselearner{}\n'.format(package_name, idx)
-
-        ensemble_source += 'from {}.cv import return_splits_iterable\n'.format(package_name)
-
-        ensemble_source += 'from {} import metalearner\n'.format(package_name)
-
-        with open(os.path.join(package_path, 'ensemble.py'), 'w') as f:
+        with open(os.path.join(package_path, 'stacker.py'), 'w') as f:
             f.write(ensemble_source.encode('utf8'))
+
+        builder_source = ''
+
+        for idx, base_learner in enumerate(self.base_learners):
+            builder_source += 'from {}.baselearners import baselearner{}\n'.format(package_name, idx)
+
+        builder_source += 'from {}.cv import return_splits_iterable\n'.format(package_name)
+
+        builder_source += 'from {} import metalearner\n'.format(package_name)
+
+        builder_source += 'from {}.stacker import XcessivStackedEnsemble\n'.format(package_name)
+
+        builder_source += '\nbase_learners = [\n'
+        for idx, base_learner in enumerate(self.base_learners):
+            builder_source += '    baselearner{}.base_learner,\n'.format(idx)
+        builder_source += ']\n'
+
+        builder_source += '\nmeta_feature_generators = [\n'
+        for idx, base_learner in enumerate(self.base_learners):
+            builder_source += '    baselearner{}.meta_feature_generator,\n'.format(idx)
+        builder_source += ']\n'
+
+        with open(os.path.join(package_path, 'builder.py'), 'w') as f:
+            f.write(builder_source.encode('utf8'))
 
     @property
     def serialize(self):
