@@ -10,7 +10,6 @@ __all__ = [
     'leave_one_out',
     'group_k_fold',
     'time_series_split'
-
 ]
 
 k_fold = {
@@ -116,8 +115,10 @@ def return_splits_iterable(X, y):
     \"\"\"
 
     N_SPLITS = 3
+    
+    GROUPS = None  # You must fill this with your own group labels
 
-    return GroupKFold(n_splits=N_SPLITS).split(X, y)
+    return GroupKFold(n_splits=N_SPLITS).split(X, y, groups=GROUPS)
 """
 }
 
@@ -136,5 +137,4 @@ def return_splits_iterable(X, y):
     return TimeSeriesSplit(n_split=N_SPLITS).split(X, y)
 """
 }
-
 
