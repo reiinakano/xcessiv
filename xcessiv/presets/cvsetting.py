@@ -134,7 +134,7 @@ def return_splits_iterable(X, y):
 
     N_SPLITS = 3
 
-    return TimeSeriesSplit(n_split=N_SPLITS).split(X, y)
+    return TimeSeriesSplit(n_splits=N_SPLITS).split(X, y)
 """
 }
 
