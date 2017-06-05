@@ -6,6 +6,7 @@ __all__ = [
     'k_fold',
     'stratified_k_fold',
     'shuffle_split',
+    'leave_one_out',
     'stratified_shuffle_split'
 ]
 
@@ -61,6 +62,22 @@ def return_splits_iterable(X, y):
 
     return ShuffleSplit(n_splits=N_SPLITS, random_state=RANDOM_STATE,
                         test_size=TEST_SIZE, train_size=TRAIN_SIZE).split(X, y)
+"""
+}
+
+leave_one_out = {
+    'name': 'Leave One Out Cross Validation',
+    'source':
+    """from sklearn.model_selection import LeaveOneOut
+
+def return_splits_iterable(X, y):
+    \"\"\"This function returns an iterable that splits the given dataset
+    n times into all possible train-test splits by leaving out one sample as a
+    test set whilst the remaining samples form the training set. N.B, this is
+    equivalent to using KFold with K = n, where n is the number of samples.
+    \"\"\"
+
+    return LeaveOneOut().split(X, y)
 """
 }
 
