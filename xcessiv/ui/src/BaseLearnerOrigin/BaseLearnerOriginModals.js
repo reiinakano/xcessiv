@@ -45,7 +45,8 @@ function PreviousSource(props) {
     readOnly: true
   };
   if (props.previousSource) {
-    previousSourceDisplay = props.previousSource.map((x, idx) => {
+    var previousSourceReversed = props.previousSource.slice().reverse();
+    previousSourceDisplay = previousSourceReversed.map((x, idx) => {
       return (
         <div key={idx}>
           <hr/>
@@ -239,7 +240,8 @@ export class GridSearchModal extends Component {
     };
 
     return (
-      <Modal 
+      <Modal
+        bsSize='lg' 
         show={this.props.isOpen} 
         onHide={this.props.onRequestClose}
       >
@@ -252,6 +254,10 @@ export class GridSearchModal extends Component {
             onChange={(src) => this.setState({source: src})} 
             options={options}
           />
+          <DefaultHyperparameters hyperparameters={this.props.hyperparameters}/>
+          <ScrollArea style={{height: '200px'}}>
+            <PreviousSource previousSource={this.props.previousSource}/>
+          </ScrollArea>
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
@@ -286,6 +292,7 @@ export class RandomSearchModal extends Component {
 
     return (
       <Modal 
+        bsSize='lg'
         show={this.props.isOpen} 
         onHide={this.props.onRequestClose}
       >
@@ -310,6 +317,10 @@ export class RandomSearchModal extends Component {
               />
             </FormGroup>
           </Form>
+          <DefaultHyperparameters hyperparameters={this.props.hyperparameters}/>
+          <ScrollArea style={{height: '200px'}}>
+            <PreviousSource previousSource={this.props.previousSource}/>
+          </ScrollArea>
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
@@ -356,6 +367,7 @@ export class AutomatedRunModal extends Component {
             onChange={(src) => this.setState({source: src})} 
             options={options}
           />
+          <DefaultHyperparameters hyperparameters={this.props.hyperparameters}/>
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
