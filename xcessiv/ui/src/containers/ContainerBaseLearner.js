@@ -346,6 +346,7 @@ class ContainerBaseLearner extends Component {
       if (!this.refreshingBL) { 
         this.refreshBaseLearnersUntilFinished(this.props.path); 
       }
+      this.refreshBaseLearnerOrigins(this.props.path); // to refresh search history
       this.props.addNotification({
         title: 'Success',
         message: 'Created new base learner',
@@ -388,6 +389,7 @@ class ContainerBaseLearner extends Component {
       if (!this.refreshingBL) {
         this.refreshBaseLearnersUntilFinished(this.props.path);
       }
+      this.refreshBaseLearnerOrigins(this.props.path); // to refresh search history
       this.props.addNotification({
         title: 'Success',
         message: 'Successfully created ' + json.length + ' new base learners',
@@ -430,6 +432,7 @@ class ContainerBaseLearner extends Component {
       if (!this.refreshingBL) {
         this.refreshBaseLearnersUntilFinished(this.props.path);
       }
+      this.refreshBaseLearnerOrigins(this.props.path); // to refresh search history
       this.props.addNotification({
         title: 'Success',
         message: 'Successfully created ' + json.length + ' new base learners',
@@ -676,6 +679,8 @@ class ContainerBaseLearner extends Component {
             this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp, appendOriginal)}
         />
         <ListEnsemble 
+          path={this.props.path}
+          addNotification={(notif) => this.props.addNotification(notif)}
           stackedEnsembles={this.state.stackedEnsembles}
           deleteStackedEnsemble={(id) => this.deleteStackedEnsemble(id)}
         />

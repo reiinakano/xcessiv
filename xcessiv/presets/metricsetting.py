@@ -13,6 +13,9 @@ __all__ = [
     'f1_score_from_preds',
     'mae',
     'mse',
+    'median_absolute_error',
+    'r2_score',
+    'explained_variance_score',
     'roc_auc_score_from_scores'
 ]
 
@@ -217,6 +220,35 @@ metric_generator = mean_squared_error
     'selection_name': 'Mean Squared Error'
 }
 
+median_absolute_error = {
+    'name': 'Median Absolute Error',
+    'source':
+    """from sklearn.metrics import median_absolute_error
+
+metric_generator = median_absolute_error
+""",
+    'selection_name': 'Median Absolute Error'
+}
+
+r2_score = {
+    'name': 'R-Squared Score',
+    'source':
+    """from sklearn.metrics import r2_score
+
+metric_generator = r2_score
+""",
+    'selection_name': 'R-Squared Score'
+}
+
+explained_variance_score = {
+    'name': 'Explained Variance Score',
+    'source':
+    """from sklearn.metrics import explained_variance_score
+
+metric_generator = explained_variance_score
+""",
+    'selection_name': 'Explained Variance Score'
+}
 
 roc_auc_score_from_scores = {
     'name': 'ROC AUC Score',

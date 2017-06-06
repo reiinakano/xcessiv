@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import './Ensemble.css';
 import 'react-select/dist/react-select.css';
-import { Modal, Panel, Button, Alert } from 'react-bootstrap';
+import { Modal, Panel, Button, Alert, Form, 
+  FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 
 function DisplayError(props) {
@@ -96,6 +97,56 @@ export class DeleteModal extends Component {
         <Modal.Footer>
           <Button bsStyle='danger' onClick={() => this.handleYesAndClose()}>
             Delete
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+}
+
+export class ExportModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: ''
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.name);
+    this.props.onRequestClose();
+  }
+
+  render() {
+
+    return (
+      <Modal 
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Export ensemble as Python package</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={(e) => {
+            e.preventDefault();
+            this.handleYesAndClose();
+          }}>
+            <FormGroup
+              controlId='name'
+            >
+              <ControlLabel>Name to use as package name</ControlLabel>
+              <FormControl
+                value={this.state.name} 
+                onChange={(evt) => this.setState({name: evt.target.value})}            
+              />
+            </FormGroup>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
+            Save
           </Button>
           <Button onClick={this.props.onRequestClose}>Cancel</Button>
         </Modal.Footer>

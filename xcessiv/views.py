@@ -334,7 +334,12 @@ def create_base_learner(id):
                                           'queued',
                                           base_learner_origin)
 
+        if 'single_searches' not in base_learner_origin.description:
+            base_learner_origin.description['single_searches'] = []
+        base_learner_origin.description['single_searches'] += ([req_body['source']])
+
         session.add(base_learner)
+        session.add(base_learner_origin)
         session.commit()
 
         with Connection(get_redis_connection()):
@@ -400,6 +405,22 @@ def search_base_learner(id):
             with Connection(get_redis_connection()):
                 rqtasks.generate_meta_features.delay(path, base_learner.id)
             learners.append(base_learner)
+
+        if not learners:
+            raise exceptions.UserError('Created 0 new base learners')
+
+        if req_body['method'] == 'grid':
+            if 'grid_searches' not in base_learner_origin.description:
+                base_learner_origin.description['grid_searches'] = []
+            base_learner_origin.description['grid_searches'] += ([req_body['source']])
+        elif req_body['method'] == 'random':
+            if 'random_searches' not in base_learner_origin.description:
+                base_learner_origin.description['random_searches'] = []
+            base_learner_origin.description['random_searches'] += ([req_body['source']])
+
+        session.add(base_learner_origin)
+        session.commit()
+
         return jsonify(list(map(lambda x: x.serialize, learners)))
 
 
@@ -564,3 +585,24 @@ def specific_stacked_ensemble(id):
             session.delete(stacked_ensemble)
             session.commit()
             return jsonify(message='Deleted stacked ensemble')
+
+
+@app.route('/ensemble/stacked/<int:id>/export/', methods=['POST'])
+def export_stacked_ensemble(id):
+    path = functions.get_path_from_query_string(request)
+
+    with functions.DBContextManager(path) as session:
+        stacked_ensemble = session.query(models.StackedEnsemble).filter_by(id=id).first()
+        if stacked_ensemble is None:
+            raise exceptions.UserError('Stacked ensemble {} not found'.format(id), 404)
+
+        extraction = session.query(models.Extraction).first()
+
+        if request.method == 'POST':
+            req_body = request.get_json()
+            stacked_ensemble.export_as_package(os.path.join(path, req_body['name']),
+                                               extraction.meta_feature_generation['source'])
+            return jsonify(message='Stacked ensemble successfully '
+                                   'exported as package {} in {}'.format(
+                req_body['name'], path
+            ))
