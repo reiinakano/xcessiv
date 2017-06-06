@@ -5,6 +5,8 @@ import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import Select from 'react-select';
+import { DefaultHyperparameters } from './BaseLearnerOrigin';
+import ScrollArea from 'react-scrollbar'
 
 
 const defaultAutomatedRunSource = `random_state = 8  # Random seed
@@ -36,6 +38,33 @@ metric_to_optimize = 'Accuracy'  # metric to optimize
 invert_metric = False  # Whether or not to invert metric e.g. optimizing a loss
 `
 
+function PreviousSource(props) {
+  var previousSourceDisplay;
+  var options = {
+    indentUnit: 4,
+    readOnly: true
+  };
+  if (props.previousSource) {
+    previousSourceDisplay = props.previousSource.map((x, idx) => {
+      return (
+        <div key={idx}>
+          <hr/>
+          <CodeMirror 
+            style={{height: 'auto'}}
+            value={x}
+            options={options}
+          />
+        </div>
+      );
+    })
+  }
+  return (
+    <div>
+      <h3>Previous Searches</h3>
+      {previousSourceDisplay}
+    </div>
+  )
+}
 
 export class MulticlassDatasetModal extends Component {
   constructor(props) {
@@ -161,6 +190,7 @@ export class CreateBaseLearnerModal extends Component {
 
     return (
       <Modal 
+        bsSize='large'
         show={this.props.isOpen} 
         onHide={this.props.onRequestClose}
       >
@@ -173,6 +203,10 @@ export class CreateBaseLearnerModal extends Component {
             onChange={(src) => this.setState({source: src})} 
             options={options}
           />
+          <DefaultHyperparameters hyperparameters={this.props.hyperparameters}/>
+          <ScrollArea style={{height: '200px'}}>
+            <PreviousSource previousSource={this.props.previousSource}/>
+          </ScrollArea>
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>

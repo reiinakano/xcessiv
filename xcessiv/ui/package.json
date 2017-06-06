@@ -20,6 +20,8 @@
     "react-icons": "^2.2.3",
     "react-motion": "^0.4.7",
     "react-notification-system": "^0.2.13",
+    "react-scroll-box": "^0.3.3-beta",
+    "react-scrollbar": "^0.5.1",
     "react-select": "^1.0.0-rc.3",
     "react-syntax-highlighter": "^5.1.2",
     "react-tabs": "^0.8.3",
