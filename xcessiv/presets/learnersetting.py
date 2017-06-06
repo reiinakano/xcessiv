@@ -81,61 +81,61 @@ xgboost_classifier = {
 
 # Regressors
 sklearn_random_forest_regressor = {
-    'name': 'sklearn_random_forest_regressor',
+    'name': 'scikit-learn Random Forest Regressor',
     'source': learnersource.sklearn_random_forest_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_extra_trees_regressor = {
-    'name': 'sklearn_extra_trees_regressor',
+    'name': 'scikit-learn Extra Trees Regressor',
     'source': learnersource.sklearn_extra_trees_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_bagging_regressor = {
-    'name': 'sklearn_bagging_regressor',
+    'name': 'scikit-learn Bagging Regressor',
     'source': learnersource.sklearn_bagging_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_GP_regressor = {
-    'name': 'sklearn_GP_regressor',
+    'name': 'scikit-learn Gaussian Process Regressor',
     'source': learnersource.sklearn_GP_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_ridge_regressor = {
-    'name': 'sklearn_ridge_regressor',
+    'name': 'scikit-learn Ridge Regressor',
     'source': learnersource.sklearn_ridge_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_lasso_regressor = {
-    'name': 'sklearn_lasso_regressor',
+    'name': 'scikit-learn Lasso Regressor',
     'source': learnersource.sklearn_lasso_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_kernelRidge_regressor = {
-    'name': 'sklearn_kernelRidge_regressor',
+    'name': 'scikit-learn Kernel Ridge Regressor',
     'source': learnersource.sklearn_kernelRidge_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_knn_regressor = {
-    'name': 'sklearn_knn_regressor',
+    'name': 'scikit-learn K-NN Regressor',
     'source': learnersource.sklearn_knn_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_svr_regressor = {
-    'name': 'sklearn_svr_regressor',
+    'name': 'scikit-learn Support Vector Regressor',
     'source': learnersource.sklearn_svr_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
 sklearn_decision_tree_regressor = {
-    'name': 'sklearn_decision_tree_regressor',
+    'name': 'scikit-learn Decision Tree Regressor',
     'source': learnersource.sklearn_decision_tree_regressor_source,
     'meta_feature_generator': 'predict'
 }
