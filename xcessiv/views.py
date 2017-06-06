@@ -336,7 +336,7 @@ def create_base_learner(id):
 
         if 'single_searches' not in base_learner_origin.description:
             base_learner_origin.description['single_searches'] = []
-        base_learner_origin.description['single_searches'].append(req_body['source'])
+        base_learner_origin.description['single_searches'] += ([req_body['source']])
 
         session.add(base_learner)
         session.add(base_learner_origin)
@@ -412,11 +412,11 @@ def search_base_learner(id):
         if req_body['method'] == 'grid':
             if 'grid_searches' not in base_learner_origin.description:
                 base_learner_origin.description['grid_searches'] = []
-            base_learner_origin.description['grid_searches'].append(req_body['source'])
+            base_learner_origin.description['grid_searches'] += ([req_body['source']])
         elif req_body['method'] == 'random':
             if 'random_searches' not in base_learner_origin.description:
                 base_learner_origin.description['random_searches'] = []
-            base_learner_origin.description['random_searches'].append(req_body['source'])
+            base_learner_origin.description['random_searches'] += ([req_body['source']])
 
         session.add(base_learner_origin)
         session.commit()
