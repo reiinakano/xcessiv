@@ -5,6 +5,14 @@
   padding-right: 50px;
 }
 
+.CodeMirror {
+  height: auto;
+}
+
+.CodeMirror-scroll {
+  max-height: 500px;
+}
+
 .SplitFormLabel {
   padding-top: 10px;
   padding-bottom: 10px;

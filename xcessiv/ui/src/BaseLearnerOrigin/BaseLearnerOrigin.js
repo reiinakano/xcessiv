@@ -106,7 +106,7 @@ function ValidationResults(props) {
   </div>
 }
 
-function DefaultHyperparameters(props) {
+export function DefaultHyperparameters(props) {
   const items = [];
   for (var key in props.hyperparameters) {
       items.push(<li key={key}>{key + ': ' + props.hyperparameters[key]}</li>)
@@ -498,20 +498,27 @@ class BaseLearnerOrigin extends Component {
           />
 
           <CreateBaseLearnerModal isOpen={this.state.showCreateModal} 
-          onRequestClose={() => this.setState({showCreateModal: false})}
-          handleYes={(source) => this.props.createBaseLearner(source)} />
+            onRequestClose={() => this.setState({showCreateModal: false})}
+            handleYes={(source) => this.props.createBaseLearner(source)} 
+            hyperparameters={this.props.data.hyperparameters} 
+            previousSource={this.props.data.description.single_searches}/>
 
           <GridSearchModal isOpen={this.state.showGridSearchModal} 
-          onRequestClose={() => this.setState({showGridSearchModal: false})}
-          handleYes={(source) => this.props.gridSearch(source)} />
+            onRequestClose={() => this.setState({showGridSearchModal: false})}
+            handleYes={(source) => this.props.gridSearch(source)} 
+            hyperparameters={this.props.data.hyperparameters} 
+            previousSource={this.props.data.description.grid_searches}/>
 
           <RandomSearchModal 
             isOpen={this.state.showRandomSearchModal} 
             onRequestClose={() => this.setState({showRandomSearchModal: false})}
-            handleYes={(source, n) => this.props.randomSearch(source, n)} />
+            handleYes={(source, n) => this.props.randomSearch(source, n)} 
+            hyperparameters={this.props.data.hyperparameters} 
+            previousSource={this.props.data.description.random_searches}/>
 
           <AutomatedRunModal isOpen={this.state.showAutomatedRunModal} 
           onRequestClose={() => this.setState({showAutomatedRunModal: false})}
+          hyperparameters={this.props.data.hyperparameters} 
           handleYes={(source) => this.props.createAutomatedRun(source)} />
           
         </Panel>

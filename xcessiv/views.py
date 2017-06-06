@@ -334,7 +334,12 @@ def create_base_learner(id):
                                           'queued',
                                           base_learner_origin)
 
+        if 'single_searches' not in base_learner_origin.description:
+            base_learner_origin.description['single_searches'] = []
+        base_learner_origin.description['single_searches'] += ([req_body['source']])
+
         session.add(base_learner)
+        session.add(base_learner_origin)
         session.commit()
 
         with Connection(get_redis_connection()):
@@ -400,6 +405,22 @@ def search_base_learner(id):
             with Connection(get_redis_connection()):
                 rqtasks.generate_meta_features.delay(path, base_learner.id)
             learners.append(base_learner)
+
+        if not learners:
+            raise exceptions.UserError('Created 0 new base learners')
+
+        if req_body['method'] == 'grid':
+            if 'grid_searches' not in base_learner_origin.description:
+                base_learner_origin.description['grid_searches'] = []
+            base_learner_origin.description['grid_searches'] += ([req_body['source']])
+        elif req_body['method'] == 'random':
+            if 'random_searches' not in base_learner_origin.description:
+                base_learner_origin.description['random_searches'] = []
+            base_learner_origin.description['random_searches'] += ([req_body['source']])
+
+        session.add(base_learner_origin)
+        session.commit()
+
         return jsonify(list(map(lambda x: x.serialize, learners)))
 
 

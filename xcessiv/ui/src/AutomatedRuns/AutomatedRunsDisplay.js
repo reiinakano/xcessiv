@@ -40,6 +40,8 @@ class AutomatedRunsDisplay extends Component {
       </tr></tbody></table>
     );
 
+    const automatedRunsReversed = this.props.automatedRuns.slice().reverse();
+
     return (
       <div className='AutomatedRunsDisplay'>
         <Panel style={{marginBottom: '0px'}} header={header} bsStyle='info'></Panel>
@@ -56,7 +58,7 @@ class AutomatedRunsDisplay extends Component {
               cell={(props) => {
                 return (
                   <Cell {...props}>
-                    {this.props.automatedRuns[props.rowIndex].id}
+                    {automatedRunsReversed[props.rowIndex].id}
                   </Cell>
                 )
               }}
@@ -68,7 +70,7 @@ class AutomatedRunsDisplay extends Component {
               cell={(props) => {
                 return (
                   <Cell {...props}>
-                    {this.props.automatedRuns[props.rowIndex].base_learner_origin_id}
+                    {automatedRunsReversed[props.rowIndex].base_learner_origin_id}
                   </Cell>
                 )
               }}
@@ -80,7 +82,7 @@ class AutomatedRunsDisplay extends Component {
               cell={(props) => {
                 return (
                   <Cell {...props}>
-                    {this.props.automatedRuns[props.rowIndex].job_id}
+                    {automatedRunsReversed[props.rowIndex].job_id}
                   </Cell>
                 )
               }}
@@ -90,18 +92,18 @@ class AutomatedRunsDisplay extends Component {
             <Column
               header={'Job Status'}
               cell={(props) => {
-                if (this.props.automatedRuns[props.rowIndex] === undefined) {
+                if (automatedRunsReversed[props.rowIndex] === undefined) {
                   return (<Cell {...props}></Cell>)
                 }
 
                 var status_icon;
-                if (this.props.automatedRuns[props.rowIndex].job_status === 'errored') {
+                if (automatedRunsReversed[props.rowIndex].job_status === 'errored') {
                   status_icon = <FaExclamationCircle />
                 }
-                else if (this.props.automatedRuns[props.rowIndex].job_status === 'finished') {
+                else if (automatedRunsReversed[props.rowIndex].job_status === 'finished') {
                   status_icon = <FaCheck />
                 }
-                else if (this.props.automatedRuns[props.rowIndex].job_status === 'queued') {
+                else if (automatedRunsReversed[props.rowIndex].job_status === 'queued') {
                   status_icon = 'Queued'
                 }
                 else {
@@ -125,7 +127,7 @@ class AutomatedRunsDisplay extends Component {
                     <FaInfo 
                       style={{cursor: 'pointer'}}
                       onClick={() => 
-                        this.setState({moreDetailsId: this.props.automatedRuns[props.rowIndex].id})}
+                        this.setState({moreDetailsId: automatedRunsReversed[props.rowIndex].id})}
                     />
                   </Cell>
                 )
@@ -139,7 +141,7 @@ class AutomatedRunsDisplay extends Component {
                   <Cell {...props}>
                     <FaTrash 
                       style={{cursor: 'pointer'}}
-                      onClick={() => this.setState({idToDelete: this.props.automatedRuns[props.rowIndex].id})}
+                      onClick={() => this.setState({idToDelete: automatedRunsReversed[props.rowIndex].id})}
                     />
                   </Cell>
                 )

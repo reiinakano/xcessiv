@@ -171,7 +171,8 @@ class BaseLearnerOrigin(Base):
             final=self.final,
             meta_feature_generator=self.meta_feature_generator,
             metric_generators=self.metric_generators,
-            hyperparameters=self.hyperparameters
+            hyperparameters=self.hyperparameters,
+            description=self.description
         )
 
     def return_estimator(self):
