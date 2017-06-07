@@ -34,7 +34,7 @@ Xcessiv holds your hand through all the implementation details of creating and o
 * Easy management and comparison of hundreds of different model-hyperparameter combinations
 * Automatic saving of generated secondary meta-features
 * Stacked ensemble creation in a few clicks
-* Export your stacked ensemble as a standalone Python file
+* Export your stacked ensemble as a standalone Python file to support multiple levels of stacking
 
 ## Installation and Documentation
 
