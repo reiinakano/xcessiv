@@ -21,7 +21,7 @@ __all__ = [
     'sklearn_GP_regressor',
     'sklearn_ridge_regressor',
     'sklearn_lasso_regressor',
-    'sklearn_kernelRidge_regressor',
+    'sklearn_kernel_ridge_regressor',
     'sklearn_knn_regressor',
     'sklearn_svr_regressor',
     'sklearn_decision_tree_regressor',
@@ -116,9 +116,9 @@ sklearn_lasso_regressor = {
     'meta_feature_generator': 'predict'
 }
 
-sklearn_kernelRidge_regressor = {
+sklearn_kernel_ridge_regressor = {
     'name': 'scikit-learn Kernel Ridge Regressor',
-    'source': learnersource.sklearn_kernelRidge_regressor_source,
+    'source': learnersource.sklearn_kernel_ridge_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
