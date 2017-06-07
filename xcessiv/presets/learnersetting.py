@@ -2,31 +2,44 @@
 from __future__ import absolute_import, print_function, division, unicode_literals
 from xcessiv.presets import learnersource
 
-
 __all__ = [
-    'sklearn_random_forest',
-    'sklearn_extra_trees',
+
+    # Classifiers
+    'sklearn_random_forest_classifier',
+    'sklearn_extra_trees_classifier',
     'sklearn_logistic_regression',
     'sklearn_knn_classifier',
     'sklearn_svm_classifier',
     'sklearn_gaussian_nb',
     'sklearn_adaboost_classifier',
     'xgboost_classifier',
-    'xgboost_regressor',
+
+    # Regressors
+    'sklearn_random_forest_regressor',
+    'sklearn_extra_trees_regressor',
+    'sklearn_bagging_regressor',
+    'sklearn_GP_regressor',
+    'sklearn_ridge_regressor',
+    'sklearn_lasso_regressor',
+    'sklearn_kernel_ridge_regressor',
+    'sklearn_knn_regressor',
+    'sklearn_svr_regressor',
+    'sklearn_decision_tree_regressor',
     'sklearn_linear_regression',
-    'sklearn_adaboost_regressor'
+    'sklearn_adaboost_regressor',
+    'xgboost_regressor'
 ]
 
-
-sklearn_random_forest = {
-    'name': 'scikit-learn Random Forest',
-    'source': learnersource.sklearn_random_forest_source,
+# Classifiers
+sklearn_random_forest_classifier = {
+    'name': 'scikit-learn Random Forest Classifier',
+    'source': learnersource.sklearn_random_forest_classifier_source,
     'meta_feature_generator': 'predict_proba'
 }
 
-sklearn_extra_trees = {
+sklearn_extra_trees_classifier = {
     'name': 'scikit-learn Extra Trees Classifier',
-    'source': learnersource.sklearn_extra_trees_source,
+    'source': learnersource.sklearn_extra_trees_classifier_source,
     'meta_feature_generator': 'predict_proba'
 }
 
@@ -66,9 +79,64 @@ xgboost_classifier = {
     'meta_feature_generator': 'predict_proba'
 }
 
-xgboost_regressor = {
-    'name': 'XGBoost Regressor',
-    'source': learnersource.xgboost_regressor_source,
+# Regressors
+sklearn_random_forest_regressor = {
+    'name': 'scikit-learn Random Forest Regressor',
+    'source': learnersource.sklearn_random_forest_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_extra_trees_regressor = {
+    'name': 'scikit-learn Extra Trees Regressor',
+    'source': learnersource.sklearn_extra_trees_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_bagging_regressor = {
+    'name': 'scikit-learn Bagging Regressor',
+    'source': learnersource.sklearn_bagging_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_GP_regressor = {
+    'name': 'scikit-learn Gaussian Process Regressor',
+    'source': learnersource.sklearn_GP_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_ridge_regressor = {
+    'name': 'scikit-learn Ridge Regressor',
+    'source': learnersource.sklearn_ridge_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_lasso_regressor = {
+    'name': 'scikit-learn Lasso Regressor',
+    'source': learnersource.sklearn_lasso_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_kernel_ridge_regressor = {
+    'name': 'scikit-learn Kernel Ridge Regressor',
+    'source': learnersource.sklearn_kernel_ridge_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_knn_regressor = {
+    'name': 'scikit-learn K-NN Regressor',
+    'source': learnersource.sklearn_knn_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_svr_regressor = {
+    'name': 'scikit-learn Support Vector Regressor',
+    'source': learnersource.sklearn_svr_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+sklearn_decision_tree_regressor = {
+    'name': 'scikit-learn Decision Tree Regressor',
+    'source': learnersource.sklearn_decision_tree_regressor_source,
     'meta_feature_generator': 'predict'
 }
 
@@ -81,5 +149,11 @@ sklearn_linear_regression = {
 sklearn_adaboost_regressor = {
     'name': 'scikit-learn AdaBoost Regressor',
     'source': learnersource.sklearn_adaboost_regressor_source,
+    'meta_feature_generator': 'predict'
+}
+
+xgboost_regressor = {
+    'name': 'XGBoost Regressor',
+    'source': learnersource.xgboost_regressor_source,
     'meta_feature_generator': 'predict'
 }
