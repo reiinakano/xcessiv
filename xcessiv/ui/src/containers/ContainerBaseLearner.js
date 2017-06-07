@@ -99,11 +99,21 @@ class ContainerBaseLearner extends Component {
   // Refresh base learner origins from server data
   refreshBaseLearnerOrigins(path) {
     fetch('/ensemble/base-learner-origins/?path=' + path)
+    .then(handleErrors)
     .then(response => response.json())
     .then(json => {
       console.log(json);
       this.setState({
         baseLearnerOrigins: json
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
       });
     });
   }
@@ -525,6 +535,11 @@ class ContainerBaseLearner extends Component {
       console.log(error.message);
       console.log(error.errMessage);
       this.refreshingSE = false;
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });
   }
 
