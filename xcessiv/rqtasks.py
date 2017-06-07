@@ -437,9 +437,6 @@ def evaluate_stacked_ensemble(path, ensemble_id):
             indices = np.concatenate(indices_list)
             X, y = X[indices], y[indices]
 
-            if stacked_ensemble.append_original:
-                secondary_features = np.concatenate((secondary_features, X), axis=1)
-
             est = stacked_ensemble.return_secondary_learner()
 
             return_splits_iterable_stacked_ensemble = functions.import_object_from_string_code(
