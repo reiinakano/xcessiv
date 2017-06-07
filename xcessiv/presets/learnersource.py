@@ -20,7 +20,7 @@ __all__ = [
     'sklearn_GP_regressor_source',
     'sklearn_ridge_regressor_source',
     'sklearn_lasso_regressor_source',
-    'sklearn_kernel_ridge_regressor',
+    'sklearn_kernel_ridge_regressor_source',
     'sklearn_knn_regressor_source',
     'sklearn_svr_regressor_source',
     'sklearn_decision_tree_regressor_source',
@@ -113,7 +113,7 @@ sklearn_lasso_regressor_source = \
 base_learner = Lasso(random_state=8)
 """
 
-sklearn_kernel_ridge_regressor = \
+sklearn_kernel_ridge_regressor_source = \
     """from sklearn.kernel_ridge import KernelRidge
 
 base_learner = KernelRidge()
