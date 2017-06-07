@@ -556,7 +556,6 @@ def create_new_stacked_ensemble():
                 secondary_learner_hyperparameters=hyperparameters,
                 base_learners=base_learners,
                 base_learner_origin=base_learner_origin,
-                append_original=req_body['append_original'],
                 job_status='queued'
             )
 

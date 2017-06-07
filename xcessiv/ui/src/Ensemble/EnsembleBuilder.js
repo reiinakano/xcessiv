@@ -8,7 +8,7 @@ import Select from 'react-select'
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
-import { Checkbox, Button, Glyphicon } from 'react-bootstrap';
+import { Button, Glyphicon } from 'react-bootstrap';
 
 
 const defaultSourceParams = [
@@ -24,8 +24,7 @@ class EnsembleBuilder extends Component {
     super(props);
     this.state = {
       selectedValue: null,
-      source: defaultSourceParams,
-      appendOriginal: false
+      source: defaultSourceParams
     };
   }
 
@@ -66,19 +65,12 @@ class EnsembleBuilder extends Component {
           onChange={(src) => this.setState({source: src})} 
           options={options}
         />
-        <Checkbox
-          checked={this.state.appendOriginal} 
-          onChange={() => this.setState((prevState) => 
-            ({appendOriginal: !prevState.appendOriginal}))}
-        >
-          Append original features to secondary features
-        </Checkbox>
         <Button 
           block
           disabled={buttonDisabled}
           bsStyle='primary'
           onClick={() => this.props.createStackedEnsemble(
-            this.state.selectedValue.value, this.state.source, this.state.appendOriginal)}>
+            this.state.selectedValue.value, this.state.source)}>
           <Glyphicon glyph="plus" />
           {' Create new ensemble'}
         </Button>

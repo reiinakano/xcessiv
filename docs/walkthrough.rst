@@ -406,7 +406,10 @@ To set the hyperparameters of the secondary learner, enter the following into th
 
 This should keep the Logistic Regression at its default values. If you'll notice, the format required for this code block is exactly the same as that required when creating a single base learner.
 
-There's an additional checkbox you can tick to append the original features to the base learners' meta-features. Leave it unchecked for now, and go ahead and **Create new ensemble**.
+.. admonition:: Appending original features to the meta-features
+
+   As of 0.4.0, Xcessiv no longer provides the checkbox option to append the original features to the meta-features. However, this functionality can be achieved by using the preset "Identity Transformer" and including this as a base learner in the ensemble. This approach reinforces the fact that a base learner is simply something that generates meta-features from features, and one that lets all features pass through unchanged fits this description.
+
 
 After a short time, your ensemble should finish processing, and you'll be able to see its performance. Here we get an accuracy of 0.968, which is higher than any individual base learner.
 

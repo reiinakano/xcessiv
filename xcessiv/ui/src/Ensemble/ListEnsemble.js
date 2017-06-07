@@ -106,7 +106,6 @@ class ListEnsemble extends Component {
     const cols = [
       {label: 'ID', value: 'id', width: 50}, 
       {label: 'Secondary Learner ID', value: 'base_learner_origin_id', width: 100},
-      {label: 'Appended Original Features', value: 'append_original', width: 100},
       {label: 'Number of Base Learners', value: 'number_of_base_learners', width: 100}
     ]
     return cols.map((obj) => {

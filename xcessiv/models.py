@@ -367,17 +367,15 @@ class StackedEnsemble(Base):
     base_learner_origin = relationship('BaseLearnerOrigin', back_populates='stacked_ensembles')
     secondary_learner_hyperparameters = Column(JsonEncodedDict)
     individual_score = Column(JsonEncodedDict)
-    append_original = Column(Boolean)
     job_status = Column(Text)
     job_id = Column(Text)
     description = Column(JsonEncodedDict)
 
     def __init__(self, secondary_learner_hyperparameters, base_learners,
-                 base_learner_origin, append_original, job_status):
+                 base_learner_origin, job_status):
         self.base_learner_origin = base_learner_origin
         self.secondary_learner_hyperparameters = secondary_learner_hyperparameters
         self.base_learners = base_learners
-        self.append_original = append_original
         self.individual_score = dict()
         self.job_status = job_status
         self.job_id = None
@@ -461,12 +459,10 @@ class StackedEnsemble(Base):
                              '(base_learners=base_learner_list_{},' \
                              ' meta_feature_generators=meta_feature_generators_list_{},' \
                              ' secondary_learner=secondary_learner_{},' \
-                             ' cv_function=return_splits_iterable,' \
-                             ' append_original={})\n'.format(
+                             ' cv_function=return_splits_iterable)\n'.format(
             rand_value,
             rand_value,
-            rand_value,
-            self.append_original
+            rand_value
         )
 
         return base_learner_code
@@ -571,8 +567,7 @@ class StackedEnsemble(Base):
         builder_source += '\nxcessiv_ensemble = XcessivStackedEnsemble(base_learners=base_learners,' \
                           ' meta_feature_generators=meta_feature_generators,' \
                           ' secondary_learner=metalearner.base_learner,' \
-                          ' cv_function=return_splits_iterable,' \
-                          ' append_original={})\n'.format(self.append_original)
+                          ' cv_function=return_splits_iterable)\n'
 
         with open(os.path.join(package_path, 'builder.py'), 'wb') as f:
             f.write(builder_source.encode('utf8'))
@@ -588,6 +583,5 @@ class StackedEnsemble(Base):
             description=self.description,
             base_learner_origin_id=self.base_learner_origin_id,
             base_learner_ids=list(map(lambda x: x.id, self.base_learners)),
-            number_of_base_learners=len(self.base_learners),
-            append_original=self.append_original
+            number_of_base_learners=len(self.base_learners)
         )

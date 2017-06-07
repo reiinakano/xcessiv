@@ -5,14 +5,13 @@ import numpy as np
 class XcessivStackedEnsemble(_BasePipeline):
     """Contains the class for the Xcessiv stacked ensemble"""
     def __init__(self, base_learners, meta_feature_generators,
-                 secondary_learner, cv_function, append_original):
+                 secondary_learner, cv_function):
         super(XcessivStackedEnsemble, self).__init__()
 
         self.base_learners = base_learners
         self.meta_feature_generators = meta_feature_generators
         self.secondary_learner = secondary_learner
         self.cv_function = cv_function
-        self.append_original = append_original
         self._named_learners = [('bl{}'.format(idx), base_learner) for idx, base_learner
                                in enumerate(base_learners)]
         self._named_learners.append(('secondary-learner', secondary_learner))
@@ -67,12 +66,6 @@ class XcessivStackedEnsemble(_BasePipeline):
 
         print('Fitting meta-learner')
 
-        if self.append_original:
-            all_learner_meta_features = np.concatenate(
-                (all_learner_meta_features, X[test_indices]),
-                axis=1
-            )
-
         self.secondary_learner.fit(all_learner_meta_features, y[test_indices])
 
         return self
@@ -100,11 +93,6 @@ class XcessivStackedEnsemble(_BasePipeline):
             all_learner_meta_features.append(single_learner_meta_features)
 
         all_learner_meta_features = np.concatenate(all_learner_meta_features, axis=1)
-        if self.append_original:
-            all_learner_meta_features = np.concatenate(
-                (all_learner_meta_features, X),
-                axis=1
-            )
 
         out = getattr(self.secondary_learner, meta_feature_generator)(all_learner_meta_features)
 
