@@ -530,12 +530,11 @@ class ContainerBaseLearner extends Component {
 
   // Create new stacked ensemble
   createStackedEnsemble(base_learner_ids, base_learner_origin_id, 
-    secondary_learner_hyperparameters_source, append_original) {
+    secondary_learner_hyperparameters_source) {
     var payload = {
       base_learner_ids, 
       base_learner_origin_id, 
-      secondary_learner_hyperparameters_source,
-      append_original
+      secondary_learner_hyperparameters_source
     };
 
     fetch(
@@ -715,8 +714,8 @@ class ContainerBaseLearner extends Component {
           optionsBaseLearnerOrigins={optionsBaseLearnerOrigins}
           checkedOptions={checkedOptions}
           setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
-          createStackedEnsemble={(bloId, hp, appendOriginal) => 
-            this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp, appendOriginal)}
+          createStackedEnsemble={(bloId, hp) => 
+            this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp)}
         />
         <ListEnsemble 
           path={this.props.path}
