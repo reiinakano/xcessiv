@@ -600,9 +600,13 @@ def export_stacked_ensemble(id):
 
         if request.method == 'POST':
             req_body = request.get_json()
-            stacked_ensemble.export_as_package(os.path.join(path, req_body['name']),
-                                               extraction.meta_feature_generation['source'])
+            if req_body['type'] == 'package':
+                stacked_ensemble.export_as_package(os.path.join(path, req_body['name']),
+                                                   extraction.meta_feature_generation['source'])
+            elif req_body['type'] == 'file':
+                stacked_ensemble.export_as_file(os.path.join(path, req_body['name']),
+                                                extraction.meta_feature_generation['source'])
             return jsonify(message='Stacked ensemble successfully '
-                                   'exported as package {} in {}'.format(
+                                   'exported as {} in {}'.format(
                 req_body['name'], path
             ))
