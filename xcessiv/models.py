@@ -412,7 +412,7 @@ class StackedEnsemble(Base):
         base_learner_code += 'meta_feature_generators_list_{} = []\n\n'.format(rand_value)
         for idx, base_learner in enumerate(self.base_learners):
             base_learner_code += '################################################\n'
-            base_learner_code += '# Code for building base learner {}\n'.format(idx+1)
+            base_learner_code += '###### Code for building base learner {} ########\n'.format(idx+1)
             base_learner_code += '################################################\n'
             base_learner_code += base_learner.base_learner_origin.source
             base_learner_code += '\n\n'
@@ -426,7 +426,7 @@ class StackedEnsemble(Base):
             base_learner_code += '\n\n'
 
         base_learner_code += '################################################\n'
-        base_learner_code += '# Code for building secondary learner\n'
+        base_learner_code += '##### Code for building secondary learner ######\n'
         base_learner_code += '################################################\n'
         base_learner_code += self.base_learner_origin.source
         base_learner_code += '\n\n'
@@ -436,13 +436,13 @@ class StackedEnsemble(Base):
         base_learner_code += '\n\n'
 
         base_learner_code += '################################################\n'
-        base_learner_code += '# Code for CV method\n'
+        base_learner_code += '############## Code for CV method ##############\n'
         base_learner_code += '################################################\n'
         base_learner_code += cv_source
         base_learner_code += '\n\n'
 
         base_learner_code += '################################################\n'
-        base_learner_code += '# Code for Xcessiv stacker class\n'
+        base_learner_code += '######## Code for Xcessiv stacker class ########\n'
         base_learner_code += '################################################\n'
         stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
         with open(stacker_file_loc) as f2:
@@ -457,7 +457,7 @@ class StackedEnsemble(Base):
 
         base_learner_code += '\n\n'
 
-        base_learner_code += 'xcessiv_ensemble = XcessivStackedEnsemble' \
+        base_learner_code += 'base_learner = XcessivStackedEnsemble' \
                              '(base_learners=base_learner_list_{},' \
                              ' meta_feature_generators=meta_feature_generators_list_{},' \
                              ' secondary_learner=secondary_learner_{},' \
