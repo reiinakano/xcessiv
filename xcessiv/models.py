@@ -423,7 +423,7 @@ class StackedEnsemble(Base):
                 base_learner_code += 'base_learner' \
                                      '.set_params(**{})\n'.format(base_learner.hyperparameters)
                 base_learner_code += 'base_learner_list_{}.append(base_learner)\n'.format(rand_value)
-                base_learner_code += 'meta_feature_generators_list_{}.append({})\n'.format(
+                base_learner_code += 'meta_feature_generators_list_{}.append("{}")\n'.format(
                     rand_value,
                     base_learner.base_learner_origin.meta_feature_generator
                 )
@@ -439,26 +439,22 @@ class StackedEnsemble(Base):
             base_learner_code += 'base_learner' \
                                  '.set_params(**{})\n'.format(self.secondary_learner_hyperparameters)
             base_learner_code += 'secondary_learner_{} = base_learner\n'.format(rand_value)
-            base_learner_code += 'meta_feature_generator_{} = {}\n'.format(
-                rand_value,
-                self.base_learner_origin.meta_feature_generator
-            )
             base_learner_code += '\n\n'
             f.write(base_learner_code.encode('utf8'))
 
             f.write('################################################\n'.encode('utf8'))
-            f.write('# Code for CV method'.encode('utf8'))
+            f.write('# Code for CV method\n'.encode('utf8'))
             f.write('################################################\n'.encode('utf8'))
             f.write(cv_source.encode('utf8'))
             f.write('\n\n'.encode('utf8'))
 
             f.write('################################################\n'.encode('utf8'))
-            f.write('# Code for Xcessiv stacker class'.encode('utf8'))
+            f.write('# Code for Xcessiv stacker class\n'.encode('utf8'))
             f.write('################################################\n'.encode('utf8'))
             ensemble_source = ''
             stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
-            with open(stacker_file_loc) as f:
-                ensemble_source += f.read()
+            with open(stacker_file_loc) as f2:
+                ensemble_source += f2.read()
 
             ensemble_source += '\n\n' \
                                '    def {}(self, X):\n' \
@@ -471,11 +467,18 @@ class StackedEnsemble(Base):
             f.write('\n\n'.encode('utf8'))
 
             builder_source = ''
-            builder_source += 'xcessiv_ensemble = XcessivStackedEnsemble(base_learners=base_learners,' \
-                              ' meta_feature_generators=meta_feature_generators,' \
-                              ' secondary_learner=metalearner.base_learner,' \
+            builder_source += 'xcessiv_ensemble = XcessivStackedEnsemble' \
+                              '(base_learners=base_learner_list_{},' \
+                              ' meta_feature_generators=meta_feature_generators_list_{},' \
+                              ' secondary_learner=secondary_learner_{},' \
                               ' cv_function=return_splits_iterable,' \
-                              ' append_original={})\n'.format(self.append_original)
+                              ' append_original={})\n'.format(
+                rand_value,
+                rand_value,
+                rand_value,
+                self.append_original
+            )
+            f.write(builder_source.encode('utf8'))
 
 
     def export_as_package(self, package_path, cv_source):
