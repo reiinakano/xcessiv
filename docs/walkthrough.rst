@@ -431,42 +431,51 @@ Normally, it would take a lot of extraneous code just to set things up and keep 
 Exporting your stacked ensemble
 -------------------------------
 
-Let's say that after trying out different stacked ensemble combinations, you think you've found the one. It wouldn't be very useful if you didn't have a way to use it on other data to generate predictions. Xcessiv offers a way to convert any stacked ensemble into an importable Python package. Click on the export icon of your chosen ensemble, and enter a unique package name to save your package as.
+As a Python file
+~~~~~~~~~~~~~~~~
 
-Give your package name a unique name that conforms to Python package naming conventions. For example, we obviously wouldn't want to name our package "numpy" or "my.package". In this walkthrough, we might save our package as "DigitsDataEnsemble1".
+Let's say that after trying out different stacked ensemble combinations, you think you've found the one. It wouldn't be very useful if you didn't have a way to use it on other data to generate predictions. Xcessiv offers a way to convert any stacked ensemble into an importable Python file. Click on the export icon of your chosen ensemble, and enter a unique name to save your file as.
 
-On successful export, Xcessiv will automatically save your package inside your project folder.
+In this walkthrough, we'll save our ensemble as "myensemble.py".
 
-Your ensemble can then be imported from :class:`DigitsDataEnsemble1` like this.::
+On successful export, Xcessiv will automatically save your Python file inside your project folder.
 
-   # Make sure DigitsDataEnsemble1 is importable
-   from DigitsDataEnsemble1 import xcessiv_ensemble
+Your ensemble can then be imported from :class:`myensemble.py` like this.::
 
-``xcessiv_ensemble`` will then contain a stacked ensemble instance with the methods ``get_params``, ``set_params``, ``fit``, and the ensemble's secondary learner's meta-feature generator method. For example, if your secondary learner's meta-feature generator method is ``predict``, you'll be able to call :func:`xcessiv_ensemble.predict` after fitting.
+   # Make sure myensemble.py is importable
+   from myensemble import base_learner
+
+``base_learner`` will then contain a stacked ensemble instance with the methods ``get_params``, ``set_params``, ``fit``, and the ensemble's secondary learner's meta-feature generator method. For example, if your secondary learner's meta-feature generator method is ``predict``, you'll be able to call :func:`base_learner.predict` after fitting.
 
 Here's an example of how you'd normally use an imported ensemble.::
 
-   from DigitsDataEnsemble1 import xcessiv_ensemble
+   from myensemble import base_learner
 
    # Fit all base learners and secondary learner on training data
-   xcessiv_ensemble.fit(X_train, y_train)
+   base_learner.fit(X_train, y_train)
 
    # Generate some predictions on test/unseen data
-   predictions = xcessiv_ensemble.predict(X_test)
+   predictions = base_learner.predict(X_test)
 
-Most common use cases for ``xcessiv_ensemble`` will involve using a method other than the configured meta-feature generator. Take the case of using :class:`sklearn.linear_model.LogisticRegression` as our secondary learner. :class:`sklearn.linear_model.LogisticRegression` has both methods :func:`predict` and :func:`predict_proba`, but if our meta-feature generator is set to :func:`predict`, Xcessiv doesn't know :func:`predict_proba` actually exists and only :func:`xcessiv_ensemble.predict` will be a valid method. For these cases, ``xcessiv_ensemble`` exposes a method :func:`_process_using_meta_feature_generator` you can use in the following way.::
+Most common use cases for ``base_learner`` will involve using a method other than the configured meta-feature generator. Take the case of using :class:`sklearn.linear_model.LogisticRegression` as our secondary learner. :class:`sklearn.linear_model.LogisticRegression` has both methods :func:`predict` and :func:`predict_proba`, but if our meta-feature generator is set to :func:`predict`, Xcessiv doesn't know :func:`predict_proba` actually exists and only :func:`base_learner.predict` will be a valid method. For these cases, ``base_learner`` exposes a method :func:`_process_using_meta_feature_generator` you can use in the following way.::
 
-   from DigitsDataEnsemble1 import xcessiv_ensemble
+   from myensemble import base_learner
 
    # Fit all base learners and secondary learner on training data
-   xcessiv_ensemble.fit(X_train, y_train)
+   base_learner.fit(X_train, y_train)
 
    # Generate some prediction probabilities on test/unseen data
-   probas = xcessiv_ensemble._process_using_meta_feature_generator(X_test, 'predict_proba')
+   probas = base_learner._process_using_meta_feature_generator(X_test, 'predict_proba')
 
-You'll notice that ``xcessiv_ensemble`` follows the **scikit-learn** interface for estimators. That means you'll be able to use it as its own standalone base learner. If you're crazy enough, you can even try *stacking together already stacked ensembles*. For now, the recommended way of quickly adding your stacked ensemble as a separate base learner is to write something like this in your base learner setup.::
+As a standalone base learner setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   # Make sure DigitsDataEnsemble1 is importable
-   from DigitsDataEnsemble1 import xcessiv_ensemble
+You'll notice that ``base_learner`` follows the **scikit-learn** interface for estimators. That means you'll be able to use it as its own standalone base learner. If you're crazy enough, you can even try *stacking together already stacked ensembles*.
 
-   base_learner = xcessiv_ensemble
+In fact, Xcessiv has built in functionality to directly export your stacked ensemble as a standalone base learner setup.
+
+In the **Export ensemble** modal, simply click on **Export as separate base learner setup**. A new base learner setup will be created containing source code for the selected stacked ensemble. At this point, you'll be able to use it just like any other base learner. Rename it, add any relevant metrics, tune it, and stack it!
+
+.. warning::
+
+   Xcessiv's export functionality works by simply concatenating the source code for the different base learners and your cross-validation scheme. While this is not a problem in most cases, things *can* break. For example, if a base learner's source code starts with ``from __future__ import``, it will *not* end up on the first line and this will need to be manually edited out in the exported file.

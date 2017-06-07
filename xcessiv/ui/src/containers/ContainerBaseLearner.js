@@ -613,6 +613,46 @@ class ContainerBaseLearner extends Component {
     });
   }
 
+  // Export an ensemble
+  exportEnsembleToBaseLearnerOrigin(id) {
+    var payload = {};
+
+    fetch(
+      '/ensemble/stacked/' + id + '/export-new-blo/?path=' + this.props.path,
+      {
+        method: "POST",
+        body: JSON.stringify( payload ),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }
+    )
+    .then(handleErrors)
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      this.setState((prevState) => {
+        var baseLearnerOrigins = prevState.baseLearnerOrigins.slice();
+        baseLearnerOrigins.push(json);
+        return {baseLearnerOrigins};
+      });
+      this.props.addNotification({
+        title: 'Success',
+        message: 'Exported ensemble as new base learner type',
+        level: 'success'
+      });
+    })
+    .catch(error => {
+      console.log(error.message);
+      console.log(error.errMessage);
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
+    });
+  }
+
   render() {
     const checkedOptions = this.state.checkedBaseLearners.toJS().map((val) => {
       return {
@@ -683,6 +723,7 @@ class ContainerBaseLearner extends Component {
           addNotification={(notif) => this.props.addNotification(notif)}
           stackedEnsembles={this.state.stackedEnsembles}
           deleteStackedEnsemble={(id) => this.deleteStackedEnsemble(id)}
+          exportEnsembleToBaseLearnerOrigin={(id) => this.exportEnsembleToBaseLearnerOrigin(id)}
         />
       </div>
     )

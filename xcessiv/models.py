@@ -1,5 +1,7 @@
 """This module contains the SQLAlchemy ORM Models"""
 from __future__ import absolute_import, print_function, division, unicode_literals
+import random
+import string
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey, Table
 from sqlalchemy.orm import relationship
@@ -390,6 +392,102 @@ class StackedEnsemble(Base):
         estimator = self.base_learner_origin.return_estimator()
         estimator = estimator.set_params(**self.secondary_learner_hyperparameters)
         return estimator
+
+    def export_as_code(self, cv_source):
+        """Returns a string value that contains the Python code for the ensemble
+
+        Args:
+            cv_source (str, unicode): String containing actual code for base learner
+                cross-validation used to generate secondary meta-features.
+
+        Returns:
+            base_learner_code (str, unicode): String that can be used as Python code
+        """
+
+        rand_value = ''.join(random.choice(string.ascii_uppercase + string.digits)
+                             for _ in range(25))
+
+        base_learner_code = ''
+        base_learner_code += 'base_learner_list_{} = []\n'.format(rand_value)
+        base_learner_code += 'meta_feature_generators_list_{} = []\n\n'.format(rand_value)
+        for idx, base_learner in enumerate(self.base_learners):
+            base_learner_code += '################################################\n'
+            base_learner_code += '###### Code for building base learner {} ########\n'.format(idx+1)
+            base_learner_code += '################################################\n'
+            base_learner_code += base_learner.base_learner_origin.source
+            base_learner_code += '\n\n'
+            base_learner_code += 'base_learner' \
+                                 '.set_params(**{})\n'.format(base_learner.hyperparameters)
+            base_learner_code += 'base_learner_list_{}.append(base_learner)\n'.format(rand_value)
+            base_learner_code += 'meta_feature_generators_list_{}.append("{}")\n'.format(
+                rand_value,
+                base_learner.base_learner_origin.meta_feature_generator
+            )
+            base_learner_code += '\n\n'
+
+        base_learner_code += '################################################\n'
+        base_learner_code += '##### Code for building secondary learner ######\n'
+        base_learner_code += '################################################\n'
+        base_learner_code += self.base_learner_origin.source
+        base_learner_code += '\n\n'
+        base_learner_code += 'base_learner' \
+                             '.set_params(**{})\n'.format(self.secondary_learner_hyperparameters)
+        base_learner_code += 'secondary_learner_{} = base_learner\n'.format(rand_value)
+        base_learner_code += '\n\n'
+
+        base_learner_code += '################################################\n'
+        base_learner_code += '############## Code for CV method ##############\n'
+        base_learner_code += '################################################\n'
+        base_learner_code += cv_source
+        base_learner_code += '\n\n'
+
+        base_learner_code += '################################################\n'
+        base_learner_code += '######## Code for Xcessiv stacker class ########\n'
+        base_learner_code += '################################################\n'
+        stacker_file_loc = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'stacker.py')
+        with open(stacker_file_loc) as f2:
+            base_learner_code += f2.read()
+
+        base_learner_code += '\n\n' \
+                             '    def {}(self, X):\n' \
+                             '        return self._process_using_' \
+                             'meta_feature_generator(X, "{}")\n\n'\
+            .format(self.base_learner_origin.meta_feature_generator,
+                    self.base_learner_origin.meta_feature_generator)
+
+        base_learner_code += '\n\n'
+
+        base_learner_code += 'base_learner = XcessivStackedEnsemble' \
+                             '(base_learners=base_learner_list_{},' \
+                             ' meta_feature_generators=meta_feature_generators_list_{},' \
+                             ' secondary_learner=secondary_learner_{},' \
+                             ' cv_function=return_splits_iterable,' \
+                             ' append_original={})\n'.format(
+            rand_value,
+            rand_value,
+            rand_value,
+            self.append_original
+        )
+
+        return base_learner_code
+
+    def export_as_file(self, file_path, cv_source):
+        """Export the ensemble as a single Python file and saves it to `file_path`.
+
+        This is EXPERIMENTAL as putting different modules together would probably wreak havoc
+        especially on modules that make heavy use of global variables.
+
+        Args:
+            file_path (str, unicode): Absolute/local path of place to save file in
+
+            cv_source (str, unicode): String containing actual code for base learner
+                cross-validation used to generate secondary meta-features.
+        """
+        if os.path.exists(file_path):
+            raise exceptions.UserError('{} already exists'.format(file_path))
+
+        with open(file_path, 'wb') as f:
+            f.write(self.export_as_code(cv_source).encode('utf8'))
 
     def export_as_package(self, package_path, cv_source):
         """Exports the ensemble as a Python package and saves it to `package_path`.
