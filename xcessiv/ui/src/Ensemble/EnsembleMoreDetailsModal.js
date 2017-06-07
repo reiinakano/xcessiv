@@ -113,11 +113,6 @@ export class ExportModal extends Component {
     };
   }
 
-  handleYesAndClose() {
-    this.props.handleYes(this.state.name);
-    this.props.onRequestClose();
-  }
-
   render() {
 
     return (
@@ -126,7 +121,7 @@ export class ExportModal extends Component {
         onHide={this.props.onRequestClose}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Export ensemble as Python package</Modal.Title>
+          <Modal.Title>Export ensemble as Python file</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={(e) => {
@@ -136,7 +131,7 @@ export class ExportModal extends Component {
             <FormGroup
               controlId='name'
             >
-              <ControlLabel>Name to use as package name</ControlLabel>
+              <ControlLabel>Name to use as filename</ControlLabel>
               <FormControl
                 value={this.state.name} 
                 onChange={(evt) => this.setState({name: evt.target.value})}            
@@ -145,8 +140,17 @@ export class ExportModal extends Component {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
-            Save
+          <Button bsStyle='primary' onClick={() => {
+            this.props.exportEnsemble(this.state.name);
+            this.props.onRequestClose();
+          }}>
+            Save as Python file
+          </Button>
+          <Button bsStyle='primary' onClick={() => {
+            this.props.exportEnsembleToBaseLearnerOrigin();
+            this.props.onRequestClose();
+          }}>
+            Export as separate base learner setup
           </Button>
           <Button onClick={this.props.onRequestClose}>Cancel</Button>
         </Modal.Footer>

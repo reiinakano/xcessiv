@@ -604,6 +604,8 @@ def export_stacked_ensemble(id):
                 stacked_ensemble.export_as_package(os.path.join(path, req_body['name']),
                                                    extraction.meta_feature_generation['source'])
             elif req_body['type'] == 'file':
+                if not req_body['name'].endswith('.py'):
+                    req_body['name'] += '.py'
                 stacked_ensemble.export_as_file(os.path.join(path, req_body['name']),
                                                 extraction.meta_feature_generation['source'])
             return jsonify(message='Stacked ensemble successfully '

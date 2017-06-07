@@ -198,6 +198,7 @@ class ListEnsemble extends Component {
   // Export an ensemble
   exportEnsemble(id, name) {
     var payload = {name};
+    payload.type = 'file';
 
     fetch(
       '/ensemble/stacked/' + id + '/export/?path=' + this.props.path,
@@ -371,7 +372,8 @@ class ListEnsemble extends Component {
         <ExportModal
           isOpen={this.state.idToExport !== null}
           onRequestClose={() => this.setState({idToExport: null})}
-          handleYes={(name) => this.exportEnsemble(this.state.idToExport, name)}
+          exportEnsemble={(name) => this.exportEnsemble(this.state.idToExport, name)}
+          exportEnsembleToBaseLearnerOrigin={() => this.props.exportEnsembleToBaseLearnerOrigin(this.state.idToExport)}
         />
       </div>
     )
