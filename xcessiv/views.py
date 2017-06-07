@@ -610,3 +610,28 @@ def export_stacked_ensemble(id):
                                    'exported as {} in {}'.format(
                 req_body['name'], path
             ))
+
+
+@app.route('/ensemble/stacked/<int:id>/export-new-blo/', methods=['POST'])
+def export_stacked_ensemble_as_base_learner_origin(id):
+    path = functions.get_path_from_query_string(request)
+
+    with functions.DBContextManager(path) as session:
+        stacked_ensemble = session.query(models.StackedEnsemble).filter_by(id=id).first()
+        if stacked_ensemble is None:
+            raise exceptions.UserError('Stacked ensemble {} not found'.format(id), 404)
+
+        extraction = session.query(models.Extraction).first()
+
+        if request.method == 'POST':
+            source = stacked_ensemble.export_as_code(extraction.meta_feature_generation['source'])
+
+            new_base_learner_origin = models.BaseLearnerOrigin(
+                source=source,
+                name='Xcessiv Ensemble',
+                meta_feature_generator=stacked_ensemble.base_learner_origin.meta_feature_generator
+            )
+
+            session.add(new_base_learner_origin)
+            session.commit()
+            return jsonify(new_base_learner_origin.serialize)
