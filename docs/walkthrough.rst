@@ -431,6 +431,9 @@ Normally, it would take a lot of extraneous code just to set things up and keep 
 Exporting your stacked ensemble
 -------------------------------
 
+As a Python file
+~~~~~~~~~~~~~~~~
+
 Let's say that after trying out different stacked ensemble combinations, you think you've found the one. It wouldn't be very useful if you didn't have a way to use it on other data to generate predictions. Xcessiv offers a way to convert any stacked ensemble into an importable Python file. Click on the export icon of your chosen ensemble, and enter a unique name to save your file as.
 
 In this walkthrough, we'll save our ensemble as "myensemble.py".
@@ -464,6 +467,15 @@ Most common use cases for ``base_learner`` will involve using a method other tha
    # Generate some prediction probabilities on test/unseen data
    probas = base_learner._process_using_meta_feature_generator(X_test, 'predict_proba')
 
+As a standalone base learner setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 You'll notice that ``base_learner`` follows the **scikit-learn** interface for estimators. That means you'll be able to use it as its own standalone base learner. If you're crazy enough, you can even try *stacking together already stacked ensembles*.
 
 In fact, Xcessiv has built in functionality to directly export your stacked ensemble as a standalone base learner setup.
+
+In the **Export ensemble** modal, simply click on **Export as separate base learner setup**. A new base learner setup will be created containing source code for the selected stacked ensemble. At this point, you'll be able to use it just like any other base learner. Rename it, add any relevant metrics, tune it, and stack it!
+
+.. warning::
+
+   Xcessiv's export functionality works by simply concatenating the source code for the different base learners and your cross-validation scheme. While this is not a problem in most cases, things *can* break. For example, if a base learner's source code starts with ``from __future__ import``, it will *not* end up on the first line and this will need to be manually edited out in the exported file.
