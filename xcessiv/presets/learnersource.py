@@ -26,7 +26,10 @@ __all__ = [
     'sklearn_decision_tree_regressor_source',
     'sklearn_linear_regression_source',
     'sklearn_adaboost_regressor_source',
-    'xgboost_regressor_source'
+    'xgboost_regressor_source',
+
+    # Transformers
+    'identity_transformer_source'
 ]
 
 sklearn_random_forest_classifier_source = \
@@ -153,4 +156,10 @@ xgboost_regressor_source = \
     """from xgboost import XGBRegressor
 
 base_learner = XGBRegressor(seed=8)
+"""
+
+identity_transformer_source = \
+    """from sklearn.preprocessing import FunctionTransformer
+
+base_learner = FunctionTransformer()
 """

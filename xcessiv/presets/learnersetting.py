@@ -27,7 +27,10 @@ __all__ = [
     'sklearn_decision_tree_regressor',
     'sklearn_linear_regression',
     'sklearn_adaboost_regressor',
-    'xgboost_regressor'
+    'xgboost_regressor',
+
+    # Transformers
+    'identity_transformer'
 ]
 
 # Classifiers
@@ -156,4 +159,11 @@ xgboost_regressor = {
     'name': 'XGBoost Regressor',
     'source': learnersource.xgboost_regressor_source,
     'meta_feature_generator': 'predict'
+}
+
+
+identity_transformer = {
+    'name': 'Identity Transformer',
+    'source': learnersource.identity_transformer_source,
+    'meta_feature_generator': 'transform'
 }
