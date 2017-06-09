@@ -61,3 +61,100 @@ class TestRecallFromPreds(unittest.TestCase):
         assert np.round(module.metric_generator(multiclass_y, multiclass_preds), 2) == 0.95
 
         del module
+
+
+class TestPrecisionFromScores(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.precision_from_scores['source'])
+
+        assert np.round(module.metric_generator(binary_y, binary_probas), 2) == 0.95
+        assert np.round(module.metric_generator(multiclass_y, multiclass_probas), 2) == 0.95
+
+        del module
+
+
+class TestPrecisionFromPreds(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.precision_from_preds['source'])
+
+        assert np.round(module.metric_generator(binary_y, binary_preds), 2) == 0.95
+        assert np.round(module.metric_generator(multiclass_y, multiclass_preds), 2) == 0.95
+
+        del module
+
+
+class TestF1ScoreFromScores(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.f1_score_from_scores['source'])
+
+        assert np.round(module.metric_generator(binary_y, binary_probas), 2) == 0.96
+        assert np.round(module.metric_generator(multiclass_y, multiclass_probas), 2) == 0.95
+
+        del module
+
+
+class TestF1ScoreFromPreds(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.f1_score_from_preds['source'])
+
+        assert np.round(module.metric_generator(binary_y, binary_preds), 2) == 0.96
+        assert np.round(module.metric_generator(multiclass_y, multiclass_preds), 2) == 0.95
+
+        del module
+
+
+class TestROCAUCFromScores(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(
+            metricsetting.roc_auc_score_from_scores['source']
+        )
+
+        assert np.round(module.metric_generator(binary_y, binary_probas), 2) == 0.99
+        assert np.round(module.metric_generator(multiclass_y, multiclass_probas), 2) == 0.99
+
+        del module
+
+
+class TestMAE(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.mae['source'])
+
+        assert np.round(module.metric_generator(regression_y, regression_preds), 2) == 6.99
+
+        del module
+
+
+class TestMSE(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.mse['source'])
+
+        assert np.round(module.metric_generator(regression_y, regression_preds), 2) == 168.09
+
+        del module
+
+
+class TestMedianAbsoluteError(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.median_absolute_error['source'])
+
+        assert np.round(module.metric_generator(regression_y, regression_preds), 2) == 3.72
+
+        del module
+
+
+class TestR2Score(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.r2_score['source'])
+
+        assert np.round(module.metric_generator(regression_y, regression_preds), 2) == -0.99
+
+        del module
+
+
+class TestExplainedVarianceScore(unittest.TestCase):
+    def test_source(self):
+        module = functions.import_string_code_as_module(metricsetting.explained_variance_score['source'])
+
+        assert np.round(module.metric_generator(regression_y, regression_preds), 2) == -0.89
+
+        del module
