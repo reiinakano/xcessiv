@@ -116,7 +116,7 @@ def return_splits_iterable(X, y):
     P=2
 
     return LeavePOut(p=P).split(X, y)
-    """
+"""
 }
 
 group_k_fold = {
