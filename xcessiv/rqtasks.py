@@ -4,14 +4,13 @@ from rq import get_current_job
 from xcessiv import functions
 from xcessiv import exceptions
 from xcessiv import models
+from xcessiv import automatedruns
 import numpy as np
 import os
 import sys
 import traceback
 from sklearn.model_selection import train_test_split
 from six import iteritems
-import numbers
-from bayes_opt import BayesianOptimization
 
 
 def extraction_data_statistics(path):
@@ -316,69 +315,14 @@ def start_automated_run(path, automated_run_id):
         session.commit()
 
         try:
-            module = functions.import_string_code_as_module(automated_run.source)
-            random_state = 8 if not hasattr(module, 'random_state') else module.random_state
-            assert module.metric_to_optimize in automated_run.base_learner_origin.metric_generators
+            if automated_run.category == 'bayes':
+                automatedruns.start_naive_bayes(automated_run, session, path)
 
-            # get non-searchable parameters
-            base_estimator = automated_run.base_learner_origin.return_estimator()
-            base_estimator.set_params(**module.default_params)
-            default_params = functions.make_serializable(base_estimator.get_params())
-            non_searchable_params = dict((key, val) for key, val in iteritems(default_params)
-                                         if key not in module.pbounds)
+            elif automated_run.category == 'tpot':
+                pass
 
-            # get already calculated base learners in search space
-            existing_base_learners = []
-            for base_learner in automated_run.base_learner_origin.base_learners:
-                if not base_learner.job_status == 'finished':
-                    continue
-                in_search_space = True
-                for key, val in iteritems(non_searchable_params):
-                    if base_learner.hyperparameters[key] != val:
-                        in_search_space = False
-                        break  # If no match, move on to the next base learner
-                if in_search_space:
-                    existing_base_learners.append(base_learner)
-
-            # build initialize dictionary
-            target = []
-            initialization_dict = dict((key, list()) for key in module.pbounds.keys())
-            for base_learner in existing_base_learners:
-                # check if base learner's searchable hyperparameters are all numerical
-                all_numerical = True
-                for key in module.pbounds.keys():
-                    if not isinstance(base_learner.hyperparameters[key], numbers.Number):
-                        all_numerical = False
-                        break
-                if not all_numerical:
-                    continue  # if there is a non-numerical hyperparameter, skip this.
-
-                for key in module.pbounds.keys():
-                    initialization_dict[key].append(base_learner.hyperparameters[key])
-                target.append(base_learner.individual_score[module.metric_to_optimize])
-            initialization_dict['target'] = target if not module.invert_metric \
-                else list(map(lambda x: -x, target))
-            print('{} existing in initialization dictionary'.
-                  format(len(initialization_dict['target'])))
-
-            # Create function to be optimized
-            func_to_optimize = return_func_to_optimize(
-                path, session, automated_run.base_learner_origin, module.default_params,
-                module.metric_to_optimize, module.invert_metric, set(module.integers)
-            )
-
-            # Create Bayes object
-            bo = BayesianOptimization(func_to_optimize, module.pbounds)
-
-            bo.initialize(initialization_dict)
-
-            np.random.seed(random_state)
-
-            bo.maximize(**module.maximize_config)
-
-            automated_run.job_status = 'finished'
-            session.add(automated_run)
-            session.commit()
+            else:
+                raise Exception('Something went wrong. Invalid category for automated run')
 
         except:
             session.rollback()
