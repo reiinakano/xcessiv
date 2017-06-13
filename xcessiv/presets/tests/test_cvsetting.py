@@ -70,6 +70,19 @@ class TestLeaveOneOut(unittest.TestCase):
         del module
 
 
+class TestLeavePOut(unittest.TestCase):
+    def setUp(self):
+        self.X, self.y = load_iris(return_X_y=True)
+
+    def test_source(self):
+        module = functions.import_string_code_as_module(cvsetting.leave_p_out['source'])
+        assert hasattr(module, 'return_splits_iterable')
+
+        list(module.return_splits_iterable(self.X, self.y))
+
+        del module
+
+
 class TestGroupKFold(unittest.TestCase):
     def setUp(self):
         self.X, self.y = load_iris(return_X_y=True)
