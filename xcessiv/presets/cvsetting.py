@@ -8,6 +8,7 @@ __all__ = [
     'shuffle_split',
     'stratified_shuffle_split',
     'leave_one_out',
+    'leave_p_out',
     'group_k_fold',
     'time_series_split'
 ]
@@ -100,6 +101,21 @@ def return_splits_iterable(X, y):
     \"\"\"
 
     return LeaveOneOut().split(X, y)
+"""
+}
+
+leave_p_out = {
+    'name': 'Leave P Out',
+    'source':
+    """from sklearn.model_selection import LeavePOut
+    
+def return_splits_iterable(X, y):
+    \"\"\" This function returns an iterable that splits the dataset, where
+    train dataset is n-p, leaving p out to test. 
+    \"\"\"
+    P=2
+
+    return LeavePOut(p=P).split(X, y)
 """
 }
 
