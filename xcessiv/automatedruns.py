@@ -1,7 +1,9 @@
 """This module contains functions for the automated runs"""
+from __future__ import absolute_import, print_function, division, unicode_literals
 from rq import get_current_job
 from xcessiv import functions
 from xcessiv import models
+from xcessiv import constants
 import numpy as np
 import os
 import sys
@@ -206,4 +208,45 @@ def start_naive_bayes(automated_run, session, path):
 
     automated_run.job_status = 'finished'
     session.add(automated_run)
+    session.commit()
+
+
+def start_tpot(automated_run, session, path):
+    """Starts a TPOT automated run that exports directly to base learner setup
+
+    Args:
+        automated_run (xcessiv.models.AutomatedRun): Automated run object
+
+        session: Valid SQLAlchemy session
+
+        path (str, unicode): Path to project folder
+    """
+    module = functions.import_string_code_as_module(automated_run.source)
+    extraction = session.query(models.Extraction).first()
+    X, y = extraction.return_train_dataset()
+
+    tpot_learner =  module.tpot_learner
+
+    tpot_learner.fit(X, y)
+
+    temp_filename = os.path.join(path, 'tpot-temp-export-{}'.format(os.getpid()))
+    tpot_learner.export(temp_filename)
+
+    with open(temp_filename) as f:
+        base_learner_source = f.read()
+
+    base_learner_source = constants.tpot_learner_docstring + base_learner_source
+
+    try:
+        os.remove(temp_filename)
+    except OSError:
+        pass
+
+    blo = models.BaseLearnerOrigin(
+        source=base_learner_source,
+        name='TPOT Learner',
+        meta_feature_generator='predict'
+    )
+
+    session.add(blo)
     session.commit()
