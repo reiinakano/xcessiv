@@ -33,7 +33,7 @@ class PyTest(TestCommand):
 
 setup(
     name='xcessiv',
-    version='0.3.8',
+    version='0.4.0.dev1',
     url='https://github.com/reiinakano/xcessiv',
     license='Apache License 2.0',
     author='Reiichiro Nakano',

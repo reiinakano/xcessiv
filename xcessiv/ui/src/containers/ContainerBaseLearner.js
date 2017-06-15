@@ -224,6 +224,11 @@ class ContainerBaseLearner extends Component {
       console.log(error.message);
       console.log(error.errMessage);
       this.refreshingAR = false;
+      this.props.addNotification({
+        title: error.message,
+        message: error.errMessage,
+        level: 'error'
+      });
     });
   }
 
