@@ -248,5 +248,8 @@ def start_tpot(automated_run, session, path):
         meta_feature_generator='predict'
     )
 
+    automated_run.job_status = 'finished'
+
     session.add(blo)
+    session.add(automated_run)
     session.commit()
