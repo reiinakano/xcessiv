@@ -9,7 +9,7 @@ import { DefaultHyperparameters } from './BaseLearnerOrigin';
 import ScrollArea from 'react-scrollbar'
 
 
-const defaultAutomatedRunSource = `random_state = 8  # Random seed
+const defaultBayesianRunSource = `random_state = 8  # Random seed
 
 # Configuration to pass to maximize()
 maximize_config = {
@@ -36,6 +36,11 @@ integers = [
 metric_to_optimize = 'Accuracy'  # metric to optimize
 
 invert_metric = False  # Whether or not to invert metric e.g. optimizing a loss
+`
+
+const defaultTpotSource = `from tpot import TPOTClassifier, TPOTRegressor
+
+tpot_learner = TPOTClassifier(generations=5, population_size=50, verbosity=2, n_jobs=-1)
 `
 
 function PreviousSource(props) {
@@ -333,11 +338,11 @@ export class RandomSearchModal extends Component {
   }
 }
 
-export class AutomatedRunModal extends Component {
+export class BayesianRunModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      source: defaultAutomatedRunSource
+      source: defaultBayesianRunSource
     };
   }
 
@@ -368,6 +373,52 @@ export class AutomatedRunModal extends Component {
             options={options}
           />
           <DefaultHyperparameters hyperparameters={this.props.hyperparameters}/>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>
+            Go
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+}
+
+export class TpotModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      source: defaultTpotSource
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.source);
+    this.props.onRequestClose();
+  }
+
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+
+    return (
+      <Modal 
+        bsSize='large'
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Generate base learner with TPOT</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{'Define your TPOT learner'}</p>
+          <CodeMirror value={this.state.source} 
+            onChange={(src) => this.setState({source: src})} 
+            options={options}
+          />
         </Modal.Body>
         <Modal.Footer>
           <Button bsStyle='primary' onClick={() => this.handleYesAndClose()}>

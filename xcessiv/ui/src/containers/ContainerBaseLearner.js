@@ -209,6 +209,9 @@ class ContainerBaseLearner extends Component {
       if (!this.refreshingBL) { 
         this.refreshBaseLearnersUntilFinished(this.props.path); 
       }
+      // Trigger a refresh of base learner origin
+      this.refreshBaseLearnerOrigins(this.props.path);
+      // If an automated run is not done, trigger a refresh in 5 seconds
       for (let obj of json) {
         if (obj.job_status === 'started' || obj.job_status === 'queued') {
           setTimeout(() => this.refreshAutomatedRunsUntilFinished(path), 5000);
@@ -272,6 +275,15 @@ class ContainerBaseLearner extends Component {
       base_learner_origin_id: bloId, 
       source: source,
       category: 'bayes'
+    };
+    this.createAutomatedRun(payload);
+  }
+
+  // Start TPOT automated run
+  startTpotRun(source) {
+    var payload = {
+      source: source,
+      category: 'tpot'
     };
     this.createAutomatedRun(payload);
   }
@@ -717,6 +729,7 @@ class ContainerBaseLearner extends Component {
           gridSearch={(id, source) => this.gridSearch(id, source)}
           randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
           startBayesianRun={(id, source) => this.startBayesianRun(id, source)}
+          startTpotRun={(source) => this.startTpotRun(source)}
           addNotification={(notif) => this.props.addNotification(notif)}
           presetBaseLearnerOrigins={this.state.presetBaseLearnerOrigins}
           presetMetricGenerators={this.state.presetMetricGenerators}

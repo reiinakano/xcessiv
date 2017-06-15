@@ -1,9 +1,17 @@
 import React, { Component } from 'react';
 import './BaseLearnerOrigin.css';
 import BaseLearnerOrigin from './BaseLearnerOrigin';
-import { Button, Glyphicon } from 'react-bootstrap';
+import { Button, Glyphicon, ButtonGroup } from 'react-bootstrap';
+import { TpotModal } from './BaseLearnerOriginModals'
 
 class ListBaseLearnerOrigin extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      showTpotModal: false
+    };
+  }
 
   getItems() {
 
@@ -33,10 +41,19 @@ class ListBaseLearnerOrigin extends Component {
     return <div className='BaseLearnerOrigin'>
       <h2>Base Learner Types</h2>
       {this.getItems()}
-      <Button block onClick={this.props.createBaseLearnerOrigin}>
-        <Glyphicon glyph="plus" />
-        {' Add new base learner origin'}
-      </Button>
+      <ButtonGroup justified>
+        <Button href="#" onClick={this.props.createBaseLearnerOrigin}>
+          <Glyphicon glyph="plus" />
+          {' Add new base learner origin'}
+        </Button>
+        <Button href="#" onClick={() => this.setState({showTpotModal: true})}>
+          <Glyphicon glyph="plus" />
+          {' Automated base learner generation with TPOT'}
+        </Button>
+      </ButtonGroup>
+      <TpotModal isOpen={this.state.showTpotModal} 
+        onRequestClose={() => this.setState({showTpotModal: false})}
+        handleYes={(source) => this.props.startTpotRun(source)} />
     </div>;
   }
 }

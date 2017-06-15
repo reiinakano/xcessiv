@@ -17,7 +17,7 @@ import { Button, ButtonToolbar, Glyphicon, Alert, Panel as BsPanel,
   MenuItem } from 'react-bootstrap';
 import { MulticlassDatasetModal, CreateBaseLearnerModal, RandomSearchModal,
   GridSearchModal, DeleteModal, FinalizeModal, PresetLearnerSettingsModal,
-  ClearModal, AutomatedRunModal } from './BaseLearnerOriginModals';
+  ClearModal, BayesianRunModal } from './BaseLearnerOriginModals';
 
 const changeableProps = [
   'name', 
@@ -138,7 +138,7 @@ class BaseLearnerOrigin extends Component {
       showCreateModal: false,
       showGridSearchModal: false,
       showRandomSearchModal: false,
-      showAutomatedRunModal: false,
+      showBayesianRunModal: false,
       activeKey: [],
       asyncStatus: '',
       errorMessage: ''
@@ -416,7 +416,7 @@ class BaseLearnerOrigin extends Component {
 
           <Button 
             disabled={!this.props.data.final}
-            onClick={() => this.setState({showAutomatedRunModal: true})}>
+            onClick={() => this.setState({showBayesianRunModal: true})}>
             Bayesian Optimization
           </Button>
 
@@ -516,8 +516,8 @@ class BaseLearnerOrigin extends Component {
             hyperparameters={this.props.data.hyperparameters} 
             previousSource={this.props.data.description.random_searches}/>
 
-          <AutomatedRunModal isOpen={this.state.showAutomatedRunModal} 
-          onRequestClose={() => this.setState({showAutomatedRunModal: false})}
+          <BayesianRunModal isOpen={this.state.showBayesianRunModal} 
+          onRequestClose={() => this.setState({showBayesianRunModal: false})}
           hyperparameters={this.props.data.hyperparameters} 
           handleYes={(source) => this.props.startBayesianRun(source)} />
           
