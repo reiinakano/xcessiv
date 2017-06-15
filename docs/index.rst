@@ -16,6 +16,7 @@ Features
 * Fully define your data source, cross-validation process, relevant metrics, and base learners with Python code
 * Any model following the Scikit-learn API can be used as a base learner
 * Task queue based architecture lets you take full advantage of multiple cores and embarrassingly parallel hyperparameter searches
+* Direct integration with `TPOT <https://github.com/rhiever/tpot>`_ for automated pipeline construction
 * Automated hyperparameter search through Bayesian optimization
 * Easy management and comparison of hundreds of different model-hyperparameter combinations
 * Automatic saving of generated secondary meta-features

@@ -66,6 +66,18 @@ class AutomatedRunsDisplay extends Component {
               flexGrow={1}
             />
             <Column
+              header={'Category'}
+              cell={(props) => {
+                return (
+                  <Cell {...props}>
+                    {automatedRunsReversed[props.rowIndex].category}
+                  </Cell>
+                )
+              }}
+              width={50}
+              flexGrow={1}
+            />
+            <Column
               header={'Base Learner Type ID'}
               cell={(props) => {
                 return (

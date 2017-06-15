@@ -228,14 +228,16 @@ class AutomatedRun(Base):
     source = Column(Text)
     job_status = Column(Text)
     job_id = Column(Text)
+    category = Column(Text)
     description = Column(JsonEncodedDict)
     base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
     base_learner_origin = relationship('BaseLearnerOrigin', back_populates='automated_runs')
 
-    def __init__(self, source, job_status, base_learner_origin):
+    def __init__(self, source, job_status, category, base_learner_origin=None):
         self.source = source
         self.job_status = job_status
         self.job_id = None
+        self.category = category
         self.description = dict()
         self.base_learner_origin = base_learner_origin
 
@@ -243,6 +245,7 @@ class AutomatedRun(Base):
     def serialize(self):
         return dict(
             id=self.id,
+            category=self.category,
             source=self.source,
             job_status=self.job_status,
             job_id=self.job_id,

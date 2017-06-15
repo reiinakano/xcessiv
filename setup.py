@@ -33,7 +33,7 @@ class PyTest(TestCommand):
 
 setup(
     name='xcessiv',
-    version='0.3.8',
+    version='0.4.0',
     url='https://github.com/reiinakano/xcessiv',
     license='Apache License 2.0',
     author='Reiichiro Nakano',
@@ -48,7 +48,8 @@ setup(
         'scikit-learn>=0.18.0',
         'scipy>=0.18.0',
         'six>=1.10.0',
-        'SQLAlchemy>=1.1.0'
+        'SQLAlchemy>=1.1.0',
+        'TPOT>=0.8'
     ],
     cmdclass={'test': PyTest},
     author_email='reiichiro.s.nakano@gmail.com',

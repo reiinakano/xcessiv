@@ -1,3 +1,4 @@
+from __future__ import absolute_import, print_function, division, unicode_literals
 from xcessiv.presets.cvsetting import k_fold
 
 
@@ -24,3 +25,11 @@ DEFAULT_EXTRACTION_TEST_DATASET = {
 DEFAULT_EXTRACTION_META_FEATURE_GENERATION = {
     "source": meta_feature_generation_default_source
 }
+
+tpot_learner_docstring = '''"""
+The following code is directly from the TPOT learner's `export` function.
+You must modify it in order to conform to the Xcessiv format.
+The only relevant lines are the lines required to define `exported_pipeline`.
+You may remove all others and rename `exported_pipeline` to `base_learner`.
+"""
+'''
