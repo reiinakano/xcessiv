@@ -10,6 +10,10 @@ Here are a few example workflows using third party libraries that work well with
 Xcessiv with TPOT
 -----------------
 
+.. admonition:: Note
+
+   As of v0.4, Xcessiv now provides direct integration with TPOT. View :ref:`TPOT base learner construction` for details. This section is kept here to demonstrate the power of stacking together different TPOT pipelines.
+
 Xcessiv is a great tool for tuning different models and pipelines and stacking them into one big ensemble, but with all the possible combinations of pipelines, where would you even begin?
 
 Enter TPOT.
