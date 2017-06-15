@@ -225,11 +225,10 @@ class ContainerBaseLearner extends Component {
   }
 
   // Create a single automated run from a base learner origin
-  createAutomatedRun(id, source) {
-    var payload = {source: source};
+  createAutomatedRun(payload) {
 
     fetch(
-      '/ensemble/base-learner-origins/' + id + '/automated-runs/?path=' + this.props.path,
+      '/ensemble/automated-runs/?path=' + this.props.path,
       {
         method: "POST",
         body: JSON.stringify( payload ),
@@ -265,6 +264,16 @@ class ContainerBaseLearner extends Component {
         level: 'error'
       });
     });
+  }
+
+  // Start bayesian optimization automated run
+  startBayesianRun(bloId, source) {
+    var payload = {
+      base_learner_origin_id: bloId, 
+      source: source,
+      category: 'bayes'
+    };
+    this.createAutomatedRun(payload);
   }
 
   // Delete a base learner in the list
@@ -707,7 +716,7 @@ class ContainerBaseLearner extends Component {
           createBaseLearner={(id, source) => this.createBaseLearner(id, source)}
           gridSearch={(id, source) => this.gridSearch(id, source)}
           randomSearch={(id, source, n) => this.randomSearch(id, source, n)}
-          createAutomatedRun={(id, source) => this.createAutomatedRun(id, source)}
+          startBayesianRun={(id, source) => this.startBayesianRun(id, source)}
           addNotification={(notif) => this.props.addNotification(notif)}
           presetBaseLearnerOrigins={this.state.presetBaseLearnerOrigins}
           presetMetricGenerators={this.state.presetMetricGenerators}

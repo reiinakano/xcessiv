@@ -519,7 +519,7 @@ class BaseLearnerOrigin extends Component {
           <AutomatedRunModal isOpen={this.state.showAutomatedRunModal} 
           onRequestClose={() => this.setState({showAutomatedRunModal: false})}
           hyperparameters={this.props.data.hyperparameters} 
-          handleYes={(source) => this.props.createAutomatedRun(source)} />
+          handleYes={(source) => this.props.startBayesianRun(source)} />
           
         </Panel>
       </Collapse>
