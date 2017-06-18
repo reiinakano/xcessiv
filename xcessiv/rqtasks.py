@@ -205,6 +205,10 @@ def start_automated_run(path, automated_run_id):
             else:
                 raise Exception('Something went wrong. Invalid category for automated run')
 
+            automated_run.job_status = 'finished'
+            session.add(automated_run)
+            session.commit()
+
         except:
             session.rollback()
             automated_run.job_status = 'errored'

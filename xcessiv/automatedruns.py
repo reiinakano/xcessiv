@@ -206,10 +206,6 @@ def start_naive_bayes(automated_run, session, path):
 
     bo.maximize(**module.maximize_config)
 
-    automated_run.job_status = 'finished'
-    session.add(automated_run)
-    session.commit()
-
 
 def start_tpot(automated_run, session, path):
     """Starts a TPOT automated run that exports directly to base learner setup
@@ -248,10 +244,7 @@ def start_tpot(automated_run, session, path):
         meta_feature_generator='predict'
     )
 
-    automated_run.job_status = 'finished'
-
     session.add(blo)
-    session.add(automated_run)
     session.commit()
 
 
@@ -366,7 +359,7 @@ def start_greedy_ensemble_search(automated_run, session, path):
 
     for i in range(module.max_num_base_learners):
         ensemble_to_append_to = best_ensemble[:]  # Shallow copy of best ensemble
-        for base_learner in models.BaseLearner.query.all():
+        for base_learner in session.query(models.BaseLearner).all():
             ensemble_to_append_to.append(base_learner)
 
             # Check if our "best ensemble" already exists
