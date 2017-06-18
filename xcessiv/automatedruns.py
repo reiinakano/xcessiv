@@ -253,3 +253,60 @@ def start_tpot(automated_run, session, path):
     session.add(blo)
     session.add(automated_run)
     session.commit()
+
+
+def start_greedy_ensemble_search(automated_run, session, path):
+    """Starts an automated ensemble search using greedy forward model selection.
+
+    The steps for this search are adapted from "Ensemble Selection from Libraries of Models" by
+    Caruana.
+
+    1. Start with the empty ensemble
+
+    2. Add to the ensemble the model in the library that maximizes the ensemmble's
+    performance on the error metric.
+
+    3. Repeat step 2 for a fixed number of iterations or until all models have been used.
+
+    Args:
+        automated_run (xcessiv.models.AutomatedRun): Automated run object
+
+        session: Valid SQLAlchemy session
+
+        path (str, unicode): Path to project folder
+    """
+    module = functions.import_string_code_as_module(automated_run.source)
+    assert module.metric_to_optimize in automated_run.base_learner_origin.metric_generators
+
+    best_score = -float('inf')  # Best metric so far
+    best_ensemble = []  # List containing IDs of best performing ensemble so far
+
+    secondary_learner = automated_run.base_learner_origin.return_estimator()
+    secondary_learner.set_params(**module.secondary_learner_hyperparameters)
+
+    for i in range(module.max_num_base_learners):
+        ensemble_to_append_to = best_ensemble[:]  # Shallow copy of best ensemble
+        for base_learner in models.BaseLearner.query.all():
+            ensemble_to_append_to.append(base_learner)
+
+            # Check if our "best ensemble" already exists
+            existing_ensemble = session.query(models.StackedEnsemble).\
+                filter_by(base_learner_origin_id=automated_run.base_learner_origin.id,
+                          secondary_learner_hyperparameters=module.secondary_learner_hyperparameters,
+                          base_learner_ids=sorted([bl.id for bl in ensemble_to_append_to])).all()
+
+            if existing_ensemble:
+                score = existing_ensemble[0].individual_score[module.metric_to_optimize]
+
+            else:
+                pass
+
+            score = -score if module.invert_metric else score
+
+            if best_score < score:
+                best_score = score
+                best_ensemble = ensemble_to_append_to[:]
+
+            ensemble_to_append_to.pop()
+        if len(best_ensemble) == i:  # Means no improvement when adding any other base learner
+            break
