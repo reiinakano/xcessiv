@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import random
 import string
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey, Table
+from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext import mutable
 import numpy as np
@@ -269,7 +269,8 @@ class AutomatedRun(Base):
 association_table = Table(
     'association', Base.metadata,
     Column('baselearner_id', Integer, ForeignKey('baselearner.id')),
-    Column('stackedensemble_id', Integer, ForeignKey('stackedensemble.id'))
+    Column('stackedensemble_id', Integer, ForeignKey('stackedensemble.id')),
+    UniqueConstraint('baselearner_id', 'stackedensemble_id', name='UC_baselearner_id_stackedensemble_id')
 )
 
 
