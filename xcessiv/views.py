@@ -439,7 +439,7 @@ def get_automated_runs():
         with functions.DBContextManager(path) as session:
             base_learner_origin = None
 
-            if req_body['category'] == 'bayes':
+            if req_body['category'] == 'bayes' or req_body['category'] == 'greedy_ensemble_search':
                 base_learner_origin = session.query(models.BaseLearnerOrigin).\
                     filter_by(id=req_body['base_learner_origin_id']).first()
                 if base_learner_origin is None:

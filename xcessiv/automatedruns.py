@@ -255,6 +255,86 @@ def start_tpot(automated_run, session, path):
     session.commit()
 
 
+def eval_stacked_ensemble(stacked_ensemble, session, path):
+    """Evaluate stacked ensemble
+
+    Args:
+        stacked_ensemble (xcessiv.models.StackedEnsemble)
+
+        session: Valid SQLAlchemy session
+
+        path (str, unicode): Path to project folder
+
+    Returns:
+        stacked_ensemble (xcessiv.models.StackedEnsemble)
+    """
+    try:
+        meta_features_list = []
+        for base_learner in stacked_ensemble.base_learners:
+            mf = np.load(base_learner.meta_features_path(path))
+            if len(mf.shape) == 1:
+                mf = mf.reshape(-1, 1)
+            meta_features_list.append(mf)
+
+        secondary_features = np.concatenate(meta_features_list, axis=1)
+
+        # Get data
+        extraction = session.query(models.Extraction).first()
+        return_splits_iterable = functions.import_object_from_string_code(
+            extraction.meta_feature_generation['source'],
+            'return_splits_iterable'
+        )
+        X, y = extraction.return_train_dataset()
+
+        #  We need to retrieve original order of meta-features
+        indices_list = [test_index for train_index, test_index in return_splits_iterable(X, y)]
+        indices = np.concatenate(indices_list)
+        X, y = X[indices], y[indices]
+
+        est = stacked_ensemble.return_secondary_learner()
+
+        return_splits_iterable_stacked_ensemble = functions.import_object_from_string_code(
+            extraction.stacked_ensemble_cv['source'],
+            'return_splits_iterable'
+        )
+        preds = []
+        trues_list = []
+        for train_index, test_index in return_splits_iterable_stacked_ensemble(secondary_features, y):
+            X_train, X_test = secondary_features[train_index], secondary_features[test_index]
+            y_train, y_test = y[train_index], y[test_index]
+            est = est.fit(X_train, y_train)
+            preds.append(
+                getattr(est, stacked_ensemble.base_learner_origin.
+                        meta_feature_generator)(X_test)
+            )
+            trues_list.append(y_test)
+        preds = np.concatenate(preds, axis=0)
+        y_true = np.concatenate(trues_list)
+
+        for key in stacked_ensemble.base_learner_origin.metric_generators:
+            metric_generator = functions.import_object_from_string_code(
+                stacked_ensemble.base_learner_origin.metric_generators[key],
+                'metric_generator'
+            )
+            stacked_ensemble.individual_score[key] = metric_generator(y_true, preds)
+
+        stacked_ensemble.job_status = 'finished'
+        session.add(stacked_ensemble)
+        session.commit()
+        return stacked_ensemble
+
+    except:
+        session.rollback()
+        stacked_ensemble.job_status = 'errored'
+        stacked_ensemble.description['error_type'] = repr(sys.exc_info()[0])
+        stacked_ensemble.description['error_value'] = repr(sys.exc_info()[1])
+        stacked_ensemble.description['error_traceback'] = \
+            traceback.format_exception(*sys.exc_info())
+        session.add(stacked_ensemble)
+        session.commit()
+        raise
+
+
 def start_greedy_ensemble_search(automated_run, session, path):
     """Starts an automated ensemble search using greedy forward model selection.
 
@@ -292,14 +372,27 @@ def start_greedy_ensemble_search(automated_run, session, path):
             # Check if our "best ensemble" already exists
             existing_ensemble = session.query(models.StackedEnsemble).\
                 filter_by(base_learner_origin_id=automated_run.base_learner_origin.id,
-                          secondary_learner_hyperparameters=module.secondary_learner_hyperparameters,
-                          base_learner_ids=sorted([bl.id for bl in ensemble_to_append_to])).all()
+                          secondary_learner_hyperparameters=secondary_learner.get_params(),
+                          base_learner_ids=sorted([bl.id for bl in ensemble_to_append_to])).first()
 
-            if existing_ensemble:
-                score = existing_ensemble[0].individual_score[module.metric_to_optimize]
+            if existing_ensemble and existing_ensemble.job_status == 'finished':
+                score = existing_ensemble.individual_score[module.metric_to_optimize]
+
+            elif existing_ensemble and existing_ensemble.job_status != 'finished':
+                eval_stacked_ensemble(existing_ensemble, session, path)
+                score = existing_ensemble.individual_score[module.metric_to_optimize]
 
             else:
-                pass
+                stacked_ensemble = models.StackedEnsemble(
+                    secondary_learner_hyperparameters=secondary_learner.get_params(),
+                    base_learners=ensemble_to_append_to,
+                    base_learner_origin=automated_run.base_learner_origin,
+                    job_status='started'
+                )
+                session.add(stacked_ensemble)
+                session.commit()
+                eval_stacked_ensemble(stacked_ensemble, session, path)
+                score = stacked_ensemble.individual_score[module.metric_to_optimize]
 
             score = -score if module.invert_metric else score
 
