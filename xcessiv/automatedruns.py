@@ -351,13 +351,13 @@ def start_greedy_ensemble_search(automated_run, session, path):
     module = functions.import_string_code_as_module(automated_run.source)
     assert module.metric_to_optimize in automated_run.base_learner_origin.metric_generators
 
-    best_score = -float('inf')  # Best metric so far
-    best_ensemble = []  # List containing IDs of best performing ensemble so far
+    best_ensemble = []  # List containing IDs of best performing ensemble for the last round
 
     secondary_learner = automated_run.base_learner_origin.return_estimator()
     secondary_learner.set_params(**module.secondary_learner_hyperparameters)
 
     for i in range(module.max_num_base_learners):
+        best_score = -float('inf')  # Best metric for this round (not in total!)
         ensemble_to_append_to = best_ensemble[:]  # Shallow copy of best ensemble
         for base_learner in session.query(models.BaseLearner).all():
             if base_learner in ensemble_to_append_to:  # Don't append when learner is already in
@@ -396,5 +396,3 @@ def start_greedy_ensemble_search(automated_run, session, path):
                 best_ensemble = ensemble_to_append_to[:]
 
             ensemble_to_append_to.pop()
-        if len(best_ensemble) == i:  # Means no improvement when adding any other base learner
-            break
