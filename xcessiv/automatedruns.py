@@ -360,6 +360,8 @@ def start_greedy_ensemble_search(automated_run, session, path):
     for i in range(module.max_num_base_learners):
         ensemble_to_append_to = best_ensemble[:]  # Shallow copy of best ensemble
         for base_learner in session.query(models.BaseLearner).all():
+            if base_learner in ensemble_to_append_to:  # Don't append when learner is already in
+                continue
             ensemble_to_append_to.append(base_learner)
 
             # Check if our "best ensemble" already exists
