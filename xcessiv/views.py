@@ -563,6 +563,13 @@ def create_new_stacked_ensemble():
             est.set_params(**params)
             hyperparameters = functions.make_serializable(est.get_params())
 
+            stacked_ensembles = session.query(models.StackedEnsemble).\
+                filter_by(base_learner_origin_id=id,
+                          secondary_learner_hyperparameters=hyperparameters,
+                          base_learner_ids=sorted([bl.id for bl in base_learners])).all()
+            if stacked_ensembles:
+                raise exceptions.UserError('Stacked ensemble exists')
+
             stacked_ensemble = models.StackedEnsemble(
                 secondary_learner_hyperparameters=hyperparameters,
                 base_learners=base_learners,
