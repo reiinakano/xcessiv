@@ -358,17 +358,17 @@ def start_greedy_ensemble_search(automated_run, session, path):
 
     for i in range(module.max_num_base_learners):
         best_score = -float('inf')  # Best metric for this round (not in total!)
-        ensemble_to_append_to = best_ensemble[:]  # Shallow copy of best ensemble
-        for base_learner in session.query(models.BaseLearner).all():
-            if base_learner in ensemble_to_append_to:  # Don't append when learner is already in
+        current_ensemble = best_ensemble[:]  # Shallow copy of best ensemble
+        for base_learner in session.query(models.BaseLearner).filter_by(job_status='finished').all():
+            if base_learner in current_ensemble:  # Don't append when learner is already in
                 continue
-            ensemble_to_append_to.append(base_learner)
+            current_ensemble.append(base_learner)
 
             # Check if our "best ensemble" already exists
             existing_ensemble = session.query(models.StackedEnsemble).\
                 filter_by(base_learner_origin_id=automated_run.base_learner_origin.id,
                           secondary_learner_hyperparameters=secondary_learner.get_params(),
-                          base_learner_ids=sorted([bl.id for bl in ensemble_to_append_to])).first()
+                          base_learner_ids=sorted([bl.id for bl in current_ensemble])).first()
 
             if existing_ensemble and existing_ensemble.job_status == 'finished':
                 score = existing_ensemble.individual_score[module.metric_to_optimize]
@@ -380,7 +380,7 @@ def start_greedy_ensemble_search(automated_run, session, path):
             else:
                 stacked_ensemble = models.StackedEnsemble(
                     secondary_learner_hyperparameters=secondary_learner.get_params(),
-                    base_learners=ensemble_to_append_to,
+                    base_learners=current_ensemble,
                     base_learner_origin=automated_run.base_learner_origin,
                     job_status='started'
                 )
@@ -393,6 +393,6 @@ def start_greedy_ensemble_search(automated_run, session, path):
 
             if best_score < score:
                 best_score = score
-                best_ensemble = ensemble_to_append_to[:]
+                best_ensemble = current_ensemble[:]
 
-            ensemble_to_append_to.pop()
+            current_ensemble.pop()
