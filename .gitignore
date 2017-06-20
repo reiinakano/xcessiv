@@ -43,3 +43,4 @@ coverage.xml
 # misc
 .DS_Store
 .env
+*~
