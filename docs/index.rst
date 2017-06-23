@@ -21,6 +21,7 @@ Features
 * Easy management and comparison of hundreds of different model-hyperparameter combinations
 * Automatic saving of generated secondary meta-features
 * Stacked ensemble creation in a few clicks
+* Automated ensemble construction through greedy forward model selection
 * Export your stacked ensemble as a standalone Python file to support multiple levels of stacking
 
 ----------------
