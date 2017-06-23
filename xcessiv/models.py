@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function, division, unicode_litera
 import random
 import string
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey, Table
+from sqlalchemy import Column, Text, Integer, Boolean, TypeDecorator, ForeignKey, Table, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext import mutable
 import numpy as np
@@ -21,6 +21,18 @@ Base = declarative_base()
 
 class JsonEncodedDict(TypeDecorator):
     """Enables JSON storage by encoding and decoding on the fly."""
+    impl = Text
+
+    def process_bind_param(self, value, dialect):
+        return json.dumps(value, sort_keys=True)
+
+    def process_result_value(self, value, dialect):
+        return json.loads(value)
+
+
+class JsonEncodedList(TypeDecorator):
+    """Enables JSON storage of list by encoding and decoding on the fly.
+     No need for mutability tracking"""
     impl = Text
 
     def process_bind_param(self, value, dialect):
@@ -257,7 +269,8 @@ class AutomatedRun(Base):
 association_table = Table(
     'association', Base.metadata,
     Column('baselearner_id', Integer, ForeignKey('baselearner.id')),
-    Column('stackedensemble_id', Integer, ForeignKey('stackedensemble.id'))
+    Column('stackedensemble_id', Integer, ForeignKey('stackedensemble.id')),
+    UniqueConstraint('baselearner_id', 'stackedensemble_id', name='UC_baselearner_id_stackedensemble_id')
 )
 
 
@@ -366,6 +379,7 @@ class StackedEnsemble(Base):
         secondary=association_table,
         back_populates='stacked_ensembles'
     )
+    base_learner_ids = Column(JsonEncodedList)
     base_learner_origin_id = Column(Integer, ForeignKey('baselearnerorigin.id'))
     base_learner_origin = relationship('BaseLearnerOrigin', back_populates='stacked_ensembles')
     secondary_learner_hyperparameters = Column(JsonEncodedDict)
@@ -383,6 +397,7 @@ class StackedEnsemble(Base):
         self.job_status = job_status
         self.job_id = None
         self.description = dict()
+        self.base_learner_ids = sorted([bl.id for bl in base_learners])
 
     def return_secondary_learner(self):
         """Returns secondary learner using its origin and the given hyperparameters

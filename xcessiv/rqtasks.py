@@ -199,8 +199,15 @@ def start_automated_run(path, automated_run_id):
             elif automated_run.category == 'tpot':
                 automatedruns.start_tpot(automated_run, session, path)
 
+            elif automated_run.category == 'greedy_ensemble_search':
+                automatedruns.start_greedy_ensemble_search(automated_run, session, path)
+
             else:
                 raise Exception('Something went wrong. Invalid category for automated run')
+
+            automated_run.job_status = 'finished'
+            session.add(automated_run)
+            session.commit()
 
         except:
             session.rollback()

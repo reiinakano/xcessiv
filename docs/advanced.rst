@@ -174,3 +174,42 @@ The ``pbounds`` variable is a dictionary that maps the hyperparameters to tune w
    }
 
 For more info on setting ``maximize_config``, please see the :func:`maximize` method of the :class:`bayes_opt.BayesianOptimization` class in the `BayesianOptimization source code <https://github.com/fmfn/BayesianOptimization/blob/master/bayes_opt/bayesian_optimization.py>`_. Seeing this `notebook example <https://github.com/fmfn/BayesianOptimization/blob/master/examples/exploitation%20vs%20exploration.ipynb>`_ will also give you some intuition on how the different acquisition function parameters ``acq``, ``kappa``, and ``xi`` affect the Bayesian search.
+
+Greedy Forward Model Selection
+------------------------------
+
+Stacking is usually reserved as the last step of the Xcessiv process, after you've squeezed out all you can from pipeline and hyperparameter optimization. When creating stacked ensembles, you can usually expect its performance to be better than any single base learner in the ensemble.
+
+The problem here lies in figuring out which base learners to include in your ensemble. Stacking together the top N base learners is a good first strategy, but not always optimal. Even if a base learner doesn't perform that well on its own, it could still provide brand new information to the secondary learner, thereby boosting the entire ensemble's performance even further. One way to look at it is that it provides the secondary learner a *new angle* to look at the problem and make better judgments moving forward.
+
+Figuring out which base learners to add to a stacked ensemble is much like hyperparameter optimization. You can't really be sure if something will work until you try it. Unfortunately, trying out every possible combination of base learners is unfeasible when you have hundreds of base learners to choose from.
+
+Xcessiv provides an automated ensemble construction method based on a heuristic process called **greedy forward model selection**. This method is adapted from `Ensemble Selection from Libraries of Models <http://www.cs.cornell.edu/~caruana/ctp/ct.papers/caruana.icml04.icdm06long.pdf>`_ by Caruana et al.
+
+In a nutshell, the algorithm is as follows:
+
+1) Start with the empty ensemble
+2) Add to the ensemble the model in the library that maximizes the ensemmble's performance on the error metric.
+3) Repeat step 2 for a fixed number of iterations or until all models have been used.
+
+That's it!
+
+To perform greedy forward model selection in Xcessiv, simply click on the **Automated ensemble search** button in the Stacked Ensemble section.
+
+Select your secondary base learner in the configuration modal (Logistic Regression is a good first choice for classification tasks) and copy the following code into the code box and click Go to start your automated run.::
+
+   secondary_learner_hyperparameters = {}  # hyperparameters of secondary learner
+
+   metric_to_optimize = 'Accuracy'  # metric to optimize
+
+   invert_metric = False  # Whether or not to invert metric e.g. optimizing a loss
+
+   max_num_base_learners = 6  # Maximum size of ensemble to consider (the higher this is, the longer the run will take)
+
+``secondary_learner_hyperparameters`` is a dictionary containing the hyperparameters for your chosen secondary learner. Again, an empty dictionary signifies default parameters.
+
+``metric_to_optimize`` and ``invert_metric`` mean the same things they do as in :ref:`Bayesian Hyperparameter Search`.
+
+``max_num_base_learners`` refers to the total number of iterations of the algorithm. As such, this also signifies the maximum number of base learners that a stacked ensemble found through this automated run can contain. Please note that the higher this number is, the longer the search will run.
+
+Unlike TPOT pipeline construction and Bayesian optimization, which both have an element of randomness, greedy forward model selection will always explore the same ensembles if the pool of base learners remains unchanged.

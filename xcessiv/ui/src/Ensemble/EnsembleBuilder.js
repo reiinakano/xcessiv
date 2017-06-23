@@ -9,6 +9,8 @@ import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
 import { Button, Glyphicon } from 'react-bootstrap';
+import FaCogs from 'react-icons/lib/fa/cogs';
+import { GreedyRunModal } from './EnsembleMoreDetailsModal'
 
 
 const defaultSourceParams = [
@@ -24,7 +26,8 @@ class EnsembleBuilder extends Component {
     super(props);
     this.state = {
       selectedValue: null,
-      source: defaultSourceParams
+      source: defaultSourceParams,
+      showGreedyModal: false
     };
   }
 
@@ -67,6 +70,7 @@ class EnsembleBuilder extends Component {
         />
         <Button 
           block
+          href="#"
           disabled={buttonDisabled}
           bsStyle='primary'
           onClick={() => this.props.createStackedEnsemble(
@@ -74,6 +78,17 @@ class EnsembleBuilder extends Component {
           <Glyphicon glyph="plus" />
           {' Create new ensemble'}
         </Button>
+        <Button 
+          block
+          onClick={() => this.setState({showGreedyModal: true})}
+        >
+          <FaCogs />
+          {' Automated ensemble search'}
+        </Button>
+        <GreedyRunModal isOpen={this.state.showGreedyModal} 
+          onRequestClose={() => this.setState({showGreedyModal: false})}
+          handleYes={(id, source) => this.props.startGreedyRun(id, source)} 
+          optionsBaseLearnerOrigins={this.props.optionsBaseLearnerOrigins}/>
       </div>
     )
   }

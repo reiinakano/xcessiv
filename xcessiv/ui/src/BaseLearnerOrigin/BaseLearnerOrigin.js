@@ -12,6 +12,7 @@ import $ from 'jquery';
 import FaCheck from 'react-icons/lib/fa/check';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle';
+import FaCogs from 'react-icons/lib/fa/cogs';
 import { Button, ButtonToolbar, Glyphicon, Alert, Panel as BsPanel,
   Form, FormGroup, ControlLabel, FormControl, DropdownButton,
   MenuItem } from 'react-bootstrap';
@@ -417,7 +418,8 @@ class BaseLearnerOrigin extends Component {
           <Button 
             disabled={!this.props.data.final}
             onClick={() => this.setState({showBayesianRunModal: true})}>
-            Bayesian Optimization
+            <FaCogs />
+            {' Bayesian Optimization'}
           </Button>
 
         </ButtonToolbar>

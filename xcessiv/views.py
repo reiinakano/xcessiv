@@ -439,7 +439,7 @@ def get_automated_runs():
         with functions.DBContextManager(path) as session:
             base_learner_origin = None
 
-            if req_body['category'] == 'bayes':
+            if req_body['category'] == 'bayes' or req_body['category'] == 'greedy_ensemble_search':
                 base_learner_origin = session.query(models.BaseLearnerOrigin).\
                     filter_by(id=req_body['base_learner_origin_id']).first()
                 if base_learner_origin is None:
@@ -554,7 +554,8 @@ def create_new_stacked_ensemble():
             base_learner_origin = session.query(models.BaseLearnerOrigin).\
                 filter_by(id=req_body['base_learner_origin_id']).first()
             if base_learner_origin is None:
-                raise exceptions.UserError('Base learner origin {} not found'.format(id), 404)
+                raise exceptions.UserError('Base learner origin {} not '
+                                           'found'.format(req_body['base_learner_origin_id']), 404)
 
             # Retrieve full hyperparameters
             est = base_learner_origin.return_estimator()
@@ -562,6 +563,13 @@ def create_new_stacked_ensemble():
                 (req_body['secondary_learner_hyperparameters_source'], 'params')
             est.set_params(**params)
             hyperparameters = functions.make_serializable(est.get_params())
+
+            stacked_ensembles = session.query(models.StackedEnsemble).\
+                filter_by(base_learner_origin_id=req_body['base_learner_origin_id'],
+                          secondary_learner_hyperparameters=hyperparameters,
+                          base_learner_ids=sorted([bl.id for bl in base_learners])).all()
+            if stacked_ensembles:
+                raise exceptions.UserError('Stacked ensemble exists')
 
             stacked_ensemble = models.StackedEnsemble(
                 secondary_learner_hyperparameters=hyperparameters,

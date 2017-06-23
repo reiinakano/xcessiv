@@ -209,6 +209,10 @@ class ContainerBaseLearner extends Component {
       if (!this.refreshingBL) { 
         this.refreshBaseLearnersUntilFinished(this.props.path); 
       }
+      // If stacked ensembles are not refreshing, trigger it
+      if (!this.refreshingSE) { 
+        this.refreshStackedEnsemblesUntilFinished(this.props.path); 
+      }
       // Trigger a refresh of base learner origin
       this.refreshBaseLearnerOrigins(this.props.path);
       // If an automated run is not done, trigger a refresh in 5 seconds
@@ -289,6 +293,16 @@ class ContainerBaseLearner extends Component {
     var payload = {
       source: source,
       category: 'tpot'
+    };
+    this.createAutomatedRun(payload);
+  }
+
+  // Start greedy forward selection
+  startGreedyRun(bloId, source) {
+    var payload = {
+      base_learner_origin_id: bloId, 
+      source: source,
+      category: 'greedy_ensemble_search'
     };
     this.createAutomatedRun(payload);
   }
@@ -758,6 +772,7 @@ class ContainerBaseLearner extends Component {
           setCheckedBaseLearners={(checkedArray) => this.setState({checkedBaseLearners: ImSet(checkedArray)})}
           createStackedEnsemble={(bloId, hp) => 
             this.createStackedEnsemble(this.state.checkedBaseLearners, bloId, hp)}
+          startGreedyRun={(id, source) => this.startGreedyRun(id, source)}
         />
         <ListEnsemble 
           path={this.props.path}

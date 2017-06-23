@@ -9,6 +9,7 @@ import FaTrash from 'react-icons/lib/fa/trash';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 import FaExclamationCircle from 'react-icons/lib/fa/exclamation-circle'
 import FaInfo from 'react-icons/lib/fa/info';
+import FaCogs from 'react-icons/lib/fa/cogs';
 import { DetailsModal, DeleteModal } from './Modals'
 
 class AutomatedRunsDisplay extends Component {
@@ -26,6 +27,8 @@ class AutomatedRunsDisplay extends Component {
       <table><tbody><tr>
         <td>
           <Button onClick={() => this.setState({open: !this.state.open})}>
+            <FaCogs />
+            {' '}
             {(this.state.open ?  'Hide' : 'Show') + ' Automated Runs'}
           </Button>
         </td>
