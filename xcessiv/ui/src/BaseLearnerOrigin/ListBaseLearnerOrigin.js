@@ -3,6 +3,7 @@ import './BaseLearnerOrigin.css';
 import BaseLearnerOrigin from './BaseLearnerOrigin';
 import { Button, Glyphicon, ButtonGroup } from 'react-bootstrap';
 import { TpotModal } from './BaseLearnerOriginModals'
+import FaCogs from 'react-icons/lib/fa/cogs';
 
 class ListBaseLearnerOrigin extends Component {
 
@@ -47,7 +48,7 @@ class ListBaseLearnerOrigin extends Component {
           {' Add new base learner origin'}
         </Button>
         <Button href="#" onClick={() => this.setState({showTpotModal: true})}>
-          <Glyphicon glyph="plus" />
+          <FaCogs />
           {' Automated base learner generation with TPOT'}
         </Button>
       </ButtonGroup>

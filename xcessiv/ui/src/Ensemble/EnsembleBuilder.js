@@ -8,7 +8,8 @@ import Select from 'react-select'
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
-import { Button, Glyphicon } from 'react-bootstrap';
+import { Button, Glyphicon, ButtonGroup } from 'react-bootstrap';
+import FaCogs from 'react-icons/lib/fa/cogs';
 
 
 const defaultSourceParams = [
@@ -67,12 +68,18 @@ class EnsembleBuilder extends Component {
         />
         <Button 
           block
+          href="#"
           disabled={buttonDisabled}
           bsStyle='primary'
           onClick={() => this.props.createStackedEnsemble(
             this.state.selectedValue.value, this.state.source)}>
           <Glyphicon glyph="plus" />
           {' Create new ensemble'}
+        </Button>
+        <Button 
+          block>
+          <FaCogs />
+          {' Automated ensemble creation'}
         </Button>
       </div>
     )
