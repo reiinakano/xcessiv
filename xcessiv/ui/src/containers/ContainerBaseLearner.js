@@ -209,6 +209,10 @@ class ContainerBaseLearner extends Component {
       if (!this.refreshingBL) { 
         this.refreshBaseLearnersUntilFinished(this.props.path); 
       }
+      // If stacked ensembles are not refreshing, trigger it
+      if (!this.refreshingSE) { 
+        this.refreshStackedEnsemblesUntilFinished(this.props.path); 
+      }
       // Trigger a refresh of base learner origin
       this.refreshBaseLearnerOrigins(this.props.path);
       // If an automated run is not done, trigger a refresh in 5 seconds

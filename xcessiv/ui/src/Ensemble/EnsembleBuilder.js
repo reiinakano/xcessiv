@@ -8,8 +8,9 @@ import Select from 'react-select'
 import CodeMirror from 'react-codemirror';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/python/python';
-import { Button, Glyphicon, ButtonGroup } from 'react-bootstrap';
+import { Button, Glyphicon } from 'react-bootstrap';
 import FaCogs from 'react-icons/lib/fa/cogs';
+import { GreedyRunModal } from './EnsembleMoreDetailsModal'
 
 
 const defaultSourceParams = [
@@ -25,7 +26,8 @@ class EnsembleBuilder extends Component {
     super(props);
     this.state = {
       selectedValue: null,
-      source: defaultSourceParams
+      source: defaultSourceParams,
+      showGreedyModal: false
     };
   }
 
@@ -77,10 +79,16 @@ class EnsembleBuilder extends Component {
           {' Create new ensemble'}
         </Button>
         <Button 
-          block>
+          block
+          onClick={() => this.setState({showGreedyModal: true})}
+        >
           <FaCogs />
-          {' Automated ensemble creation'}
+          {' Automated ensemble search'}
         </Button>
+        <GreedyRunModal isOpen={this.state.showGreedyModal} 
+          onRequestClose={() => this.setState({showGreedyModal: false})}
+          handleYes={(id, source) => this.props.startGreedyRun(id, source)} 
+          optionsBaseLearnerOrigins={this.props.optionsBaseLearnerOrigins}/>
       </div>
     )
   }

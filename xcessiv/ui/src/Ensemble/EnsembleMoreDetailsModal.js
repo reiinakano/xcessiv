@@ -3,6 +3,21 @@ import './Ensemble.css';
 import 'react-select/dist/react-select.css';
 import { Modal, Panel, Button, Alert, Form, 
   FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import CodeMirror from 'react-codemirror';
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/mode/python/python';
+import Select from 'react-select'
+import 'react-select/dist/react-select.css'
+
+
+const defaultGreedyRunSource = `secondary_learner_hyperparameters = {}  # hyperparameters of secondary learner
+
+metric_to_optimize = 'Accuracy'  # metric to optimize
+
+invert_metric = False  # Whether or not to invert metric e.g. optimizing a loss
+
+max_num_base_learners = 5  # Maximum size of ensemble to consider (the higher this is, the longer the run will take)
+`
 
 
 function DisplayError(props) {
@@ -151,6 +166,62 @@ export class ExportModal extends Component {
             this.props.onRequestClose();
           }}>
             Export as separate base learner setup
+          </Button>
+          <Button onClick={this.props.onRequestClose}>Cancel</Button>
+        </Modal.Footer>
+      </Modal>
+    )
+  }
+}
+
+export class GreedyRunModal extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      source: defaultGreedyRunSource,
+      selectedValue: null
+    };
+  }
+
+  handleYesAndClose() {
+    this.props.handleYes(this.state.selectedValue.value, this.state.source);
+    this.props.onRequestClose();
+  }
+
+  render() {
+    var options = {
+      lineNumbers: true,
+      indentUnit: 4
+    };
+
+    return (
+      <Modal 
+        bsSize='lg'
+        show={this.props.isOpen} 
+        onHide={this.props.onRequestClose}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Greedy Forward Model Selection</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{'Designate configuration for greedy forward model selection'}</p>
+          <CodeMirror value={this.state.source} 
+            onChange={(src) => this.setState({source: src})} 
+            options={options}
+          />
+          <Select
+            options={this.props.optionsBaseLearnerOrigins}
+            value={this.state.selectedValue}
+            onChange={(val) => this.setState({selectedValue: val})}
+            placeholder="Select secondary base learner to use"
+          />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            bsStyle='primary' 
+            onClick={() => this.handleYesAndClose()}
+            disabled={!this.state.selectedValue}>
+            Go
           </Button>
           <Button onClick={this.props.onRequestClose}>Cancel</Button>
         </Modal.Footer>
