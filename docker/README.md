@@ -36,7 +36,7 @@ where `/myxcessiv/myconf/` is a local directory containing the `config.py` file 
 
 ## Use docker-compose
 
-The simplest form to start Xcessiv is with docker-compose. This will start Redisi, Xcessiv and defines a shared data directory in `./data`. Simply type:
+The simplest form to start Xcessiv is with docker-compose. This will start Redis, Xcessiv and defines a shared data directory in `./data`. Simply type:
 
 `$ docker-compose up`
 
