@@ -33,3 +33,10 @@ To start Xcessiv with your own configuration file, run:
 `$ docker run -P --name='xcessiv' -v /myxcessiv/myconf/config.py:/root/.xcessiv/config.py reiinakano/xcessiv`
 
 where `/myxcessiv/myconf/` is a local directory containing the `config.py` file you want to use.
+
+## Use docker-compose
+
+The simplest form to start Xcessiv is with docker-compose. This will start Redis, Xcessiv and defines a shared data directory in `./data`. Simply type:
+
+`$ docker-compose up`
+

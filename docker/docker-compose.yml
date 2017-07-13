@@ -1,0 +1,15 @@
+version: '2'
+services:
+
+ redis:
+  image: "redis:alpine"
+
+ xcessiv:
+  image: reiinakano/xcessiv
+  command: bash -c "xcessiv -H redis -P 6379"
+  depends_on:
+   - "redis"
+  ports:
+   - "1994:1994"
+  volumes:
+   - ./data:/XcessivProjects
