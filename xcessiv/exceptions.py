@@ -12,3 +12,6 @@ class UserError(Exception):
         rv = dict(self.kwargs or ())
         rv['message'] = self.message
         return rv
+
+    def __repr__(self):
+        return self.message
