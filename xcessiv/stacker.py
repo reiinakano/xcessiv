@@ -1,8 +1,12 @@
-from sklearn.pipeline import _BasePipeline
+import sklearn
+if sklearn.__version__.startswith('0.18'):
+    from sklearn.pipeline import _BasePipeline as bp
+else:
+    from sklearn.utils.metaestimators import _BaseComposition as bp
 import numpy as np
 
 
-class XcessivStackedEnsemble(_BasePipeline):
+class XcessivStackedEnsemble(bp):
     """Contains the class for the Xcessiv stacked ensemble"""
     def __init__(self, base_learners, meta_feature_generators,
                  secondary_learner, cv_function):
