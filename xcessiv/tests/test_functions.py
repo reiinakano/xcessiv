@@ -189,14 +189,15 @@ class TestVerifyEstimatorClass(unittest.TestCase):
             'min_weight_fraction_leaf': 0.0,
             'criterion': 'gini',
             'random_state': None,
-            'min_impurity_split': 1e-07,
+            'min_impurity_split': None,
+            'min_impurity_decrease': 0.0,
             'max_features': 'auto',
             'max_depth': None,
             'class_weight': None
         }
 
     def test_non_serializable_parameters(self):
-        pipeline = Pipeline((('pca', PCA()), ('rf', RandomForestClassifier())))
+        pipeline = Pipeline([('pca', PCA()), ('rf', RandomForestClassifier())])
         performance_dict, hyperparameters = functions.verify_estimator_class(
             pipeline,
             'predict_proba',
